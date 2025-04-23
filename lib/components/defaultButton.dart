@@ -61,11 +61,7 @@ class DefaultButton extends StatelessWidget {
       );
     } else if (text.isEmpty && icon != null) {
       // Icon only
-      content = Icon(
-        icon,
-        color: iconColor,
-        size: iconSize,
-      );
+      content = Icon(icon, color: iconColor, size: iconSize);
     } else {
       // Text + Icon
       content = Row(

@@ -1,50 +1,39 @@
-import 'package:almoktar/components/colors.dart';
-import 'package:almoktar/screens/auth/code.dart';
-import 'package:almoktar/screens/auth/forgetpassword.dart';
-import 'package:almoktar/screens/auth/login.dart';
-import 'package:almoktar/screens/auth/signup.dart';
-import 'package:flutter/material.dart';
 
-void main() {
-  runApp(const MyApp());
+import 'package:almoktar/cubits/theme/theme_cubit.dart';
+import 'package:almoktar/screens/app/homepage.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final themeCubit = ThemeCubit();
+  await themeCubit.getTheme();
+
+  runApp(MyApp(themeCubit));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final ThemeCubit themeCubit;
 
-  // This widget is the root of your application.
+  MyApp(this.themeCubit);
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'almoktar',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: ColorApp.color1),
+    return BlocProvider.value(
+      value: themeCubit,
+      child: BlocBuilder<ThemeCubit, ThemeState>(
+        builder: (context, state) {
+          final themeData = themeCubit.themeData;
 
+          return MaterialApp(
+            debugShowCheckedModeBanner: false,
+            title: 'almoktar',
+            theme: themeData,
+            home: MainScreen(),
+          );
+        },
       ),
-      // home: code(email: 'sdfghjk',),
-      home:LoginPage(),
-      // home: forgetPassword(),
-      // home: forgetPassword(),
-
-
     );
   }
 }
-
-
