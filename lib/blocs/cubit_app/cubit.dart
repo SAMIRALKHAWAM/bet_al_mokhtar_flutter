@@ -15,26 +15,41 @@ class AppCubit extends Cubit<AppSates> {
 
 
   ///////////////////////Get category
-  Map<dynamic,dynamic>? cat_map;
+  dynamic selectedCategory ;
+
+  Map<dynamic, dynamic> cat_map = {};
   CategoryModel?  categoryModel;
   void category() {
 
     emit(LoadingState());
     DioHelper.getData(
-      url: baseurl + "admin/get_items?categoryId=1",
+      url: baseurl + "admin/get_categories",
     ).then((value) {
       emit(categorySuccessState());
       categoryModel = CategoryModel.fromJson(value.data);
+      print(value.toString());
 
-      cat_map?.clear(); // تفريغ القديم إذا في
+      cat_map?.clear();
       for (var item in categoryModel!.data) {
-        cat_map?[item.id] = item.name; // أو item إذا بدك تخزن الكائن كامل
+        cat_map?[item.id] = item.name;
+      }
+      print(cat_map);
+
+
+      // حدد أول عنصر تلقائي
+      if (cat_map!.isNotEmpty) {
+        selectedCategory = cat_map!.entries.first.value;
       }
 
 
 
+    }
 
-    }).catchError((error) {
+
+
+
+
+  ).catchError((error) {
       print(error.toString());
       emit((categoryErrorState()));
     });

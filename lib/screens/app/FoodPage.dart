@@ -74,6 +74,15 @@ class _FoodPageState extends State<FoodPage> {
     searchController.addListener(_applyFilters);
 
     AppCubit.get(context).category();
+    Future.delayed(Duration(milliseconds: 500), () {
+      final map = AppCubit.get(context).cat_map;
+      if (map!.isNotEmpty && selectedCategory == null) {
+        setState(() {
+          selectedCategory = map.entries.first.value;
+          _applyFilters();
+        });
+      }
+    });
 
 
 
@@ -156,7 +165,7 @@ class _FoodPageState extends State<FoodPage> {
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Row(
-                        children: AppCubit.get(context).cat_map!.entries!
+                        children: AppCubit.get(context).cat_map!.entries
                             .where((entry) => entry.value != null)
                             .map<Widget>((entry) {
                           final catName = entry.value;
@@ -169,7 +178,7 @@ class _FoodPageState extends State<FoodPage> {
                               onSelected: (_) {
                                 setState(() {
                                   selectedCategory = catName;
-                                  _applyFilters();
+                                  // _applyFilters();
                                 });
                               },
                               selectedColor: theme.colorScheme.primary,
