@@ -171,10 +171,9 @@
 //     );
 //   }
 // }
-
+import 'package:almoktar/screens/auth/signup.dart';
 import 'package:almoktar/config/theme_manager.dart';
 import 'package:almoktar/cubits/theme/theme_cubit.dart';
-import 'package:almoktar/screens/auth/signup.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../components/defaultButton.dart';
