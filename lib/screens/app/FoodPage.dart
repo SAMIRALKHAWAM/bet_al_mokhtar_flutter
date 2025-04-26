@@ -530,11 +530,9 @@ class FoodPage extends StatefulWidget {
   _FoodPageState createState() => _FoodPageState();
 }
 
-
-
 class _FoodPageState extends State<FoodPage> {
   // ثلاث تصنيفات فقط بحسب التصميم
-  final List<String> categories = ['All', 'Hamburger', 'Pizza', 'salad'];
+  final List<String> categories = ['All', 'Hamburger', 'Pizza'];
   String selectedCategory = 'All';
 
   final List<FoodItem> allFoods = [
@@ -614,6 +612,7 @@ class _FoodPageState extends State<FoodPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // عنوان الشاشة
                   CustomText(
                     text1: 'Food Menu',
                     size: 28,
