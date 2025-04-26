@@ -83,6 +83,7 @@
 // }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 import 'package:almoktar/cubits/theme/theme_cubit.dart';
+import 'package:almoktar/screens/app/FoodPage.dart';
 import 'package:almoktar/screens/auth/login.dart';
 import 'package:almoktar/screens/auth/signup.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
@@ -97,7 +98,7 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _page = 0;
   final List<Widget> _pages = [
-    LoginPage(),
+    FoodPage(),
     SignUpPage(),
     SettingsScreen(),
     LoginPage(),
@@ -126,14 +127,6 @@ class _MainScreenState extends State<MainScreen> {
                     size: 30,
                     color: themeData.colorScheme.onPrimary,
                   ),
-                  if (_page == 0)
-                    Text(
-                      "home",
-                      style: TextStyle(
-                        color: themeData.colorScheme.onPrimary,
-                        fontSize: 12,
-                      ),
-                    ),
                 ],
               ),
               Column(
@@ -144,14 +137,6 @@ class _MainScreenState extends State<MainScreen> {
                     size: 30,
                     color: themeData.colorScheme.onPrimary,
                   ),
-                  if (_page == 1)
-                    Text(
-                      "shoping",
-                      style: TextStyle(
-                        color: themeData.colorScheme.onPrimary,
-                        fontSize: 12,
-                      ),
-                    ),
                 ],
               ),
               Column(
@@ -162,14 +147,6 @@ class _MainScreenState extends State<MainScreen> {
                     size: 30,
                     color: themeData.colorScheme.onPrimary,
                   ),
-                  if (_page == 2)
-                    Text(
-                      "favorite",
-                      style: TextStyle(
-                        color: themeData.colorScheme.onPrimary,
-                        fontSize: 12,
-                      ),
-                    ),
                 ],
               ),
               Column(
@@ -180,14 +157,6 @@ class _MainScreenState extends State<MainScreen> {
                     size: 30,
                     color: themeData.colorScheme.onPrimary,
                   ),
-                  if (_page == 2)
-                    Text(
-                      "person",
-                      style: TextStyle(
-                        color: themeData.colorScheme.onPrimary,
-                        fontSize: 12,
-                      ),
-                    ),
                 ],
               ),
             ],
