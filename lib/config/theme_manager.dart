@@ -25,7 +25,8 @@ abstract class ThemeManager {
       elevation: 2,
     ),
     colorScheme: const ColorScheme.light(
-      primary: Color(0xFFE53935),
+      primary: Color(0xFFb91c1c),
+      //b91c1c
       onPrimary: Colors.white,
       secondary: Color(0xFFEF9A9A),
       surface: Color(0xFFF1F1F1),

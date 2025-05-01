@@ -1,5 +1,3 @@
-
-
 import 'package:almoktar/config/theme_manager.dart';
 import 'package:almoktar/cubits/theme/theme_cubit.dart';
 import 'package:almoktar/screens/app/FoodHamburgerPage.dart';
@@ -36,7 +34,7 @@ class FoodPage extends StatefulWidget {
 class _FoodPageState extends State<FoodPage> {
   // ثلاث تصنيفات فقط بحسب التصميم
   // final List<String> categories = ['All', 'Hamburger', 'Pizza'];
-  dynamic  selectedCategory = 'category 1';
+  dynamic selectedCategory = 'All';
 
   final List<FoodItem> allFoods = [
     FoodItem(
@@ -83,10 +81,6 @@ class _FoodPageState extends State<FoodPage> {
         });
       }
     });
-
-
-
-
   }
 
   void _applyFilters() {
@@ -119,193 +113,315 @@ class _FoodPageState extends State<FoodPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<AppCubit,AppSates>(
-      listener: (BuildContext context, state) {  },
+    return BlocConsumer<AppCubit, AppSates>(
+      listener: (BuildContext context, state) {},
       builder: (BuildContext context, state) {
         final theme = Theme.of(context);
 
-        return
-       AppCubit.get(context).categoryModel!=null ?
-         Scaffold(
-          backgroundColor: theme.scaffoldBackgroundColor,
-          body: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // عنوان الشاشة
-                  CustomText(
-                    text1: 'Food Menu',
-                    size: 28,
-                    fontWeight: FontWeight.bold,
-                    color: theme.textTheme.titleLarge?.color,
-                  ),
-                  const SizedBox(height: 8),
-                  // حقل البحث
-                  TextField(
-                    controller: searchController,
-                    decoration: InputDecoration(
-                      hintText: 'Search food...',
-                      prefixIcon: Icon(
-                        Icons.search,
-                        color: theme.iconTheme.color,
+        return AppCubit.get(context).cat_map != null
+            ? Scaffold(
+              backgroundColor: theme.scaffoldBackgroundColor,
+              body: SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // عنوان الشاشة
+                      CustomText(
+                        text1: 'Food Menu',
+                        size: 28,
+                        fontWeight: FontWeight.bold,
+                        color: theme.textTheme.titleLarge?.color,
                       ),
-                      filled: true,
-                      fillColor: theme.cardColor,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  // Chips للتصنيف
-
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                        children: AppCubit.get(context).cat_map!.entries
-                            .where((entry) => entry.value != null)
-                            .map<Widget>((entry) {
-                          final catName = entry.value;
-                          final isSelected = catName == selectedCategory;
-                          return Padding(
-                            padding: const EdgeInsets.only(right: 8.0),
-                            child: ChoiceChip(
-                              label: Text(catName),
-                              selected: isSelected,
-                              onSelected: (_) {
-                                setState(() {
-                                  selectedCategory = catName;
-                                  // _applyFilters();
-                                });
-                              },
-                              selectedColor: theme.colorScheme.primary,
-                              backgroundColor: theme.cardColor,
-                              labelStyle: TextStyle(
-                                color: isSelected
-                                    ? theme.colorScheme.onPrimary
-                                    : theme.textTheme.bodyMedium?.color,
-                              ),
-                            ),
-                          );
-                        }).toList(),
-
-                    ),
-                  ),
-
-
-
-                  const SizedBox(height: 16),
-                  // شبكة العناصر
-                  Expanded(
-                    child: GridView.builder(
-                      gridDelegate:
-                      const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        mainAxisSpacing: 16,
-                        crossAxisSpacing: 16,
-                        childAspectRatio: 0.75,
-                      ),
-                      itemCount: filteredFoods.length,
-                      itemBuilder: (context, index) {
-                        final item = filteredFoods[index];
-                        return GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => FoodHamburgerPage(item: item),
-                              ),
-                            );
-                          },
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: theme.cardColor,
-                              borderRadius: BorderRadius.circular(16),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black12,
-                                  blurRadius: 4,
-                                  offset: Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                const SizedBox(height: 8),
-                                Stack(
-                                  alignment: Alignment.topRight,
-                                  children: [
-                                    Center(
-                                      child: ClipRRect(
-                                        borderRadius: BorderRadius.circular(50),
-                                        child: Image.asset(
-                                          item.image,
-                                          height: 100,
-                                          width: 100,
-                                          fit: BoxFit.cover,
-                                        ),
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Icon(
-                                        Icons.favorite_border,
-                                        color: theme.iconTheme.color,
-                                        size: 20,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 12),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 8.0,
-                                  ),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                    CrossAxisAlignment.start,
-                                    children: [
-                                      CustomText(
-                                        text1: item.name,
-                                        size: 16,
-                                        fontWeight: FontWeight.bold,
-                                        color:
-                                        theme.textTheme.titleLarge?.color,
-                                        // maxLines: 2,
-                                      ),
-                                      const SizedBox(height: 4),
-                                      CustomText(
-                                        text1:
-                                        '\$${item.price.toStringAsFixed(2)}',
-                                        size: 14,
-                                        color: theme.colorScheme.primary,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
+                      const SizedBox(height: 8),
+                      // حقل البحث
+                      TextField(
+                        controller: searchController,
+                        decoration: InputDecoration(
+                          hintText: 'Search food...',
+                          prefixIcon: Icon(
+                            Icons.search,
+                            color: theme.iconTheme.color,
                           ),
-                        );
-                      },
+                          filled: true,
+                          fillColor: theme.cardColor,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Chips للتصنيف
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: [
+                            // أول عنصر "All"
+                            Padding(
+                              padding: const EdgeInsets.only(right: 8.0),
+                              child: ChoiceChip(
+                                label: const Text("All"),
+                                selected: selectedCategory == "All",
+                                onSelected: (_) {
+                                  setState(() {
+                                    selectedCategory = "All";
+                                    _applyFilters();
+                                  });
+                                },
+                                selectedColor: theme.colorScheme.primary,
+                                backgroundColor: theme.cardColor,
+                                labelStyle: TextStyle(
+                                  color:
+                                      selectedCategory == "All"
+                                          ? theme.colorScheme.onPrimary
+                                          : theme.textTheme.bodyMedium?.color,
+                                ),
+                              ),
+                            ),
+                            // باقي التصنيفات من الـ API
+                            ...AppCubit.get(context).cat_map!.entries
+                                .where((entry) => entry.value != null)
+                                .map<Widget>((entry) {
+                                  final catName = entry.value;
+                                  final catId = entry.key;
+
+                                  final isSelected =
+                                      catName == selectedCategory;
+                                  return Padding(
+                                    padding: const EdgeInsets.only(right: 8.0),
+                                    child: ChoiceChip(
+                                      label: Text(catName),
+                                      selected: isSelected,
+                                      onSelected: (_) {
+                                        setState(() {
+                                          selectedCategory = catName;
+                                          _applyFilters();
+                                          print(catId);
+                                        });
+                                      },
+                                      selectedColor: theme.colorScheme.primary,
+                                      backgroundColor: theme.cardColor,
+                                      labelStyle: TextStyle(
+                                        color:
+                                            isSelected
+                                                ? theme.colorScheme.onPrimary
+                                                : theme
+                                                    .textTheme
+                                                    .bodyMedium
+                                                    ?.color,
+                                      ),
+                                    ),
+                                  );
+                                })
+                                .toList(),
+                          ],
+                        ),
+                      ),
+
+                      SizedBox(height: 16),
+
+                      item_meal(selectedCategory, 1),
+
+                      // شبكة العناصر
+                      // Expanded(
+                      //   child: GridView.builder(
+                      //     gridDelegate:
+                      //     const SliverGridDelegateWithFixedCrossAxisCount(
+                      //       crossAxisCount: 2,
+                      //       mainAxisSpacing: 16,
+                      //       crossAxisSpacing: 16,
+                      //       childAspectRatio: 0.75,
+                      //     ),
+                      //     itemCount: filteredFoods.length,
+                      //     itemBuilder: (context, index) {
+                      //       final item = filteredFoods[index];
+                      //       return GestureDetector(
+                      //         onTap: () {
+                      //           Navigator.push(
+                      //             context,
+                      //             MaterialPageRoute(
+                      //               builder: (_) => FoodHamburgerPage(item: item),
+                      //             ),
+                      //           );
+                      //         },
+                      //         child: Container(
+                      //           decoration: BoxDecoration(
+                      //             color: theme.cardColor,
+                      //             borderRadius: BorderRadius.circular(16),
+                      //             boxShadow: [
+                      //               BoxShadow(
+                      //                 color: Colors.black12,
+                      //                 blurRadius: 4,
+                      //                 offset: Offset(0, 2),
+                      //               ),
+                      //             ],
+                      //           ),
+                      //           child: Column(
+                      //             crossAxisAlignment: CrossAxisAlignment.center,
+                      //             children: [
+                      //               const SizedBox(height: 8),
+                      //               Stack(
+                      //                 alignment: Alignment.topRight,
+                      //                 children: [
+                      //                   Center(
+                      //                     child: ClipRRect(
+                      //                       borderRadius: BorderRadius.circular(50),
+                      //                       child: Image.asset(
+                      //                         item.image,
+                      //                         height: 100,
+                      //                         width: 100,
+                      //                         fit: BoxFit.cover,
+                      //                       ),
+                      //                     ),
+                      //                   ),
+                      //                   Padding(
+                      //                     padding: const EdgeInsets.all(8.0),
+                      //                     child: Icon(
+                      //                       Icons.favorite_border,
+                      //                       color: theme.iconTheme.color,
+                      //                       size: 20,
+                      //                     ),
+                      //                   ),
+                      //                 ],
+                      //               ),
+                      //               const SizedBox(height: 12),
+                      //               Padding(
+                      //                 padding: const EdgeInsets.symmetric(
+                      //                   horizontal: 8.0,
+                      //                 ),
+                      //                 child: Column(
+                      //                   crossAxisAlignment:
+                      //                   CrossAxisAlignment.start,
+                      //                   children: [
+                      //                     CustomText(
+                      //                       text1: item.name,
+                      //                       size: 16,
+                      //                       fontWeight: FontWeight.bold,
+                      //                       color:
+                      //                       theme.textTheme.titleLarge?.color,
+                      //                       // maxLines: 2,
+                      //                     ),
+                      //                     const SizedBox(height: 4),
+                      //                     CustomText(
+                      //                       text1:
+                      //                       '\$${item.price.toStringAsFixed(2)}',
+                      //                       size: 14,
+                      //                       color: theme.colorScheme.primary,
+                      //                     ),
+                      //                   ],
+                      //                 ),
+                      //               ),
+                      //             ],
+                      //           ),
+                      //         ),
+                      //       );
+                      //     },
+                      //   ),
+                      // ),
+                    ],
+                  ),
+                ),
+              ),
+            )
+            : Center(child: CircularProgressIndicator());
+      },
+    );
+  }
+
+  Widget item_meal(dynamic cat_id, dynamic cat_name) {
+    final theme = Theme.of(context);
+
+    return Expanded(
+      child: GridView.builder(
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          mainAxisSpacing: 16,
+          crossAxisSpacing: 16,
+          childAspectRatio: 0.75,
+        ),
+        itemCount: filteredFoods.length,
+        itemBuilder: (context, index) {
+          final item = filteredFoods[index];
+          return GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => FoodHamburgerPage(item: item),
+                ),
+              );
+            },
+            child: Container(
+              decoration: BoxDecoration(
+                color: theme.cardColor,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black12,
+                    blurRadius: 4,
+                    offset: Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const SizedBox(height: 8),
+                  Stack(
+                    alignment: Alignment.topRight,
+                    children: [
+                      Center(
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(50),
+                          child: Image.asset(
+                            item.image,
+                            height: 100,
+                            width: 100,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Icon(
+                          Icons.favorite_border,
+                          color: theme.iconTheme.color,
+                          size: 20,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        CustomText(
+                          text1: item.name,
+                          size: 16,
+                          fontWeight: FontWeight.bold,
+                          color: theme.textTheme.titleLarge?.color,
+                          // maxLines: 2,
+                        ),
+                        const SizedBox(height: 4),
+                        CustomText(
+                          text1: '\$${item.price.toStringAsFixed(2)}',
+                          size: 14,
+                          color: theme.colorScheme.primary,
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
             ),
-          ),
-        )
-             :
-           Center(
-             child: CircularProgressIndicator(),
-           )  ;
-
-      },
-
+          );
+        },
+      ),
     );
   }
 }

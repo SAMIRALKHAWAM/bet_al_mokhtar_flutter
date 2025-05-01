@@ -6,10 +6,17 @@ import 'package:almoktar/screens/app/FoodPage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class FoodHamburgerPage extends StatelessWidget {
+class FoodHamburgerPage extends StatefulWidget {
   final FoodItem item;
 
-  const FoodHamburgerPage({Key? key, required this.item}) : super(key: key);
+   FoodHamburgerPage({Key? key, required this.item}) : super(key: key);
+
+  @override
+  State<FoodHamburgerPage> createState() => _FoodHamburgerPageState();
+}
+
+class _FoodHamburgerPageState extends State<FoodHamburgerPage> {
+  int count=1;
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +33,7 @@ class FoodHamburgerPage extends StatelessWidget {
               onPressed: () => Navigator.of(context).pop(),
             ),
             title: CustomText(
-              text1: item.name,
+              text1: widget.item.name,
               size: 20,
               fontWeight: FontWeight.bold,
               color: theme.textTheme.titleLarge?.color,
@@ -44,7 +51,7 @@ class FoodHamburgerPage extends StatelessWidget {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(20),
                         image: DecorationImage(
-                          image: AssetImage(item.image),
+                          image: AssetImage(widget.item.image),
                           fit: BoxFit.cover,
                         ),
                         boxShadow: [
@@ -63,14 +70,14 @@ class FoodHamburgerPage extends StatelessWidget {
                     children: [
                       Flexible(
                         child: CustomText(
-                          text1: item.name,
+                          text1: widget.item.name,
                           size: 24,
                           fontWeight: FontWeight.bold,
                           color: theme.textTheme.titleLarge?.color,
                         ),
                       ),
                       CustomText(
-                        text1: '\$${item.price.toStringAsFixed(2)}',
+                        text1: '\$${widget.item.price.toStringAsFixed(2)}',
                         size: 22,
                         fontWeight: FontWeight.bold,
                         color: theme.colorScheme.primary,
@@ -80,7 +87,7 @@ class FoodHamburgerPage extends StatelessWidget {
                   const SizedBox(height: 12),
                   CustomText(
                     text1:
-                        'A delicious ${item.name.toLowerCase()} with fresh ingredients and our special sauce.',
+                        'A delicious ${widget.item.name.toLowerCase()} with fresh ingredients and our special sauce.',
                     size: 16,
                     color: theme.textTheme.bodyMedium?.color,
                   ),
@@ -103,14 +110,26 @@ class FoodHamburgerPage extends StatelessWidget {
                           children: [
                             IconButton(
                               icon: Icon(Icons.remove),
-                              onPressed: () {},
+                              onPressed: () {
+                                setState(() {
+                                  if (count>1) {
+                                    count=count-1;
+                                  }
+                                });
+
+                              },
                             ),
                             CustomText(
-                              text1: '1',
+                              text1: "$count",
                               size: 16,
                               color: theme.textTheme.bodyMedium?.color,
                             ),
-                            IconButton(icon: Icon(Icons.add), onPressed: () {}),
+                            IconButton(icon: Icon(Icons.add), onPressed: () {
+                              setState(() {
+                                count=count+1;
+                              });
+
+                            }),
                           ],
                         ),
                       ),

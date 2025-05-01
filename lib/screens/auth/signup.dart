@@ -323,6 +323,8 @@ class SignUpPage extends StatelessWidget {
                                     ),
                                     TextButtonCustom(
                                       text: 'Login',
+                                      backgroundColor: Colors.black.withOpacity(0.0),
+
                                       onTap: () {
                                         Navigator.push(
                                           context,

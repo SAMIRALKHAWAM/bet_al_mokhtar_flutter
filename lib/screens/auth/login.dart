@@ -174,6 +174,7 @@
 
 import 'package:almoktar/config/theme_manager.dart';
 import 'package:almoktar/cubits/theme/theme_cubit.dart';
+import 'package:almoktar/screens/app/layout.dart';
 import 'package:almoktar/screens/auth/signup.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -234,7 +235,7 @@ class LoginPage extends StatelessWidget {
                         ),
                         const SizedBox(height: 10),
                         CustomText(
-                          text1: "Welcome back 👋👋🏻",
+                          text1: "Welcome back 👋👋",
                           size: 18,
                           color: theme.colorScheme.onPrimary,
                         ),
@@ -290,6 +291,7 @@ class LoginPage extends StatelessWidget {
                                     color: theme.colorScheme.secondary,
                                     size: 14,
                                     padding: EdgeInsets.zero,
+                                    backgroundColor: Colors.black.withOpacity(0.0),
                                   ),
                                 ),
                                 const SizedBox(height: 30),
@@ -297,6 +299,13 @@ class LoginPage extends StatelessWidget {
                                   onTap: () {
                                     if (formKey.currentState!.validate()) {
                                       print("Logged in successfully");
+
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                          builder: (context) => LayoutScreen(),
+                                    ),
+                                      );
                                     }
                                   },
                                   text: 'Login',
@@ -316,6 +325,8 @@ class LoginPage extends StatelessWidget {
                                     ),
                                     TextButtonCustom(
                                       text: 'Sign Up',
+                                      backgroundColor: Colors.black.withOpacity(0.0),
+
                                       onTap: () {
                                         Navigator.push(
                                           context,
@@ -330,27 +341,7 @@ class LoginPage extends StatelessWidget {
                                     ),
                                   ],
                                 ),
-                                ListTile(
-                                  leading: Icon(
-                                    BlocProvider.of<ThemeCubit>(context).isDark
-                                        ? Icons.dark_mode
-                                        : Icons.light_mode,
-                                  ),
-                                  title: Text(
-                                    'theme',
-                                    style:
-                                        Theme.of(
-                                          context,
-                                        ).textTheme.displayLarge,
-                                  ),
-                                  onTap: () {
-                                    // عند الضغط على Settings، تغيير الثيم
-                                    BlocProvider.of<ThemeCubit>(
-                                      context,
-                                    ).switchTheme();
-                                    // Navigator.pop(context); // إغلاق الـ Drawer بعد التغيير
-                                  },
-                                ),
+
                               ],
                             ),
                           ),
