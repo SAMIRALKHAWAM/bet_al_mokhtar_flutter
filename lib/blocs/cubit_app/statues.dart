@@ -5,3 +5,10 @@ class AppInitialState extends AppSates{}
 class LoadingState extends AppSates{}
 class categorySuccessState extends AppSates{}
 class categoryErrorState extends AppSates{}
+
+
+class MealSuccessState extends AppSates{}
+class MealErrorState extends AppSates{}
+
+class MealInfoSuccessState extends AppSates{}
+class MealInfoErrorState extends AppSates{}

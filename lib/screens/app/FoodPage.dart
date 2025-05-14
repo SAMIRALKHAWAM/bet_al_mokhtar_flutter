@@ -72,6 +72,10 @@ class _FoodPageState extends State<FoodPage> {
     searchController.addListener(_applyFilters);
 
     AppCubit.get(context).category();
+    AppCubit.get(context).MealAll();
+    // AppCubit.get(context).Meal();
+
+
     Future.delayed(Duration(milliseconds: 500), () {
       final map = AppCubit.get(context).cat_map;
       if (map!.isNotEmpty && selectedCategory == null) {
@@ -118,7 +122,7 @@ class _FoodPageState extends State<FoodPage> {
       builder: (BuildContext context, state) {
         final theme = Theme.of(context);
 
-        return AppCubit.get(context).cat_map != null
+        return AppCubit.get(context).cat_map != null &&  AppCubit.get(context).mealAllModel != null
             ? Scaffold(
               backgroundColor: theme.scaffoldBackgroundColor,
               body: SafeArea(
@@ -168,6 +172,7 @@ class _FoodPageState extends State<FoodPage> {
                                 onSelected: (_) {
                                   setState(() {
                                     selectedCategory = "All";
+                                    AppCubit.get(context).MealAll();
                                     _applyFilters();
                                   });
                                 },
@@ -198,7 +203,9 @@ class _FoodPageState extends State<FoodPage> {
                                       onSelected: (_) {
                                         setState(() {
                                           selectedCategory = catName;
-                                          _applyFilters();
+                                          AppCubit.get(context).Meal(catId);
+
+                                          // _applyFilters();
                                           print(catId);
                                         });
                                       },
@@ -223,7 +230,7 @@ class _FoodPageState extends State<FoodPage> {
 
                       SizedBox(height: 16),
 
-                      item_meal(selectedCategory, 1),
+                      item_meal(AppCubit.get(context).mealAllModel!.data, 1),
 
                       // شبكة العناصر
                       // Expanded(
@@ -331,7 +338,7 @@ class _FoodPageState extends State<FoodPage> {
     );
   }
 
-  Widget item_meal(dynamic cat_id, dynamic cat_name) {
+  Widget item_meal(dynamic meal, dynamic cat_name) {
     final theme = Theme.of(context);
 
     return Expanded(
@@ -342,11 +349,13 @@ class _FoodPageState extends State<FoodPage> {
           crossAxisSpacing: 16,
           childAspectRatio: 0.75,
         ),
-        itemCount: filteredFoods.length,
+        itemCount: meal.length,
         itemBuilder: (context, index) {
           final item = filteredFoods[index];
           return GestureDetector(
             onTap: () {
+              AppCubit.get(context).get_one_item(meal[index].id);
+
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -373,17 +382,17 @@ class _FoodPageState extends State<FoodPage> {
                   Stack(
                     alignment: Alignment.topRight,
                     children: [
-                      Center(
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(50),
-                          child: Image.asset(
-                            item.image,
-                            height: 100,
-                            width: 100,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
+                      // Center(
+                      //   child: ClipRRect(
+                      //     borderRadius: BorderRadius.circular(50),
+                      //     child: Image.asset(
+                      //       item.image,
+                      //       height: 100,
+                      //       width: 100,
+                      //       fit: BoxFit.cover,
+                      //     ),
+                      //   ),
+                      // ),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Icon(
@@ -401,7 +410,7 @@ class _FoodPageState extends State<FoodPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         CustomText(
-                          text1: item.name,
+                          text1: meal[index].name,
                           size: 16,
                           fontWeight: FontWeight.bold,
                           color: theme.textTheme.titleLarge?.color,
@@ -409,7 +418,7 @@ class _FoodPageState extends State<FoodPage> {
                         ),
                         const SizedBox(height: 4),
                         CustomText(
-                          text1: '\$${item.price.toStringAsFixed(2)}',
+                          text1: '\$${meal[index].price.toStringAsFixed(2)}',
                           size: 14,
                           color: theme.colorScheme.primary,
                         ),
