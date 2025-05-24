@@ -253,7 +253,7 @@ class _FoodPageState extends State<FoodPage> {
         ),
         itemCount: meal.length,
         itemBuilder: (context, index) {
-          final item = filteredFoods[index];
+          // final item = filteredFoods[index];
           return GestureDetector(
             onTap: () {
               AppCubit.get(context).get_one_item(meal[index].id);
@@ -261,7 +261,8 @@ class _FoodPageState extends State<FoodPage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => FavoritesPage(),
+                  // builder: (_) => FavoritesPage(),
+                   builder: (_) => FoodHamburgerPage(item: meal[index].id),
                   //  builder: (_) => FoodHamburgerPage(item: null,),
                 ),
               );
@@ -288,12 +289,12 @@ class _FoodPageState extends State<FoodPage> {
                       Center(
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(50),
-                          child: Image.asset(
-                            item.image,
-                            height: 100,
-                            width: 100,
-                            fit: BoxFit.cover,
-                          ),
+                          // child: Image.asset(
+                          //   item.image,
+                          //   height: 100,
+                          //   width: 100,
+                          //   fit: BoxFit.cover,
+                          // ),
                         ),
                       ),
                       Padding(

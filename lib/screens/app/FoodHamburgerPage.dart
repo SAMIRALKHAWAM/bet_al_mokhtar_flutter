@@ -10,9 +10,24 @@ import 'package:almoktar/screens/app/FoodPage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+String getFullImageUrl(String? path) {
+  if (path == null || path.isEmpty) {
+    return 'https://via.placeholder.com/150';
+  }
+
+  if (path.startsWith('http')) {
+    // إذا path هو رابط كامل، رجعه كما هو
+    return path;
+  }
+
+  const String baseUrl = "http://127.0.0.1:8000";
+  return "$baseUrl$path";
+}
+
+
 class FoodHamburgerPage extends StatefulWidget {
-  // final FoodItem item;
-   final Datumm item;
+  final dynamic item;
+  //  final Datumm item;
   FoodHamburgerPage({Key? key, required this.item}) : super(key: key);
 
   @override
@@ -59,19 +74,22 @@ class _FoodHamburgerPageState extends State<FoodHamburgerPage> {
                             borderRadius: BorderRadius.circular(20),
                             image: DecorationImage(
                               image: NetworkImage(
-                                data
-                                        .get_one_item_model!
-                                        .data
-                                        .itemImages
-                                        .isNotEmpty
-                                    ? data
-                                        .get_one_item_model!
-                                        .data
-                                        .itemImages
-                                        .first
-                                        .image
-                                    : 'https://via.placeholder.com/150',
+                                getFullImageUrl(
+                                  data
+                                          .get_one_item_model!
+                                          .data
+                                          .itemImages
+                                          .isNotEmpty
+                                      ? data
+                                          .get_one_item_model!
+                                          .data
+                                          .itemImages
+                                          .first
+                                          .image
+                                      : null,
+                                ),
                               ),
+                              fit: BoxFit.cover,
                             ),
                             boxShadow: [
                               BoxShadow(

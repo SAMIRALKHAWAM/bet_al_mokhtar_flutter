@@ -60,13 +60,13 @@ class FavoritesPage extends StatelessWidget {
                   subtitle: Text('\$${meal.price.toStringAsFixed(2)}'),
                   trailing: AnimatedFavoriteIcon(),
                   onTap: () {
-                    AppCubit.get(context).get_one_item(meal.id);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => FoodHamburgerPage(item: meal),
-                      ),
-                    );
+                    // AppCubit.get(context).get_one_item(meal.id);
+                    // Navigator.push(
+                    //   context,
+                    //   MaterialPageRoute(
+                    //     builder: (_) => FoodHamburgerPage(item: meal),
+                    //   ),
+                    // );
                   },
                 );
               },
