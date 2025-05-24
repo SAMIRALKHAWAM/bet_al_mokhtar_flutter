@@ -4,13 +4,15 @@ import 'package:almoktar/components/defaultButton.dart';
 import 'package:almoktar/components/text.dart';
 import 'package:almoktar/config/theme_manager.dart';
 import 'package:almoktar/cubits/theme/theme_cubit.dart';
+import 'package:almoktar/models/mealModels.dart';
+// import 'package:almoktar/models/FoodItem.dart';
 import 'package:almoktar/screens/app/FoodPage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class FoodHamburgerPage extends StatefulWidget {
-  final FoodItem item;
-
+  // final FoodItem item;
+   final Datumm item;
   FoodHamburgerPage({Key? key, required this.item}) : super(key: key);
 
   @override
@@ -56,8 +58,20 @@ class _FoodHamburgerPageState extends State<FoodHamburgerPage> {
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(20),
                             image: DecorationImage(
-                              image: AssetImage(widget.item.image),
-                              fit: BoxFit.cover,
+                              image: NetworkImage(
+                                data
+                                        .get_one_item_model!
+                                        .data
+                                        .itemImages
+                                        .isNotEmpty
+                                    ? data
+                                        .get_one_item_model!
+                                        .data
+                                        .itemImages
+                                        .first
+                                        .image
+                                    : 'https://via.placeholder.com/150',
+                              ),
                             ),
                             boxShadow: [
                               BoxShadow(

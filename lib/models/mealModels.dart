@@ -12,7 +12,7 @@ class MealModel {
   bool success;
   String message;
   int code;
-  List<Datum> data;
+  List<Datumm> data;
 
   MealModel({
     required this.success,
@@ -25,7 +25,7 @@ class MealModel {
     success: json["success"],
     message: json["message"],
     code: json["code"],
-    data: List<Datum>.from(json["data"].map((x) => Datum.fromJson(x))),
+    data: List<Datumm>.from(json["data"].map((x) => Datumm.fromJson(x))),
   );
 
   Map<String, dynamic> toJson() => {
@@ -36,14 +36,14 @@ class MealModel {
   };
 }
 
-class Datum {
+class Datumm {
   int id;
   int categoryId;
   String name;
   int price;
   List<ItemImage> itemImages;
 
-  Datum({
+  Datumm({
     required this.id,
     required this.categoryId,
     required this.name,
@@ -51,12 +51,14 @@ class Datum {
     required this.itemImages,
   });
 
-  factory Datum.fromJson(Map<String, dynamic> json) => Datum(
+  factory Datumm.fromJson(Map<String, dynamic> json) => Datumm(
     id: json["id"],
     categoryId: json["category_id"],
     name: json["name"],
     price: json["price"],
-    itemImages: List<ItemImage>.from(json["item_images"].map((x) => ItemImage.fromJson(x))),
+    itemImages: List<ItemImage>.from(
+      json["item_images"].map((x) => ItemImage.fromJson(x)),
+    ),
   );
 
   Map<String, dynamic> toJson() => {
@@ -72,18 +74,10 @@ class ItemImage {
   int id;
   String image;
 
-  ItemImage({
-    required this.id,
-    required this.image,
-  });
+  ItemImage({required this.id, required this.image});
 
-  factory ItemImage.fromJson(Map<String, dynamic> json) => ItemImage(
-    id: json["id"],
-    image: json["image"],
-  );
+  factory ItemImage.fromJson(Map<String, dynamic> json) =>
+      ItemImage(id: json["id"], image: json["image"]);
 
-  Map<String, dynamic> toJson() => {
-    "id": id,
-    "image": image,
-  };
+  Map<String, dynamic> toJson() => {"id": id, "image": image};
 }

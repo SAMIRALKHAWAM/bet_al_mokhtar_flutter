@@ -1,5 +1,8 @@
 import 'package:almoktar/cubits/theme/theme_cubit.dart';
+import 'package:almoktar/screens/app/CartPage.dart';
+import 'package:almoktar/screens/app/FavPage.dart';
 import 'package:almoktar/screens/app/FoodPage.dart';
+import 'package:almoktar/screens/auth/ProfileFormPage.dart';
 import 'package:almoktar/screens/auth/login.dart';
 import 'package:almoktar/screens/auth/signup.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
@@ -15,9 +18,10 @@ class _LayoutScreenState extends State<LayoutScreen> {
   int _page = 0;
   final List<Widget> _pages = [
     FoodPage(),
-    SignUpPage(),
-    SettingsScreen(),
-    LoginPage(),
+    CartPage(),
+    // SettingsScreen(),
+    FavoritesPage(),
+    ProfileFormPage(),
   ];
 
   @override
@@ -103,7 +107,9 @@ class SettingsScreen extends StatelessWidget {
           children: [
             Text(
               "Setting",
-              style: TextStyle(color: Theme.of(context).colorScheme.onBackground),
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onBackground,
+              ),
             ),
             ListTile(
               leading: Icon(
@@ -113,20 +119,14 @@ class SettingsScreen extends StatelessWidget {
               ),
               title: Text(
                 'theme',
-                style:
-                Theme.of(
-                  context,
-                ).textTheme.displayLarge,
+                style: Theme.of(context).textTheme.displayLarge,
               ),
               onTap: () {
                 // عند الضغط على Settings، تغيير الثيم
-                BlocProvider.of<ThemeCubit>(
-                  context,
-                ).switchTheme();
+                BlocProvider.of<ThemeCubit>(context).switchTheme();
                 // Navigator.pop(context); // إغلاق الـ Drawer بعد التغيير
               },
             ),
-
           ],
         ),
       ),
