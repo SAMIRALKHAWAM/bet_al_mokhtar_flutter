@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "658947291088",
+    "project_id": "betalmoktar",
+    "storage_bucket": "betalmoktar.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:658947291088:android:0b1dc734fa18c457ea6bd5",
+        "android_client_info": {
+          "package_name": "com.example.almoktar"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCM5sZ-hbAJmHNarNRuBZd1P2VCrKry540"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
