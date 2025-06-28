@@ -7,19 +7,27 @@ class AppInitialState extends AppSates {}
 class LoadingState extends AppSates {}
 
 class categorySuccessState extends AppSates {}
-
 class categoryErrorState extends AppSates {}
 
 class MealSuccessState extends AppSates {}
-
 class MealErrorState extends AppSates {}
 
 class MealInfoSuccessState extends AppSates {}
-
 class MealInfoErrorState extends AppSates {}
 
-class FavoritesSuccess extends AppSates {}
+class offerSuccessState extends AppSates {}
+class offerErrorState extends AppSates {}
 
+class addcartSuccessState extends AppSates {}
+class addcartErrorState extends AppSates {}
+
+class tableSuccessState extends AppSates {}
+class tableErrorState extends AppSates {}
+
+
+
+
+class FavoritesSuccess extends AppSates {}
 class FavoritesError extends AppSates {}
 
 // حالة جديدة عند تحديث قائمة المفضلات

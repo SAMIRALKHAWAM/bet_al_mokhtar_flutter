@@ -3,7 +3,9 @@ import 'package:almoktar/screens/app/OrderHistoryPage.dart';
 import 'package:almoktar/screens/app/OrderTrackingPage.dart';
 import 'package:almoktar/screens/app/ProductPage.dart';
 import 'package:almoktar/screens/app/TableBookingPage.dart';
+import 'package:almoktar/screens/app/emp.dart';
 import 'package:almoktar/screens/app/homepage.dart';
+import 'package:almoktar/screens/app/table.dart';
 import 'package:almoktar/screens/auth/ProfileFormPage.dart';
 import 'package:almoktar/screens/auth/login.dart';
 import 'package:almoktar/screens/auth/profile.dart';
@@ -45,7 +47,7 @@ class MyApp extends StatelessWidget {
               debugShowCheckedModeBanner: false,
               title: 'almoktar',
               theme: themeData,
-              home: LoginPage(),
+              home: ResponsiveTablesScreen(),
 
               // home: ProfileFormPage(),
                 // home:   TableBookingPage(),

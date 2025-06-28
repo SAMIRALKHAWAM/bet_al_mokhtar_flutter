@@ -6,8 +6,10 @@ import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../models/category_models.dart';
+import '../../models/get_offers_model.dart';
 import '../../models/mealModels.dart';
 import '../../models/get_one_itemModel.dart';
+import '../../models/table_model.dart';
 import '../../network/dio_helper.dart';
 import '../../network/end_point.dart';
 
@@ -169,6 +171,74 @@ class AppCubit extends Cubit<AppSates> {
   void setPreparing() => emit(OrderPreparing());
   void setOnTheWay() => emit(OrderOnTheWay());
   void setDelivered() => emit(OrderDelivered());
+
+
+  //////////////////////////////////////////// Table
+
+  TableResponse ? Table_model;
+  void Table_get() {
+    emit(LoadingState());
+    DioHelper.getData(url: baseurl + "get_tables?branchId=1&available=1")
+        .then((value) {
+      emit(tableSuccessState());
+      Table_model = TableResponse.fromJson(value.data);
+
+      print(value.data.toString());
+    })
+        .catchError((error) {
+      print(error.toString());
+      emit((tableErrorState()));
+    });
+  }
+
+  /////////////////////////////////////////////  OFFER
+
+
+  OfferResponse? Offer_response;
+  void OfferAll() {
+    emit(LoadingState());
+    DioHelper.getData(url: baseurl + "get_offers?branchId=1&active=1")
+        .then((value) {
+      emit(offerSuccessState());
+      Offer_response = OfferResponse.fromJson(value.data);
+
+      print(value.data.toString());
+    })
+        .catchError((error) {
+      print(error.toString());
+      emit((offerErrorState()));
+    });
+  }
+
+///////////////////////////////////////////////  add cart
+  void create_internal_order({
+    required  table_id,
+    required  branch_id,
+    required  waiter_id,
+    required  items,
+    required  offers,
+  }) {
+    emit(LoadingState());
+
+    DioHelper.postData(
+      url: baseurl + "create_internal_order",
+      data: {
+        "table_id": table_id,
+        "branch_id": branch_id,
+        "waiter_id": waiter_id,
+        "items": items,
+        "offers": offers,
+      },
+    ).then((value) {
+      emit(addcartSuccessState());
+      print(value.data);
+    }).catchError((error) {
+      print(error);
+      emit(addcartErrorState());
+    });
+  }
+
+
 
 }
 
