@@ -1,22 +1,97 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import '../../blocs/cubit_app/cubit.dart';
+import '../../blocs/cubit_app/statues.dart';
 import '../../components/colors.dart';
 import '../../models/get_offers_model.dart';
 import '../../models/mealModels.dart';
 
+
+
+// --- إضافة ExpansionTile مخصصة مع أيقونة القلم تظهر فقط عند التوسيع ---
+class EditableExpansionTile extends StatefulWidget {
+  final String title;
+  final List<Widget> children;
+  final dynamic invoice;
+  final dynamic oldOrder;
+  final void Function(dynamic oldOrder)? onAddOldOrderToCart;
+
+  const EditableExpansionTile({
+    required this.title,
+    required this.children,
+    required this.invoice,
+    this.oldOrder,
+    this.onAddOldOrderToCart,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  _EditableExpansionTileState createState() => _EditableExpansionTileState();
+}
+
+class _EditableExpansionTileState extends State<EditableExpansionTile> {
+  bool _isExpanded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // AppCubit.get(context).get_one_invoice(invoice_id: widget.invoice);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isPending = widget.oldOrder != null && widget.oldOrder.status == 'pending';
+
+    return Card(
+      margin: EdgeInsets.symmetric(vertical: 6),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+      elevation: 3,
+      child: ExpansionTile(
+        title: Row(
+          children: [
+            Expanded(child: Text(widget.title)),
+            if (_isExpanded && isPending)
+              IconButton(
+                icon: Icon(Icons.edit, color: ColorApp.accent),
+                tooltip: 'تعديل الطلب',
+                onPressed: () {
+                  if (widget.onAddOldOrderToCart != null && widget.oldOrder != null) {
+                    widget.onAddOldOrderToCart!(widget.oldOrder);
+                  }
+                },
+              ),
+          ],
+        ),
+        children: widget.children,
+        onExpansionChanged: (expanded) {
+          setState(() {
+            _isExpanded = expanded;
+          });
+        },
+      ),
+    );
+  }
+}
+
+// --- نهاية إضافة الـ ExpansionTile المخصصة ---
+
 class WaiterOrderInterface extends StatefulWidget {
   final dynamic table_id;
+  final dynamic table_num;
+  final dynamic invoice_id;
 
-  WaiterOrderInterface(this.table_id, {Key? key}) : super(key: key);
+  WaiterOrderInterface(this.table_id,this.table_num,this.invoice_id, {Key? key}) : super(key: key);
 
   @override
   _WaiterOrderInterfaceState createState() => _WaiterOrderInterfaceState();
 }
 
 class _WaiterOrderInterfaceState extends State<WaiterOrderInterface> with SingleTickerProviderStateMixin {
-  Map<String, Map<String, dynamic>> cart = {};
-  Map<int, Map<String, dynamic>> selectedOffers = {};
+  Map<String, Map<String, dynamic>> mealsCart = {}; // سلة الوجبات
+  Map<String, Map<String, dynamic>> offersCart = {}; // سلة العروض
   Map<int, List<Datumm>> mealsByCategory = {};
 
   late TabController _tabController;
@@ -28,14 +103,9 @@ class _WaiterOrderInterfaceState extends State<WaiterOrderInterface> with Single
     cubit.category();
     cubit.MealAll();
     cubit.OfferAll();
+    // cubit.get_one_invoice(invoice_id: widget.invoice_id);
 
     _tabController = TabController(length: 2, vsync: this);
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
   }
 
   void groupMealsByCategory(List<Datumm> meals) {
@@ -46,66 +116,71 @@ class _WaiterOrderInterfaceState extends State<WaiterOrderInterface> with Single
     }
   }
 
-  void addToCart(int mealId, String mealName, num price) {
-    setState(() {
-      cart.update(mealName, (existing) {
-        existing['quantity'] += 1;
-        return existing;
-      }, ifAbsent: () => {'quantity': 1, 'price': price, 'id': mealId});
-    });
-  }
+  // key فريد لكل عنصر في السلة: id + نوع
+  String _generateCartKey(int id, String type) => "$type-$id";
 
-  void removeFromCart(String mealName) {
+  void addToCart(int id, String name, num price, String type) {
+    final key = _generateCartKey(id, type);
     setState(() {
-      cart.remove(mealName);
-    });
-  }
-
-  void updateQuantity(String mealName, int quantity) {
-    if (quantity <= 0) {
-      removeFromCart(mealName);
-    } else {
-      setState(() {
-        cart[mealName]!['quantity'] = quantity;
-      });
-    }
-  }
-
-  void addOfferToCart(Offer offer) {
-    setState(() {
-      if (selectedOffers.containsKey(offer.id)) {
-        selectedOffers[offer.id]!['quantity'] += 1;
-      } else {
-        selectedOffers[offer.id] = {'offer': offer, 'quantity': 1};
+      if (type == "meal") {
+        if (mealsCart.containsKey(key)) {
+          mealsCart[key]!['quantity'] += 1;
+        } else {
+          mealsCart[key] = {
+            'id': id,
+            'name': name,
+            'price': price,
+            'quantity': 1,
+            'type': type,
+          };
+        }
+      } else if (type == "offer") {
+        if (offersCart.containsKey(key)) {
+          offersCart[key]!['quantity'] += 1;
+        } else {
+          offersCart[key] = {
+            'id': id,
+            'name': name,
+            'price': price,
+            'quantity': 1,
+            'type': type,
+          };
+        }
       }
     });
   }
 
-  void removeOfferFromCart(int offerId) {
+  void removeFromCart(String key, String type) {
     setState(() {
-      selectedOffers.remove(offerId);
+      if (type == "meal") {
+        mealsCart.remove(key);
+      } else if (type == "offer") {
+        offersCart.remove(key);
+      }
     });
   }
 
-  void updateOfferQuantity(int offerId, int quantity) {
+  void updateQuantity(String key, int quantity, String type) {
     if (quantity <= 0) {
-      removeOfferFromCart(offerId);
+      removeFromCart(key, type);
     } else {
       setState(() {
-        selectedOffers[offerId]!['quantity'] = quantity;
+        if (type == "meal") {
+          mealsCart[key]!['quantity'] = quantity;
+        } else if (type == "offer") {
+          offersCart[key]!['quantity'] = quantity;
+        }
       });
     }
   }
 
   num getTotalPrice() {
     num total = 0;
-    cart.forEach((_, value) {
+    mealsCart.forEach((_, value) {
       total += value['price'] * value['quantity'];
     });
-    selectedOffers.forEach((_, value) {
-      final offer = value['offer'] as Offer;
-      final qty = value['quantity'] as int;
-      total += offer.price * qty;
+    offersCart.forEach((_, value) {
+      total += value['price'] * value['quantity'];
     });
     return total;
   }
@@ -121,8 +196,8 @@ class _WaiterOrderInterfaceState extends State<WaiterOrderInterface> with Single
             onPressed: () {
               Navigator.of(context).pop();
               setState(() {
-                cart.clear();
-                selectedOffers.clear();
+                mealsCart.clear();
+                offersCart.clear();
               });
             },
             child: Text('حسناً'),
@@ -149,9 +224,7 @@ class _WaiterOrderInterfaceState extends State<WaiterOrderInterface> with Single
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               ...offer.offerItems.map(
-                    (offerItem) => Text(
-                  "- ${offerItem.item.name} × ${offerItem.quantity}",
-                ),
+                    (offerItem) => Text("- ${offerItem.item.name} × ${offerItem.quantity}"),
               ),
               SizedBox(height: 10),
               Text(
@@ -171,7 +244,7 @@ class _WaiterOrderInterfaceState extends State<WaiterOrderInterface> with Single
               backgroundColor: ColorApp.accent,
             ),
             onPressed: () {
-              addOfferToCart(offer);
+              addToCart(offer.id, offer.name, offer.price, "offer");
               Navigator.of(context).pop();
             },
             child: Text("إضافة للسلة"),
@@ -181,9 +254,121 @@ class _WaiterOrderInterfaceState extends State<WaiterOrderInterface> with Single
     );
   }
 
+  void addOldOrderToCart(dynamic oldOrder) {
+    setState(() {
+      mealsCart.clear();
+      offersCart.clear();
+
+      for (var line in oldOrder.internalOrderLines) {
+        final mealName = line.itemName;
+        final price = line.itemPrice;
+        final quantity = line.quantity;
+        final id = line.itemId;
+        final key = _generateCartKey(id, "meal");
+
+        mealsCart[key] = {
+          'id': id,
+          'name': mealName,
+          'price': price,
+          'quantity': quantity,
+          'type': "meal",
+        };
+      }
+
+      for (var offer in oldOrder.internalOrderOffers) {
+        final key = _generateCartKey(offer.offerId, "offer");
+        offersCart[key] = {
+          'id': offer.offerId,
+          'name': offer.offerName,
+          'price': offer.offerPrice,
+          'quantity': offer.quantity,
+          'type': "offer",
+        };
+      }
+    });
+    Navigator.of(context).pop();
+  }
+
+  Widget buildOldOrdersBottomSheet() {
+    return BlocBuilder<AppCubit, AppSates>(
+      builder: (context, state) {
+        final invoice = AppCubit.get(context).invoice_response?.data;
+
+        if (invoice == null) {
+          return Center(child: CircularProgressIndicator());
+        }
+
+        if (invoice.internalOrders.isEmpty) {
+          return Padding(
+            padding: EdgeInsets.all(20),
+            child: Center(
+              child: Text("لا يوجد طلبات سابقة للطاولة."),
+            ),
+          );
+        }
+
+        return Container(
+          padding: EdgeInsets.all(16),
+          height: 400,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "الطلبات السابقة",
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: ColorApp.accent,
+                ),
+              ),
+              Divider(),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: invoice.internalOrders.length,
+                  itemBuilder: (context, index) {
+                    final order = invoice.internalOrders[index];
+                    return EditableExpansionTile(
+                      title: "طلب رقم ${order.id}",
+                      invoice: invoice,
+                      oldOrder: order,
+                      onAddOldOrderToCart: addOldOrderToCart,
+                      children: [
+                        ...order.internalOrderLines.map((line) => ListTile(
+                          title: Text(line.itemName),
+                          trailing: Text("× ${line.quantity}"),
+                          subtitle: Text("${line.price} ل.س"),
+                        )),
+                        if (order.internalOrderOffers.isNotEmpty)
+                          ...order.internalOrderOffers.map((offer) => ListTile(
+                            title: Text(offer.offerName),
+                            trailing: Text("× ${offer.quantity}"),
+                            subtitle: Text("${offer.price} ل.س"),
+                          )),
+                      ],
+                    );
+                  },
+                ),
+              ),
+              Center(
+                child: ElevatedButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: Text("إغلاق"),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: ColorApp.accent,
+                    padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<AppCubit, dynamic>(
+    return BlocBuilder<AppCubit, AppSates>(
       builder: (context, state) {
         final cubit = AppCubit.get(context);
 
@@ -204,9 +389,27 @@ class _WaiterOrderInterfaceState extends State<WaiterOrderInterface> with Single
           backgroundColor: ColorApp.colorback,
           appBar: AppBar(
             backgroundColor: ColorApp.accent,
-            title: Text("واجهة الطلب", style: TextStyle(color: Colors.white)),
+            title: Text("الطاولة رقم ${widget.table_num}", style: TextStyle(color: Colors.white)),
             centerTitle: true,
             elevation: 0,
+            actions: [
+              if (widget.invoice_id != null)
+                IconButton(
+                  icon: Icon(Icons.history, color: Colors.white),
+                  tooltip: 'الطلبات السابقة',
+                  onPressed: () {
+                    cubit.get_one_invoice(invoice_id: widget.invoice_id);
+
+                    showModalBottomSheet(
+                      context: context,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                      ),
+                      builder: (_) => buildOldOrdersBottomSheet(),
+                    );
+                  },
+                ),
+            ],
             bottom: MediaQuery.of(context).size.width < 600
                 ? TabBar(
               controller: _tabController,
@@ -223,7 +426,6 @@ class _WaiterOrderInterfaceState extends State<WaiterOrderInterface> with Single
                 final isWideScreen = constraints.maxWidth >= 600;
 
                 if (isWideScreen) {
-                  // شاشة كبيرة: عرض أفقي
                   return Row(
                     children: [
                       Expanded(
@@ -244,7 +446,6 @@ class _WaiterOrderInterfaceState extends State<WaiterOrderInterface> with Single
                     ],
                   );
                 } else {
-                  // شاشة صغيرة: نستخدم تبويبات مع TabBarView
                   return TabBarView(
                     controller: _tabController,
                     children: [
@@ -293,7 +494,7 @@ class _WaiterOrderInterfaceState extends State<WaiterOrderInterface> with Single
                   subtitle: Text("${meal.price} ل.س"),
                   trailing: IconButton(
                     icon: Icon(Icons.add_circle, color: ColorApp.accent),
-                    onPressed: () => addToCart(meal.id, meal.name, meal.price),
+                    onPressed: () => addToCart(meal.id, meal.name, meal.price, "meal"),
                   ),
                 );
               }).toList(),
@@ -302,14 +503,13 @@ class _WaiterOrderInterfaceState extends State<WaiterOrderInterface> with Single
         }),
         Card(
           margin: EdgeInsets.symmetric(vertical: 8),
-          color: ColorApp.color4,
+          color: Colors.orange[50],
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
           ),
           child: ExpansionTile(
-            initiallyExpanded: true,
             title: Text(
-              "🎁 عروض المطعم",
+              "العروض",
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -318,10 +518,13 @@ class _WaiterOrderInterfaceState extends State<WaiterOrderInterface> with Single
             ),
             children: offers.map((offer) {
               return ListTile(
+                leading: Icon(Icons.local_offer, color: ColorApp.accent),
                 title: Text(offer.name),
-                subtitle: Text("السعر: ${offer.price} ل.س"),
-                trailing: Icon(Icons.local_offer, color: ColorApp.accent),
-                onTap: () => showOfferDetails(offer),
+                subtitle: Text("${offer.price} ل.س"),
+                trailing: IconButton(
+                  icon: Icon(Icons.info_outline, color: ColorApp.accent),
+                  onPressed: () => showOfferDetails(offer),
+                ),
               );
             }).toList(),
           ),
@@ -331,113 +534,109 @@ class _WaiterOrderInterfaceState extends State<WaiterOrderInterface> with Single
   }
 
   Widget buildCartSection() {
+    if (mealsCart.isEmpty && offersCart.isEmpty) {
+      return Center(
+        child: Text(
+          "السلة فارغة",
+          style: TextStyle(fontSize: 20, color: Colors.grey[600]),
+        ),
+      );
+    }
+
+    final allItems = [
+      ...mealsCart.entries.map((e) => e),
+      ...offersCart.entries.map((e) => e),
+    ];
+
     return Column(
       children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          child: Text(
-            '🛒 سلة الطلب',
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+        Expanded(
+          child: ListView(
+            children: allItems.map((entry) {
+              final key = entry.key;
+              final item = entry.value;
+
+              return ListTile(
+                title: Text(item['name']),
+                subtitle: Text("${item['price']} ل.س"),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.remove_circle_outline, color: Colors.red),
+                      onPressed: () {
+                        int newQty = item['quantity'] - 1;
+                        updateQuantity(key, newQty, item['type']);
+                      },
+                    ),
+                    Text("${item['quantity']}"),
+                    IconButton(
+                      icon: Icon(Icons.add_circle_outline, color: Colors.green),
+                      onPressed: () {
+                        int newQty = item['quantity'] + 1;
+                        updateQuantity(key, newQty, item['type']);
+                      },
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.delete_outline, color: Colors.grey),
+                      onPressed: () => removeFromCart(key, item['type']),
+                    ),
+                  ],
+                ),
+              );
+            }).toList(),
           ),
         ),
-        Expanded(
-          child: cart.isEmpty && selectedOffers.isEmpty
-              ? Center(
-            child: Text(
-              'السلة فارغة',
-              style: TextStyle(fontSize: 18),
-            ),
-          )
-              : ListView(
+        Divider(),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              ...cart.entries.map((entry) {
-                final name = entry.key;
-                final quantity = entry.value['quantity'] as int;
-                final price = entry.value['price'];
-                return ListTile(
-                  title: Text(name),
-                  subtitle: Text("السعر: ${price * quantity} ل.س"),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.remove_circle_outline),
-                        onPressed: () => updateQuantity(name, quantity - 1),
-                      ),
-                      Text(quantity.toString()),
-                      IconButton(
-                        icon: Icon(Icons.add_circle_outline),
-                        onPressed: () => updateQuantity(name, quantity + 1),
-                      ),
-                    ],
-                  ),
-                );
-              }),
-              ...selectedOffers.entries.map((entry) {
-                final offer = entry.value['offer'] as Offer;
-                final quantity = entry.value['quantity'] as int;
-                return ListTile(
-                  title: Text(offer.name),
-                  subtitle: Text("السعر: ${offer.price * quantity} ل.س"),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.remove_circle_outline),
-                        onPressed: () =>
-                            updateOfferQuantity(offer.id, quantity - 1),
-                      ),
-                      Text(quantity.toString()),
-                      IconButton(
-                        icon: Icon(Icons.add_circle_outline),
-                        onPressed: () =>
-                            updateOfferQuantity(offer.id, quantity + 1),
-                      ),
-                    ],
-                  ),
-                );
-              }),
+              Text(
+                "المجموع:",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              Text(
+                "${getTotalPrice()} ل.س",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: ColorApp.accent),
+              ),
             ],
           ),
         ),
         Padding(
-          padding: const EdgeInsets.symmetric(vertical: 10),
-          child: Text(
-            "الإجمالي: ${getTotalPrice()} ل.س",
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          padding: const EdgeInsets.symmetric(horizontal: 12.0),
+          child: ElevatedButton(
+            onPressed: (mealsCart.isEmpty && offersCart.isEmpty)
+                ? null
+                : () {
+              final items = mealsCart.entries.map((entry) {
+                return {
+                  "item_id": entry.value['id'],
+                  "quantity": entry.value['quantity'],
+                };
+              }).toList();
+
+              final offers = offersCart.entries.map((entry) {
+                return {"offer_id": entry.value['id'], "quantity": entry.value['quantity']};
+              }).toList();
+
+              print(offers);
+              print(items);
+
+              AppCubit.get(context).create_internal_order(
+                table_id: widget.table_id,
+                items: items,
+                offers: offers,
+              );
+
+              confirmOrder();
+            },              child: Text("تأكيد الطلب"),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: ColorApp.accent,
+              minimumSize: Size(double.infinity, 50),
+            ),
           ),
-        ),
-        ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: ColorApp.accent,
-          ),
-          onPressed: (cart.isEmpty && selectedOffers.isEmpty)
-              ? null
-              : () {
-            final items = cart.entries.map((entry) {
-              return {
-                "item_id": entry.value['id'],
-                "quantity": entry.value['quantity'],
-              };
-            }).toList();
-
-            final offers = selectedOffers.entries.map((entry) {
-              return {"offer_id": entry.key, "quantity": entry.value['quantity']};
-            }).toList();
-
-            print(offers);
-            print(items);
-
-            AppCubit.get(context).create_internal_order(
-              table_id: 1,
-              branch_id: 1,
-              waiter_id: 1,
-              items: items,
-              offers: offers,
-            );
-
-            confirmOrder();
-          },          child: Text("تأكيد الطلب"),
         ),
       ],
     );

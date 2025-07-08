@@ -24,7 +24,11 @@ class addcartErrorState extends AppSates {}
 class tableSuccessState extends AppSates {}
 class tableErrorState extends AppSates {}
 
+class tablechangeSuccessState extends AppSates {}
+class tablechangeErrorState extends AppSates {}
 
+class invoiceSuccessState extends AppSates {}
+class invoiceErrorState extends AppSates {}
 
 
 class FavoritesSuccess extends AppSates {}

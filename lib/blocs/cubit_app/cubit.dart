@@ -7,6 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../models/category_models.dart';
 import '../../models/get_offers_model.dart';
+import '../../models/invoice_model.dart';
 import '../../models/mealModels.dart';
 import '../../models/get_one_itemModel.dart';
 import '../../models/table_model.dart';
@@ -32,7 +33,7 @@ class AppCubit extends Cubit<AppSates> {
         .then((value) {
           emit(categorySuccessState());
           categoryModel = CategoryModel.fromJson(value.data);
-          print(value.toString());
+          // print(value.toString());
 
           cat_map?.clear();
           for (var item in categoryModel!.data) {
@@ -44,11 +45,7 @@ class AppCubit extends Cubit<AppSates> {
           if (cat_map!.isNotEmpty) {
             selectedCategory = cat_map!.entries.first.value;
           }
-          // cat_map = {
-          //   '1': 'Hamburger',
-          //   '2': 'Pizza',
-          //   '3': 'Drinks',
-          // };
+
         })
         .catchError((error) {
           print(error.toString());
@@ -64,7 +61,7 @@ class AppCubit extends Cubit<AppSates> {
           emit(MealSuccessState());
           mealAllModel = MealModel.fromJson(value.data);
 
-          print(value.data.toString());
+          // print(value.data.toString());
         })
         .catchError((error) {
           print(error.toString());
@@ -82,7 +79,7 @@ class AppCubit extends Cubit<AppSates> {
 
           mealAllModel = MealModel.fromJson(value.data);
 
-          print(value.data.toString());
+          // print(value.data.toString());
         })
         .catchError((error) {
           print(error.toString());
@@ -100,7 +97,7 @@ class AppCubit extends Cubit<AppSates> {
 
           get_one_item_model = Get_one_itemModel.fromJson(value.data);
 
-          print(value.data.toString());
+          // print(value.data.toString());
         })
         .catchError((error) {
           print(error.toString());
@@ -178,12 +175,12 @@ class AppCubit extends Cubit<AppSates> {
   TableResponse ? Table_model;
   void Table_get() {
     emit(LoadingState());
-    DioHelper.getData(url: baseurl + "get_tables?branchId=1&available=1")
+    DioHelper.getData(url: baseurl + "get_tables?branchId=${branch_id}")
         .then((value) {
       emit(tableSuccessState());
       Table_model = TableResponse.fromJson(value.data);
 
-      print(value.data.toString());
+      // print(value.data.toString());
     })
         .catchError((error) {
       print(error.toString());
@@ -191,18 +188,66 @@ class AppCubit extends Cubit<AppSates> {
     });
   }
 
+  ///////////////////////////////////////////////  table_change_statu
+  void table_change_statu({
+    required table_id
+  }) {
+    emit(LoadingState());
+
+    DioHelper.postData(
+      url: baseurl + "table_change_status/${table_id}",
+      data: {
+        "branch_id": branch_id,
+        "waiter_id": waiter_id,
+
+      },
+    ).then((value) {
+      emit(tablechangeSuccessState());
+      print(value.data);
+    }).catchError((error) {
+      print(error);
+      emit(tablechangeErrorState());
+    });
+  }
+
+  /////////////////////////////////////////////  get_one_invoice
+
+
+  InvoiceResponse? invoice_response;
+  void get_one_invoice({
+    required invoice_id,
+
+}) {
+    emit(LoadingState());
+
+    DioHelper.getData(url: baseurl + "get_one_invoice/${invoice_id}")
+        .then((value) {
+      emit(invoiceSuccessState());
+      invoice_response = InvoiceResponse.fromJson(value.data);
+
+      // print(value.data.toString());
+    })
+        .catchError((error) {
+      print(error.toString());
+      emit((invoiceErrorState()));
+    });
+  }
+
+
+
+
   /////////////////////////////////////////////  OFFER
 
 
   OfferResponse? Offer_response;
   void OfferAll() {
     emit(LoadingState());
-    DioHelper.getData(url: baseurl + "get_offers?branchId=1&active=1")
+    DioHelper.getData(url: baseurl + "get_offers?branchId=${branch_id}&active=1")
         .then((value) {
       emit(offerSuccessState());
       Offer_response = OfferResponse.fromJson(value.data);
 
-      print(value.data.toString());
+      // print(value.data.toString());
     })
         .catchError((error) {
       print(error.toString());
@@ -210,11 +255,11 @@ class AppCubit extends Cubit<AppSates> {
     });
   }
 
+
+
 ///////////////////////////////////////////////  add cart
   void create_internal_order({
     required  table_id,
-    required  branch_id,
-    required  waiter_id,
     required  items,
     required  offers,
   }) {

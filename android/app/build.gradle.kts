@@ -13,6 +13,8 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+        //  هاد السطر المضاف
+        isCoreLibraryDesugaringEnabled = true
     }
 
     kotlinOptions {
@@ -44,6 +46,8 @@ dependencies {
 
     // Firebase Analytics كمثال - يمكنك إضافة غيرها
     implementation("com.google.firebase:firebase-analytics-ktx")
+    //  هاد السطر المضاف
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
 
     // أضف مكتبات أخرى حسب الحاجة:
     // implementation("com.google.firebase:firebase-auth-ktx")

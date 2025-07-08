@@ -9,7 +9,10 @@ import 'package:almoktar/screens/app/table.dart';
 import 'package:almoktar/screens/auth/ProfileFormPage.dart';
 import 'package:almoktar/screens/auth/login.dart';
 import 'package:almoktar/screens/auth/profile.dart';
+import 'package:almoktar/screens/chief/chef_order.dart';
 import 'package:dio/dio.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -20,6 +23,15 @@ import 'network/dio_helper.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+
+
+
+   // WidgetsFlutterBinding.ensureInitialized();
+  // await Firebase.initializeApp();
+  //
+  // FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
   final themeCubit = ThemeCubit();
   await themeCubit.getTheme();
   Bloc.observer = MyBlocObserver();
