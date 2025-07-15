@@ -34,8 +34,8 @@ class Data {
   int tax;
   int finalPrice;
   int discount;
-  String status;
-  String branchName;
+  String? status;
+  String? branchName;
   List<InternalOrder> internalOrders;
   List<dynamic> invoiceTaxes;
   List<dynamic> invoiceDiscounts;
@@ -48,8 +48,8 @@ class Data {
     required this.tax,
     required this.finalPrice,
     required this.discount,
-    required this.status,
-    required this.branchName,
+    this.status,
+    this.branchName,
     required this.internalOrders,
     required this.invoiceTaxes,
     required this.invoiceDiscounts,
@@ -81,7 +81,7 @@ class Data {
     'discount': discount,
     'status': status,
     'branch_name': branchName,
-    'internal_orders': List<dynamic>.from(internalOrders.map((x) => x.toJson())),
+    'internal_orders': internalOrders.map((x) => x.toJson()).toList(),
     'invoice_taxes': invoiceTaxes,
     'invoice_discounts': invoiceDiscounts,
   };
@@ -93,8 +93,9 @@ class InternalOrder {
   int waiterId;
   int discount;
   int fullPrice;
-  String status;
-  String waiterName;
+  String? status;
+  String? waiterName;
+  int tableId;
   List<InternalOrderLine> internalOrderLines;
   List<InternalOrderOffer> internalOrderOffers;
 
@@ -104,8 +105,9 @@ class InternalOrder {
     required this.waiterId,
     required this.discount,
     required this.fullPrice,
-    required this.status,
-    required this.waiterName,
+    this.status,
+    this.waiterName,
+    required this.tableId,
     required this.internalOrderLines,
     required this.internalOrderOffers,
   });
@@ -118,6 +120,7 @@ class InternalOrder {
     fullPrice: json['full_price'],
     status: json['status'],
     waiterName: json['waiter_name'],
+    tableId: json['table_id'],
     internalOrderLines: List<InternalOrderLine>.from(
         json['internal_order_lines'].map((x) => InternalOrderLine.fromJson(x))),
     internalOrderOffers: List<InternalOrderOffer>.from(
@@ -132,8 +135,9 @@ class InternalOrder {
     'full_price': fullPrice,
     'status': status,
     'waiter_name': waiterName,
-    'internal_order_lines': List<dynamic>.from(internalOrderLines.map((x) => x.toJson())),
-    'internal_order_offers': List<dynamic>.from(internalOrderOffers.map((x) => x.toJson())),
+    'table_id': tableId,
+    'internal_order_lines': internalOrderLines.map((x) => x.toJson()).toList(),
+    'internal_order_offers': internalOrderOffers.map((x) => x.toJson()).toList(),
   };
 }
 
@@ -183,9 +187,7 @@ class InternalOrderOffer {
   int offerId;
   int quantity;
   int price;
-  String offerName;
-  String offerDescription;
-  int offerPrice;
+  Offer offer;
 
   InternalOrderOffer({
     required this.id,
@@ -193,9 +195,7 @@ class InternalOrderOffer {
     required this.offerId,
     required this.quantity,
     required this.price,
-    required this.offerName,
-    required this.offerDescription,
-    required this.offerPrice,
+    required this.offer,
   });
 
   factory InternalOrderOffer.fromJson(Map<String, dynamic> json) => InternalOrderOffer(
@@ -204,9 +204,7 @@ class InternalOrderOffer {
     offerId: json['offer_id'],
     quantity: json['quantity'],
     price: json['price'],
-    offerName: json['offer_name'],
-    offerDescription: json['offer_description'],
-    offerPrice: json['offer_price'],
+    offer: Offer.fromJson(json['offer']),
   );
 
   Map<String, dynamic> toJson() => {
@@ -215,8 +213,196 @@ class InternalOrderOffer {
     'offer_id': offerId,
     'quantity': quantity,
     'price': price,
-    'offer_name': offerName,
-    'offer_description': offerDescription,
-    'offer_price': offerPrice,
+    'offer': offer.toJson(),
+  };
+}
+
+class Offer {
+  int id;
+  String name;
+  String description;
+  int price;
+  String fromDate;
+  String toDate;
+  int available;
+  List<OfferItem> offerItems;
+  List<OfferBranch> offerBranches;
+
+  Offer({
+    required this.id,
+    required this.name,
+    required this.description,
+    required this.price,
+    required this.fromDate,
+    required this.toDate,
+    required this.available,
+    required this.offerItems,
+    required this.offerBranches,
+  });
+
+  factory Offer.fromJson(Map<String, dynamic> json) => Offer(
+    id: json['id'],
+    name: json['name'],
+    description: json['description'],
+    price: json['price'],
+    fromDate: json['from_date'],
+    toDate: json['to_date'],
+    available: json['available'],
+    offerItems: List<OfferItem>.from(json['offer_items'].map((x) => OfferItem.fromJson(x))),
+    offerBranches:
+    List<OfferBranch>.from(json['offer_branches'].map((x) => OfferBranch.fromJson(x))),
+  );
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'name': name,
+    'description': description,
+    'price': price,
+    'from_date': fromDate,
+    'to_date': toDate,
+    'available': available,
+    'offer_items': offerItems.map((x) => x.toJson()).toList(),
+    'offer_branches': offerBranches.map((x) => x.toJson()).toList(),
+  };
+}
+
+class OfferItem {
+  int id;
+  int offerId;
+  int itemId;
+  int quantity;
+  int price;
+  Item item;
+
+  OfferItem({
+    required this.id,
+    required this.offerId,
+    required this.itemId,
+    required this.quantity,
+    required this.price,
+    required this.item,
+  });
+
+  factory OfferItem.fromJson(Map<String, dynamic> json) => OfferItem(
+    id: json['id'],
+    offerId: json['offer_id'],
+    itemId: json['item_id'],
+    quantity: json['quantity'],
+    price: json['price'],
+    item: Item.fromJson(json['item']),
+  );
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'offer_id': offerId,
+    'item_id': itemId,
+    'quantity': quantity,
+    'price': price,
+    'item': item.toJson(),
+  };
+}
+
+class Item {
+  int id;
+  int categoryId;
+  String name;
+  int price;
+  List<ItemImage> itemImages;
+
+  Item({
+    required this.id,
+    required this.categoryId,
+    required this.name,
+    required this.price,
+    required this.itemImages,
+  });
+
+  factory Item.fromJson(Map<String, dynamic> json) => Item(
+    id: json['id'],
+    categoryId: json['category_id'],
+    name: json['name'],
+    price: json['price'],
+    itemImages:
+    List<ItemImage>.from(json['item_images'].map((x) => ItemImage.fromJson(x))),
+  );
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'category_id': categoryId,
+    'name': name,
+    'price': price,
+    'item_images': itemImages.map((x) => x.toJson()).toList(),
+  };
+}
+
+class ItemImage {
+  int id;
+  String image;
+
+  ItemImage({
+    required this.id,
+    required this.image,
+  });
+
+  factory ItemImage.fromJson(Map<String, dynamic> json) => ItemImage(
+    id: json['id'],
+    image: json['image'],
+  );
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'image': image,
+  };
+}
+
+class OfferBranch {
+  int id;
+  int offerId;
+  int branchId;
+  Branch branch;
+
+  OfferBranch({
+    required this.id,
+    required this.offerId,
+    required this.branchId,
+    required this.branch,
+  });
+
+  factory OfferBranch.fromJson(Map<String, dynamic> json) => OfferBranch(
+    id: json['id'],
+    offerId: json['offer_id'],
+    branchId: json['branch_id'],
+    branch: Branch.fromJson(json['branch']),
+  );
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'offer_id': offerId,
+    'branch_id': branchId,
+    'branch': branch.toJson(),
+  };
+}
+
+class Branch {
+  int id;
+  String name;
+  String location;
+
+  Branch({
+    required this.id,
+    required this.name,
+    required this.location,
+  });
+
+  factory Branch.fromJson(Map<String, dynamic> json) => Branch(
+    id: json['id'],
+    name: json['name'],
+    location: json['location'],
+  );
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'name': name,
+    'location': location,
   };
 }

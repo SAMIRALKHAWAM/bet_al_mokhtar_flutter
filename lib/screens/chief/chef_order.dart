@@ -1,23 +1,12 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../blocs/cubit_app/cubit.dart';
+import '../../blocs/cubit_app/statues.dart';
 import '../../components/defaultButton.dart';
 import '../../components/text.dart';
+import '../../models/get_internal_orders.dart';
 import 'OrderDetailsPage.dart';
-
-class ChefOrderModel {
-  final String orderId;
-  final String customerName;
-  final List<String> items;
-  String status; // "pending", "preparing", "ready"
-
-  ChefOrderModel({
-    required this.orderId,
-    required this.customerName,
-    required this.items,
-    this.status = "pending",
-  });
-}
 
 class ChefOrdersExpansionPanelPage extends StatefulWidget {
   const ChefOrdersExpansionPanelPage({super.key});
@@ -32,43 +21,15 @@ class _ChefOrdersExpansionPanelPageState
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
-  List<ChefOrderModel> orders = [
-    ChefOrderModel(
-      orderId: "1001",
-      customerName: "أحمد",
-      items: ["بيتزا", "عصير برتقال"],
-      status: "pending",
-    ),
-    ChefOrderModel(
-      orderId: "1002",
-      customerName: "ليلى",
-      items: ["برجر دجاج", "بطاطا"],
-      status: "pending",
-    ),
-    ChefOrderModel(
-      orderId: "1003",
-      customerName: "سارة",
-      items: ["سلطة", "مياه"],
-      status: "preparing",
-    ),
-    ChefOrderModel(
-      orderId: "1091",
-      customerName: "امجد",
-      items: ["بيتزا", "عصير برتقال"],
-      status: "ready",
-    ),
-    ChefOrderModel(
-      orderId: "1302",
-      customerName: "سميرة",
-      items: ["برجر دجاج", "بطاطا"],
-      status: "ready",
-    ),
-  ];
-
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+
+    final cubit = AppCubit.get(context);
+    cubit.get_internal_orders_pending();
+    cubit.get_internal_orders_preparing();
+    cubit.get_internal_orders_waiting();
   }
 
   @override
@@ -76,9 +37,6 @@ class _ChefOrdersExpansionPanelPageState
     _tabController.dispose();
     super.dispose();
   }
-
-  List<ChefOrderModel> getOrdersByStatus(String status) =>
-      orders.where((order) => order.status == status).toList();
 
   @override
   Widget build(BuildContext context) {
@@ -117,26 +75,33 @@ class _ChefOrdersExpansionPanelPageState
           ],
         ),
       ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          _buildOrdersList("pending", theme, primaryColor, onPrimary),
-          _buildOrdersList("preparing", theme, primaryColor, onPrimary),
-          _buildOrdersList("ready", theme, primaryColor, onPrimary),
-        ],
+      body: BlocBuilder<AppCubit, AppSates>(
+        builder: (context, state) {
+          final cubit = AppCubit.get(context);
+
+          return TabBarView(
+            controller: _tabController,
+            children: [
+              _buildOrdersFromApi(
+                  cubit.orders_waiting_response?.data, "waiting"),
+              _buildOrdersFromApi(
+                  cubit.orders_preparing_response?.data, "preparing"),
+              _buildOrdersFromApi(cubit.orders_pending_response?.data, "ready"),
+            ],
+          );
+        },
       ),
     );
   }
 
-  Widget _buildOrdersList(
-      String status,
-      ThemeData theme,
-      Color primaryColor,
-      Color onPrimary,
-      ) {
-    final ordersByStatus = getOrdersByStatus(status);
+  Widget _buildOrdersFromApi(List<OrderItem>? orders, String status) {
+    final theme = Theme.of(context);
 
-    if (ordersByStatus.isEmpty) {
+    if (orders == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (orders.isEmpty) {
       return Center(
         child: CustomText(
           text1: "لا توجد طلبات",
@@ -148,19 +113,23 @@ class _ChefOrdersExpansionPanelPageState
 
     return ListView.builder(
       padding: const EdgeInsets.all(16),
-      itemCount: ordersByStatus.length,
+      itemCount: orders.length,
       itemBuilder: (context, index) {
-        final order = ordersByStatus[index];
+        final order = orders[index];
+
         return InkWell(
           onTap: () {
-            if (order.status == "ready") {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => OrderDetailsPage(order: order),
+            AppCubit.get(context).get_internal_order_items(id: order.id);
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => OrderDetailsPage(
+                  orderId: order.id,
+                  state: order.status,
+                  table_id: order.table_id, // ✅ نمرر الحالة هنا
                 ),
-              );
-            }
+              ),
+            );
           },
           child: Container(
             margin: const EdgeInsets.symmetric(vertical: 8),
@@ -180,44 +149,17 @@ class _ChefOrdersExpansionPanelPageState
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 CustomText(
-                  text1: "طلب رقم: ${order.orderId}",
+                  text1: "طلب رقم: ${order.id}",
                   size: 16,
                   fontWeight: FontWeight.bold,
                   color: theme.textTheme.titleLarge?.color,
                 ),
                 const SizedBox(height: 4),
                 CustomText(
-                  text1: "الزبون: ${order.customerName}",
+                  text1: "الزبون: ${order.waiterName}",
                   size: 14,
                   color: theme.textTheme.bodyMedium?.color,
                 ),
-                const SizedBox(height: 12),
-                if (order.status != "ready")
-                  DefaultButton(
-                    text: order.status == "pending" ? "ابدأ التجهيز" : "تم التجهيز",
-                    onTap: () {
-                      setState(() {
-                        if (order.status == "pending") {
-                          order.status = "preparing";
-                        } else if (order.status == "preparing") {
-                          order.status = "ready";
-                        }
-                      });
-                    },
-                    color: order.status == "pending" ? primaryColor : Colors.orange,
-                    textColor: onPrimary,
-                    width: double.infinity,
-                    height: 45,
-                    borderRadius: 12,
-                    size: 14,
-                  )
-                else
-                  CustomText(
-                    text1: "✔ تم تجهيز الطلب",
-                    size: 14,
-                    color: Colors.green,
-                    fontWeight: FontWeight.bold,
-                  ),
               ],
             ),
           ),

@@ -1,14 +1,12 @@
-import 'package:almoktar/blocs/cubit_app/cubit.dart';
-import 'package:almoktar/blocs/cubit_app/statues.dart';
-import 'package:almoktar/components/defaultButton.dart';
-import 'package:almoktar/components/text.dart';
-import 'package:almoktar/config/theme_manager.dart';
-import 'package:almoktar/cubits/theme/theme_cubit.dart';
-import 'package:almoktar/models/mealModels.dart';
-// import 'package:almoktar/models/FoodItem.dart';
-import 'package:almoktar/screens/app/FoodPage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+
+import '../../blocs/cubit_app/cubit.dart';
+import '../../blocs/cubit_app/statues.dart';
+import '../../components/defaultButton.dart';
+import '../../components/text.dart';
+import '../../models/get_one_itemModel.dart';
 
 String getFullImageUrl(String? path) {
   if (path == null || path.isEmpty) {
@@ -16,19 +14,17 @@ String getFullImageUrl(String? path) {
   }
 
   if (path.startsWith('http')) {
-    // إذا path هو رابط كامل، رجعه كما هو
     return path;
   }
 
-  const String baseUrl = "http://192.168.137.239:8000";
+  const String baseUrl = "http://"; // ضع رابط السيرفر هنا
   return "$baseUrl$path";
 }
 
-
 class FoodHamburgerPage extends StatefulWidget {
-  final dynamic item;
-  //  final Datumm item;
-  FoodHamburgerPage({Key? key, required this.item}) : super(key: key);
+  final dynamic itemId;
+
+  const FoodHamburgerPage({Key? key, required this.itemId}) : super(key: key);
 
   @override
   State<FoodHamburgerPage> createState() => _FoodHamburgerPageState();
@@ -36,159 +32,211 @@ class FoodHamburgerPage extends StatefulWidget {
 
 class _FoodHamburgerPageState extends State<FoodHamburgerPage> {
   int count = 1;
+  int currentPage = 0;
+  final PageController _pageController = PageController();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      AppCubit.get(context).get_one_item(widget.itemId);
+    });
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return BlocConsumer<AppCubit, AppSates>(
-      listener: (BuildContext context, state) {},
-      builder: (BuildContext context, state) {
-        final theme = Theme.of(context);
-        dynamic data = AppCubit.get(context);
-        return AppCubit.get(context).get_one_item_model != null
-            ? Scaffold(
-              backgroundColor: theme.scaffoldBackgroundColor,
-              appBar: AppBar(
-                backgroundColor: theme.scaffoldBackgroundColor,
-                elevation: 0,
-                leading: IconButton(
-                  icon: Icon(Icons.arrow_back, color: theme.iconTheme.color),
-                  onPressed: () => Navigator.of(context).pop(),
-                ),
-                title: CustomText(
-                  text1: data.get_one_item_model!.data.name,
-                  size: 20,
-                  fontWeight: FontWeight.bold,
-                  color: theme.textTheme.titleLarge?.color,
-                ),
-              ),
-              body: SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Center(
-                        child: Container(
-                          height: 240,
-                          decoration: BoxDecoration(
+      listener: (context, state) {},
+      builder: (context, state) {
+        final cubit = AppCubit.get(context);
+
+        if (cubit.get_one_item_model == null) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        final Data meal = cubit.get_one_item_model!.data;
+
+        return Scaffold(
+          backgroundColor: theme.scaffoldBackgroundColor,
+          appBar: AppBar(
+            backgroundColor: theme.scaffoldBackgroundColor,
+            elevation: 0,
+            leading: IconButton(
+              icon: Icon(Icons.arrow_back, color: theme.iconTheme.color),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            title: CustomText(
+              text1: meal.name,
+              size: 20,
+              fontWeight: FontWeight.bold,
+              color: theme.textTheme.titleLarge?.color,
+            ),
+          ),
+          body: SingleChildScrollView(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // سلايدر الصور
+                Column(
+                  children: [
+                    SizedBox(
+                      height: 240,
+                      child: PageView.builder(
+                        controller: _pageController,
+                        itemCount: meal.itemImages.length,
+                        onPageChanged: (index) {
+                          setState(() {
+                            currentPage = index;
+                          });
+                        },
+                        itemBuilder: (context, index) {
+                          final imageUrl =
+                          getFullImageUrl(meal.itemImages[index].image);
+                          return ClipRRect(
                             borderRadius: BorderRadius.circular(20),
-                            image: DecorationImage(
-                              image: NetworkImage(
-                                getFullImageUrl(
-                                  data
-                                          .get_one_item_model!
-                                          .data
-                                          .itemImages
-                                          .isNotEmpty
-                                      ? data
-                                          .get_one_item_model!
-                                          .data
-                                          .itemImages
-                                          .first
-                                          .image
-                                      : null,
-                                ),
-                              ),
+                            child: Image.network(
+                              imageUrl,
                               fit: BoxFit.cover,
+                              width: double.infinity,
                             ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.1),
-                                blurRadius: 10,
-                                offset: Offset(0, 5),
-                              ),
-                            ],
-                          ),
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Center(
+                      child: SmoothPageIndicator(
+                        controller: _pageController,
+                        count: meal.itemImages.length,
+                        effect: WormEffect(
+                          activeDotColor: theme.colorScheme.primary,
+                          dotColor: Colors.grey.shade300,
+                          dotHeight: 10,
+                          dotWidth: 10,
                         ),
                       ),
-                      const SizedBox(height: 24),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Flexible(
-                            child: CustomText(
-                              text1: data.get_one_item_model!.data.name,
+                    ),
+                  ],
+                ),
 
-                              size: 24,
-                              fontWeight: FontWeight.bold,
-                              color: theme.textTheme.titleLarge?.color,
-                            ),
-                          ),
-                          CustomText(
-                            text1:
-                                '\$${data.get_one_item_model!.data.price.toStringAsFixed(2)}',
-                            size: 22,
-                            fontWeight: FontWeight.bold,
-                            color: theme.colorScheme.primary,
-                          ),
-                        ],
+                const SizedBox(height: 24),
+
+                // الاسم والسعر
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Flexible(
+                      child: CustomText(
+                        text1: meal.name,
+                        size: 24,
+                        fontWeight: FontWeight.bold,
+                        color: theme.textTheme.titleLarge?.color,
                       ),
-                      const SizedBox(height: 12),
-                      CustomText(
-                        text1: "",
-                        // 'A delicious ${data.get_one_item_model!.data.name.toLowerCase()} with fresh ingredients and our special sauce.',
-                        size: 16,
-                        color: theme.textTheme.bodyMedium?.color,
+                    ),
+                    CustomText(
+                      text1: '\$${meal.price.toStringAsFixed(2)}',
+                      size: 22,
+                      fontWeight: FontWeight.bold,
+                      color: theme.colorScheme.primary,
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 12),
+
+                // الوصف
+                CustomText(
+                  text1:
+                  'Delicious ${meal.name.toLowerCase()} made with fresh ingredients and our special sauce.',
+                  size: 16,
+                  color: theme.textTheme.bodyMedium?.color,
+                ),
+
+                const SizedBox(height: 20),
+
+                // الكمية
+                Row(
+                  children: [
+                    CustomText(
+                      text1: 'Quantity',
+                      size: 16,
+                      fontWeight: FontWeight.w600,
+                      color: theme.textTheme.bodyMedium?.color,
+                    ),
+                    const SizedBox(width: 16),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: theme.cardColor,
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                      const SizedBox(height: 20),
-                      Row(
+                      child: Row(
                         children: [
+                          IconButton(
+                            icon: const Icon(Icons.remove),
+                            onPressed: () {
+                              setState(() {
+                                if (count > 1) count--;
+                              });
+                            },
+                          ),
                           CustomText(
-                            text1: 'Quantity',
+                            text1: count.toString(),
                             size: 16,
-                            fontWeight: FontWeight.w600,
                             color: theme.textTheme.bodyMedium?.color,
                           ),
-                          const SizedBox(width: 16),
-                          Container(
-                            decoration: BoxDecoration(
-                              color: theme.cardColor,
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Row(
-                              children: [
-                                IconButton(
-                                  icon: Icon(Icons.remove),
-                                  onPressed: () {
-                                    setState(() {
-                                      if (count > 1) {
-                                        count = count - 1;
-                                      }
-                                    });
-                                  },
-                                ),
-                                CustomText(
-                                  text1: "$count",
-                                  size: 16,
-                                  color: theme.textTheme.bodyMedium?.color,
-                                ),
-                                IconButton(
-                                  icon: Icon(Icons.add),
-                                  onPressed: () {
-                                    setState(() {
-                                      count = count + 1;
-                                    });
-                                  },
-                                ),
-                              ],
-                            ),
+                          IconButton(
+                            icon: const Icon(Icons.add),
+                            onPressed: () {
+                              setState(() {
+                                count++;
+                              });
+                            },
                           ),
                         ],
                       ),
-                      const SizedBox(height: 24),
-                      DefaultButton(
-                        text: 'Add to Cart',
-                        color: theme.colorScheme.primary,
-                        textColor: theme.buttonTextColor,
-                        width: double.infinity,
-                        onTap: () {},
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ),
-            )
-            : Center(child: CircularProgressIndicator());
+
+                const SizedBox(height: 24),
+
+                // زر الإضافة للسلة
+                DefaultButton(
+                  text: 'Add to Cart',
+                  color: theme.colorScheme.primary,
+                  textColor: theme.colorScheme.onPrimary,
+                  width: double.infinity,
+                  onTap: () {
+                    final meal = cubit.get_one_item_model!.data;
+
+                    AppCubit.get(context).addItemToOrder(
+                      id: meal.id,
+                      name: meal.name,
+                      quantity: count,
+                      price: meal.price,
+                    );
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('تمت الإضافة بنجاح')),
+                    );
+                  },
+
+                ),
+              ],
+            ),
+          ),
+        );
       },
     );
   }

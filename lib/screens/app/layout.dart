@@ -3,8 +3,6 @@ import 'package:almoktar/screens/app/CartPage.dart';
 import 'package:almoktar/screens/app/FavPage.dart';
 import 'package:almoktar/screens/app/FoodPage.dart';
 import 'package:almoktar/screens/auth/ProfileFormPage.dart';
-import 'package:almoktar/screens/auth/login.dart';
-import 'package:almoktar/screens/auth/signup.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -16,12 +14,19 @@ class LayoutScreen extends StatefulWidget {
 
 class _LayoutScreenState extends State<LayoutScreen> {
   int _page = 0;
+
   final List<Widget> _pages = [
     FoodPage(),
     CartPage(),
-    // SettingsScreen(),
     FavoritesPage(),
     ProfileFormPage(),
+  ];
+
+  final List<IconData> _icons = [
+    Icons.home,
+    Icons.shopping_cart,
+    Icons.favorite,
+    Icons.person,
   ];
 
   @override
@@ -37,51 +42,32 @@ class _LayoutScreenState extends State<LayoutScreen> {
             backgroundColor: themeData.scaffoldBackgroundColor,
             color: themeData.colorScheme.primary,
             buttonBackgroundColor: themeData.colorScheme.primary,
-            height: 60,
-            items: <Widget>[
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.home,
-                    size: 25,
-                    color: themeData.colorScheme.onPrimary,
-                  ),
-                ],
-              ),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.shopping_cart,
-                    size: 25,
-                    color: themeData.colorScheme.onPrimary,
-                  ),
-                ],
-              ),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.favorite,
-                    size: 25,
-                    color: themeData.colorScheme.onPrimary,
-                  ),
-                ],
-              ),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.person,
-                    size: 25,
-                    color: themeData.colorScheme.onPrimary,
-                  ),
-                ],
-              ),
-            ],
+            height: 50, // ارتفاع أقل لتخفيف الحجم
+            items: List.generate(_icons.length, (index) {
+              final isSelected = index == _page;
+              return AnimatedContainer(
+                duration: Duration(milliseconds: 250),
+                padding: EdgeInsets.all(isSelected ? 3 : 1),
+                child: Icon(
+                  _icons[index],
+                  size: isSelected ? 24 : 20, // حجم أصغر قليلاً
+                  color: isSelected
+                      ? Colors.white // لون مميز للأيقونة المحددة
+                      : themeData.colorScheme.onPrimary.withOpacity(0.5), // لون أخف للأيقونات غير المحددة
+                  shadows: isSelected
+                      ? [
+                    Shadow(
+                      color: Colors.black.withOpacity(0.2),
+                      blurRadius: 3,
+                      offset: Offset(0, 2),
+                    )
+                  ]
+                      : null,
+                ),
+              );
+            }),
             animationCurve: Curves.easeInOut,
-            animationDuration: Duration(milliseconds: 600),
+            animationDuration: Duration(milliseconds: 400),
             onTap: (index) {
               setState(() {
                 _page = index;
@@ -122,9 +108,7 @@ class SettingsScreen extends StatelessWidget {
                 style: Theme.of(context).textTheme.displayLarge,
               ),
               onTap: () {
-                // عند الضغط على Settings، تغيير الثيم
                 BlocProvider.of<ThemeCubit>(context).switchTheme();
-                // Navigator.pop(context); // إغلاق الـ Drawer بعد التغيير
               },
             ),
           ],

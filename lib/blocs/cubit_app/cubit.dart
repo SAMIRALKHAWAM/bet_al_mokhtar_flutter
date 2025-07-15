@@ -5,7 +5,11 @@ import 'package:almoktar/models/FavModel.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../models/add_order_user.dart';
 import '../../models/category_models.dart';
+import '../../models/dd_order_offer_user.dart';
+import '../../models/get_internal_order_items.dart';
+import '../../models/get_internal_orders.dart';
 import '../../models/get_offers_model.dart';
 import '../../models/invoice_model.dart';
 import '../../models/mealModels.dart';
@@ -90,6 +94,7 @@ class AppCubit extends Cubit<AppSates> {
   Get_one_itemModel? get_one_item_model;
   get favoriteItems => null;
   void get_one_item(item) {
+    get_one_item_model==null;
     emit(LoadingState());
     DioHelper.getData(url: baseurl + "get_one_item/$item")
         .then((value) {
@@ -198,7 +203,7 @@ class AppCubit extends Cubit<AppSates> {
       url: baseurl + "table_change_status/${table_id}",
       data: {
         "branch_id": branch_id,
-        "waiter_id": waiter_id,
+        "waiter_id": emp_id,
 
       },
     ).then((value) {
@@ -270,7 +275,7 @@ class AppCubit extends Cubit<AppSates> {
       data: {
         "table_id": table_id,
         "branch_id": branch_id,
-        "waiter_id": waiter_id,
+        "waiter_id": emp_id,
         "items": items,
         "offers": offers,
       },
@@ -282,6 +287,352 @@ class AppCubit extends Cubit<AppSates> {
       emit(addcartErrorState());
     });
   }
+
+
+
+  ///////////////////////////////////////////////  add cart
+  void update_cart({
+    required  items,
+    required  offers,
+required edit_id,
+  }) {
+    emit(LoadingState());
+
+    DioHelper.postData(
+      url: baseurl + "update_internal_order/${edit_id}",
+      data: {
+        "branch_id": branch_id,
+        "items": items,
+        "offers": offers,
+      },
+    ).then((value) {
+      emit(updatecartSuccessState());
+      print(value.data);
+    }).catchError((error) {
+      if (error is DioError) {
+        // طبع الخطأ الأساسي
+        print("Dio error message: ${error.message}");
+
+        // طبع استجابة السيرفر لو موجودة
+        if (error.response != null) {
+          print("Status code: ${error.response?.statusCode}");
+          print("Response data: ${error.response?.data}");
+        }
+      } else {
+        // لو الخطأ مش DioError اطبع النص عادي
+        print("Error: ${error.toString()}");
+      }
+
+      emit(orderchangeErrorState());
+    });
+  }
+
+
+  ///////////////////////////////////////////////  change_internal_order_status
+  void change_internal_order_status({
+    required  table_id,
+    required  status,
+    required  order_id,
+  }) {
+    print(table_id);
+    print(status);
+    print(order_id);
+
+    emit(LoadingState());
+
+    DioHelper.postData(
+      url: baseurl + "change_internal_order_status/${order_id}",
+      data: {
+        "table_id": table_id,
+        "branch_id": branch_id,
+        "captain_id": emp_id,
+        "status": status,
+
+      },
+    ).then((value) {
+      emit(orderchangeSuccessState());
+      print(value.data);
+    })..catchError((error) {
+      if (error is DioError) {
+        // طبع الخطأ الأساسي
+        print("Dio error message: ${error.message}");
+
+        // طبع استجابة السيرفر لو موجودة
+        if (error.response != null) {
+          print("Status code: ${error.response?.statusCode}");
+          print("Response data: ${error.response?.data}");
+        }
+      } else {
+        // لو الخطأ مش DioError اطبع النص عادي
+        print("Error: ${error.toString()}");
+      }
+
+      emit(orderchangeErrorState());
+    });
+
+  }
+
+  //////////////////////////////////////////// get_internal_order_items
+
+  InternalOrderResponse ? internalorderResponse;
+  void get_internal_order_items(
+  {
+    required id,
+}
+      ) {
+    emit(LoadingState());
+    DioHelper.getData(url: baseurl + "get_internal_order_items/${id}")
+        .then((value) {
+      emit(get_internal_order_itemsSuccessState());
+      internalorderResponse = InternalOrderResponse.fromJson(value.data);
+
+      // print(value.data.toString());
+    })
+        .catchError((error) {
+      print(error.toString());
+      emit((get_internal_order_itemsErrorState()));
+    });
+  }
+
+  //////////////////////////////////////////// get_internal_orders_pending
+
+  OrderResponse  ? orders_pending_response ;
+  void get_internal_orders_pending() {
+    emit(LoadingState());
+    DioHelper.getData(url: baseurl + "get_internal_orders?status=pending")
+        .then((value) {
+      emit(get_order_SuccessState());
+      orders_pending_response = OrderResponse.fromJson(value.data);
+
+      // print(value.data.toString());
+    })
+        .catchError((error) {
+      print(error.toString());
+      emit((get_order_ErrorState()));
+    });
+  }
+
+
+  //////////////////////////////////////////// get_internal_orders_waiting
+
+  OrderResponse  ? orders_waiting_response ;
+  void get_internal_orders_waiting () {
+    emit(LoadingState());
+    DioHelper.getData(url: baseurl + "get_internal_orders?status=waiting ")
+        .then((value) {
+      emit(get_order_SuccessState());
+      orders_waiting_response = OrderResponse.fromJson(value.data);
+
+      // print(value.data.toString());
+    })
+        .catchError((error) {
+      print(error.toString());
+      emit((get_order_ErrorState()));
+    });
+  }
+
+
+
+  //////////////////////////////////////////// get_internal_orders_preparing
+
+  OrderResponse  ? orders_preparing_response ;
+  void get_internal_orders_preparing  () {
+    emit(LoadingState());
+    DioHelper.getData(url: baseurl + "get_internal_orders?status=preparing  ")
+        .then((value) {
+      emit(get_order_SuccessState());
+      orders_preparing_response = OrderResponse.fromJson(value.data);
+
+      // print(value.data.toString());
+    })
+        .catchError((error) {
+      print(error.toString());
+      emit((get_order_ErrorState()));
+    });
+  }
+
+
+
+  ////////////////////////////////////////////////////
+
+  List<AddOrderItem> orderItems = [];
+
+  void addItemToOrder({
+    required int id,
+    required String name,
+    required int quantity,
+    required num price,
+  }) {
+    final index = orderItems.indexWhere((item) => item.id == id);
+
+    if (index != -1) {
+      // العنصر موجود، نزيد الكمية فقط
+      final existingItem = orderItems[index];
+      orderItems[index] = AddOrderItem(
+        id: existingItem.id,
+        name: existingItem.name,
+        quantity: existingItem.quantity + quantity,
+        price: existingItem.price,
+      );
+    } else {
+      // عنصر جديد
+      orderItems.add(AddOrderItem(
+        id: id,
+        name: name,
+        quantity: quantity,
+        price: price,
+      ));
+    }
+
+    print(orderItems);
+    emit(addcartSuccessState());
+  }
+
+
+
+  List<AddOrderOffer> orderOffers = [];
+
+  void addOfferToOrder({
+    required int id,
+    required String name,
+    required int quantity,
+    required num price,
+  }) {
+    final index = orderOffers.indexWhere((offer) => offer.id == id);
+
+    if (index != -1) {
+      // العرض موجود، نزيد الكمية
+      final existingOffer = orderOffers[index];
+      orderOffers[index] = AddOrderOffer(
+        id: existingOffer.id,
+        name: existingOffer.name,
+        quantity: existingOffer.quantity + quantity,
+        price: existingOffer.price,
+      );
+    } else {
+      // عرض جديد
+      orderOffers.add(AddOrderOffer(
+        id: id,
+        name: name,
+        quantity: quantity,
+        price: price,
+      ));
+    }
+
+    print(orderOffers);
+    emit(addcartSuccessState());
+  }
+
+
+
+  void increaseItemQuantity(int id, bool isOffer) {
+    if (isOffer) {
+      final index = orderOffers.indexWhere((offer) => offer.id == id);
+      if (index != -1) {
+        final offer = orderOffers[index];
+        orderOffers[index] = AddOrderOffer(
+          id: offer.id,
+          name: offer.name,
+          quantity: offer.quantity + 1,
+          price: offer.price,
+        );
+        emit(addcartSuccessState());
+      }
+    } else {
+      final index = orderItems.indexWhere((item) => item.id == id);
+      if (index != -1) {
+        final item = orderItems[index];
+        orderItems[index] = AddOrderItem(
+          id: item.id,
+          name: item.name,
+          quantity: item.quantity + 1,
+          price: item.price,
+        );
+        emit(addcartSuccessState());
+      }
+    }
+  }
+
+  void decreaseItemQuantity(int id, bool isOffer) {
+    if (isOffer) {
+      final index = orderOffers.indexWhere((offer) => offer.id == id);
+      if (index != -1) {
+        final offer = orderOffers[index];
+        if (offer.quantity > 1) {
+          orderOffers[index] = AddOrderOffer(
+            id: offer.id,
+            name: offer.name,
+            quantity: offer.quantity - 1,
+            price: offer.price,
+          );
+        } else {
+          orderOffers.removeAt(index);
+        }
+        emit(addcartSuccessState());
+      }
+    } else {
+      final index = orderItems.indexWhere((item) => item.id == id);
+      if (index != -1) {
+        final item = orderItems[index];
+        if (item.quantity > 1) {
+          orderItems[index] = AddOrderItem(
+            id: item.id,
+            name: item.name,
+            quantity: item.quantity - 1,
+            price: item.price,
+          );
+        } else {
+          orderItems.removeAt(index);
+        }
+        emit(addcartSuccessState());
+      }
+    }
+  }
+
+
+
+
+
+
+  Map<String, Map<String, dynamic>> mealsCart = {}; // سلة الوجبات
+  Map<String, Map<String, dynamic>> offersCart = {};
+  String _generateCartKey(int id, String type) => "$type-$id";
+
+  void addToCart(int id, String name, num price, String type) {
+    final key = _generateCartKey(id, type);
+      if (type == "meal") {
+        if (mealsCart.containsKey(key)) {
+          mealsCart[key]!['quantity'] += 1;
+        } else {
+          mealsCart[key] = {
+            'id': id,
+            'name': name,
+            'price': price,
+            'quantity': 1,
+            'type': type,
+          };
+        }
+      } else if (type == "offer") {
+        if (offersCart.containsKey(key)) {
+          offersCart[key]!['quantity'] += 1;
+        } else {
+          offersCart[key] = {
+            'id': id,
+            'name': name,
+            'price': price,
+            'quantity': 1,
+            'type': type,
+          };
+        }
+      }
+
+  }
+
+
+
+
+
+
 
 
 

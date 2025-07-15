@@ -12,6 +12,7 @@ import '../../models/mealModels.dart';
 // --- إضافة ExpansionTile مخصصة مع أيقونة القلم تظهر فقط عند التوسيع ---
 class EditableExpansionTile extends StatefulWidget {
   final String title;
+  final dynamic table_id;
   final List<Widget> children;
   final dynamic invoice;
   final dynamic oldOrder;
@@ -22,6 +23,7 @@ class EditableExpansionTile extends StatefulWidget {
     required this.children,
     required this.invoice,
     this.oldOrder,
+    this.table_id,
     this.onAddOldOrderToCart,
     Key? key,
   }) : super(key: key);
@@ -41,7 +43,8 @@ class _EditableExpansionTileState extends State<EditableExpansionTile> {
 
   @override
   Widget build(BuildContext context) {
-    final isPending = widget.oldOrder != null && widget.oldOrder.status == 'pending';
+    final isPending = (widget.oldOrder != null && widget.oldOrder.status == 'pending')
+        ||(widget.oldOrder != null && widget.oldOrder.status == 'waiting');
 
     return Card(
       margin: EdgeInsets.symmetric(vertical: 6),
@@ -52,13 +55,17 @@ class _EditableExpansionTileState extends State<EditableExpansionTile> {
       child: ExpansionTile(
         title: Row(
           children: [
-            Expanded(child: Text(widget.title)),
+            Expanded(child: Text("  طلب رقم ${widget.title}")),
             if (_isExpanded && isPending)
               IconButton(
                 icon: Icon(Icons.edit, color: ColorApp.accent),
                 tooltip: 'تعديل الطلب',
                 onPressed: () {
                   if (widget.onAddOldOrderToCart != null && widget.oldOrder != null) {
+                 AppCubit.get(context).change_internal_order_status(table_id: widget.table_id,
+                     status: "pending", order_id: widget.title);
+                 print(widget.table_id);
+
                     widget.onAddOldOrderToCart!(widget.oldOrder);
                   }
                 },
@@ -82,6 +89,7 @@ class WaiterOrderInterface extends StatefulWidget {
   final dynamic table_id;
   final dynamic table_num;
   final dynamic invoice_id;
+  dynamic edit;
 
   WaiterOrderInterface(this.table_id,this.table_num,this.invoice_id, {Key? key}) : super(key: key);
 
@@ -196,6 +204,7 @@ class _WaiterOrderInterfaceState extends State<WaiterOrderInterface> with Single
             onPressed: () {
               Navigator.of(context).pop();
               setState(() {
+                widget.edit=null;
                 mealsCart.clear();
                 offersCart.clear();
               });
@@ -256,6 +265,8 @@ class _WaiterOrderInterfaceState extends State<WaiterOrderInterface> with Single
 
   void addOldOrderToCart(dynamic oldOrder) {
     setState(() {
+
+      widget.edit = oldOrder.id;
       mealsCart.clear();
       offersCart.clear();
 
@@ -279,8 +290,8 @@ class _WaiterOrderInterfaceState extends State<WaiterOrderInterface> with Single
         final key = _generateCartKey(offer.offerId, "offer");
         offersCart[key] = {
           'id': offer.offerId,
-          'name': offer.offerName,
-          'price': offer.offerPrice,
+          'name': offer.offer.name,
+          'price': offer.offer.price,
           'quantity': offer.quantity,
           'type': "offer",
         };
@@ -328,7 +339,8 @@ class _WaiterOrderInterfaceState extends State<WaiterOrderInterface> with Single
                   itemBuilder: (context, index) {
                     final order = invoice.internalOrders[index];
                     return EditableExpansionTile(
-                      title: "طلب رقم ${order.id}",
+                      table_id: widget.table_id,
+                      title:  "${order.id}",
                       invoice: invoice,
                       oldOrder: order,
                       onAddOldOrderToCart: addOldOrderToCart,
@@ -340,7 +352,7 @@ class _WaiterOrderInterfaceState extends State<WaiterOrderInterface> with Single
                         )),
                         if (order.internalOrderOffers.isNotEmpty)
                           ...order.internalOrderOffers.map((offer) => ListTile(
-                            title: Text(offer.offerName),
+                            title: Text(offer.offer.name),
                             trailing: Text("× ${offer.quantity}"),
                             subtitle: Text("${offer.price} ل.س"),
                           )),
@@ -623,6 +635,12 @@ class _WaiterOrderInterfaceState extends State<WaiterOrderInterface> with Single
 
               print(offers);
               print(items);
+              if(widget.edit!=null){
+                AppCubit.get(context).update_cart(
+                   edit_id: widget.edit,
+                  items: items,
+                  offers: offers,
+                );              }
 
               AppCubit.get(context).create_internal_order(
                 table_id: widget.table_id,

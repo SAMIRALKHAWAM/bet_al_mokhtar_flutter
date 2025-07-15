@@ -21,8 +21,20 @@ class offerErrorState extends AppSates {}
 class addcartSuccessState extends AppSates {}
 class addcartErrorState extends AppSates {}
 
+class updatecartSuccessState extends AppSates {}
+class updatecartErrorState extends AppSates {}
+
 class tableSuccessState extends AppSates {}
 class tableErrorState extends AppSates {}
+
+class orderchangeSuccessState extends AppSates {}
+class orderchangeErrorState extends AppSates {}
+
+class get_internal_order_itemsSuccessState extends AppSates {}
+class get_internal_order_itemsErrorState extends AppSates {}
+
+class get_order_SuccessState extends AppSates {}
+class get_order_ErrorState extends AppSates {}
 
 class tablechangeSuccessState extends AppSates {}
 class tablechangeErrorState extends AppSates {}
