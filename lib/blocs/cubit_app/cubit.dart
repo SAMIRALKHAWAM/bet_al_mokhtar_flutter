@@ -8,9 +8,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../models/add_order_user.dart';
 import '../../models/category_models.dart';
 import '../../models/dd_order_offer_user.dart';
+import '../../models/get_branch.dart';
+import '../../models/get_discounts.dart';
 import '../../models/get_internal_order_items.dart';
 import '../../models/get_internal_orders.dart';
 import '../../models/get_offers_model.dart';
+import '../../models/get_order_delivery.dart';
 import '../../models/invoice_model.dart';
 import '../../models/mealModels.dart';
 import '../../models/get_one_itemModel.dart';
@@ -372,6 +375,52 @@ required edit_id,
 
   }
 
+
+  ///////////////////////////////////////////////  change_internal_order_status
+  void change_internal_order_status_D({
+    required  status,
+    required  order_id,
+  }) {
+    print(status);
+    print(order_id);
+
+    emit(LoadingState());
+
+    DioHelper.postData(
+      url: baseurl + "change_external_order_status/${order_id}",
+      data: {
+        // "table_id": table_id,
+        "branch_id": 1,
+        "captain_id": emp_id,
+        "status": status,
+
+      },
+    ).then((value) {
+      emit(orderchangeSuccessState());
+      print(value.data);
+    })..catchError((error) {
+      if (error is DioError) {
+        // طبع الخطأ الأساسي
+        print("Dio error message: ${error.message}");
+
+        // طبع استجابة السيرفر لو موجودة
+        if (error.response != null) {
+          print("Status code: ${error.response?.statusCode}");
+          print("Response data: ${error.response?.data}");
+        }
+      } else {
+        // لو الخطأ مش DioError اطبع النص عادي
+        print("Error: ${error.toString()}");
+      }
+
+      emit(orderchangeErrorState());
+    });
+
+  }
+
+
+
+
   //////////////////////////////////////////// get_internal_order_items
 
   InternalOrderResponse ? internalorderResponse;
@@ -416,20 +465,33 @@ required edit_id,
   //////////////////////////////////////////// get_internal_orders_waiting
 
   OrderResponse  ? orders_waiting_response ;
-  void get_internal_orders_waiting () {
+  Future<bool> get_internal_orders_waiting({int page = 1}) async {
     emit(LoadingState());
-    DioHelper.getData(url: baseurl + "get_internal_orders?status=waiting ")
-        .then((value) {
-      emit(get_order_SuccessState());
-      orders_waiting_response = OrderResponse.fromJson(value.data);
+    try {
 
-      // print(value.data.toString());
-    })
-        .catchError((error) {
-      print(error.toString());
-      emit((get_order_ErrorState()));
-    });
+
+      final response = await DioHelper.getData(
+        url: "${baseurl}get_internal_orders?status=waiting&page=$page",
+      );
+
+      final result = OrderResponse.fromJson(response.data);
+
+      if (page == 1) {
+        orders_waiting_response = result;
+      } else {
+        orders_waiting_response?.data.addAll(result.data);
+      }
+
+      emit(get_order_SuccessState());
+
+      return result.data.length >= result.perPage;
+    } catch (error) {
+      emit(get_order_ErrorState());
+      print("Error loading orders: $error");
+      return false;
+    }
   }
+
 
 
 
@@ -451,6 +513,164 @@ required edit_id,
     });
   }
 
+
+
+  /////////////////////////////////////////////  Branch
+
+
+  BranchesResponse? branch_model;
+  void Branch() {
+    emit(LoadingState());
+    DioHelper.getData(url: baseurl + "get_branches")
+        .then((value) {
+      emit(BranchSuccessState());
+      branch_model = BranchesResponse.fromJson(value.data);
+
+      // print(value.data.toString());
+    })
+        .catchError((error) {
+      print(error.toString());
+      emit((BranchErrorState()));
+    });
+  }
+
+  /////////////////////////////////////////////////////  discounts
+  bool isConfirmEnabled = false; // لتفعيل زر التأكيد
+  DiscountsResponse? discountsResponse;
+
+  void getDiscounts({required String discountCode}) {
+    // تحقق من طول الكود قبل الإرسال
+    if (discountCode.length != 6) {
+      isConfirmEnabled = false;
+      emit(DiscountErrorState("كود الخصم يجب أن يكون 6 أحرف"));
+      return;
+    }
+
+    emit(DiscountLoadingState());
+
+    DioHelper.getData(url: baseurl + "get_discounts?search=$discountCode")
+        .then((value) {
+      discountsResponse = DiscountsResponse.fromJson(value.data);
+
+      if (discountsResponse != null &&
+          discountsResponse!.success &&
+          discountsResponse!.data.isNotEmpty) {
+        isConfirmEnabled = true; // فعل زر التاكيد
+        emit(DiscountSuccessState(discountsResponse!));
+      } else {
+        isConfirmEnabled = false;
+        emit(DiscountErrorState("كود الخصم غير صالح أو منتهي"));
+      }
+    }).catchError((error) {
+      isConfirmEnabled = false;
+      emit(DiscountErrorState(error.toString()));
+    });
+  }
+
+
+
+
+  //////////////////////////////////////////// get_internal_orders_pending
+
+  DeliveryResponse  ? orders_delivering_response ;
+  void get_internal_orders_delivering() {
+    emit(LoadingState());
+    DioHelper.getData(url: baseurl + "get_internal_orders?status=delivering")
+        .then((value) {
+      emit(get_order_SuccessState());
+      orders_delivering_response = DeliveryResponse.fromJson(value.data);
+
+      // print(value.data.toString());
+    })
+        .catchError((error) {
+      print(error.toString());
+      emit((get_order_ErrorState()));
+    });
+  }
+
+
+
+
+
+
+
+  ///////////////////////////////////////////////  create_external_order
+
+  void create_external_order({
+    required int branch_id,
+    required String location,
+    required String phone,
+    required String discount_code,
+  }) {
+    emit(LoadingState());
+
+    // تحويل العناصر إلى مصفوفة من id و quantity فقط
+    List<Map<String, dynamic>> items = orderItems.map((item) => {
+      "item_id": item.id,
+      "quantity": item.quantity,
+    }).toList();
+
+    // تحويل العروض إلى نفس الصيغة
+    List<Map<String, dynamic>> offers = orderOffers.map((offer) => {
+      "offer_id": offer.id,
+      "quantity": offer.quantity,
+    }).toList();
+
+    DioHelper.postData(
+      url: baseurl + "create_external_order",
+      data: {
+        "branch_id": branch_id,
+        "user_id": 1,
+        "items": items,
+        "offers": offers,
+        "location": location,
+        "phone": phone,
+        "discount_code": discount_code,
+      },
+    ).then((value) {
+      emit(addcartSuccessState());
+      print(value.data);
+    }).catchError((error) {
+      if (error is DioError) {
+        // طبع الخطأ الأساسي
+        print("Dio error message: ${error.message}");
+
+        // طبع استجابة السيرفر لو موجودة
+        if (error.response != null) {
+          print("Status code: ${error.response?.statusCode}");
+          print("Response data: ${error.response?.data}");
+        }
+      } else {
+        // لو الخطأ مش DioError اطبع النص عادي
+        print("Error: ${error.toString()}");
+      }
+
+      emit(orderchangeErrorState());
+    });
+  }
+
+
+///////////////////////////////////////////////  accept_external_order
+  void accept_external_order({
+    required  code,
+
+  }) {
+    emit(LoadingState());
+
+    DioHelper.postData(
+      url: baseurl + "accept_external_order/${code}",
+      data: {
+        "user_id": id,
+
+      },
+    ).then((value) {
+      emit(accept_external_orderSuccessState());
+      print(value.data);
+    }).catchError((error) {
+      print(error);
+      emit(accept_external_orderErrorState());
+    });
+  }
 
 
   ////////////////////////////////////////////////////

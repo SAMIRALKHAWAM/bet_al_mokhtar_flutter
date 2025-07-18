@@ -43,6 +43,8 @@ dependencies:
   firebase_messaging: ^15.2.9
   firebase_core: ^3.15.1
   smooth_page_indicator: ^1.2.1
+  svg_flutter: ^0.0.1
+  mobile_scanner: ^7.0.1
 dev_dependencies:
   flutter_test:
     sdk: flutter

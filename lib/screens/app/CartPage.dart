@@ -6,6 +6,8 @@ import 'package:almoktar/blocs/cubit_app/cubit.dart';
 import 'package:almoktar/cubits/theme/theme_cubit.dart';
 import 'package:almoktar/components/defaultButton.dart';
 
+import 'NextSteps.dart';
+
 class CartPage extends StatelessWidget {
   const CartPage({super.key});
 
@@ -28,7 +30,23 @@ class CartPage extends StatelessWidget {
 
             return Scaffold(
               appBar: AppBar(
-                title: const Text("سلة المشتريات"),
+                title: Row(
+                  children: [
+                    const Text("سلة المشتريات"),
+                    if (orderItems.isNotEmpty || orderOffers.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8.0),
+                        child: CircleAvatar(
+                          radius: 12,
+                          backgroundColor: Colors.red,
+                          child: Text(
+                            '${orderItems.length + orderOffers.length}',
+                            style: const TextStyle(fontSize: 12, color: Colors.white),
+                          ),
+                        ),
+                      )
+                  ],
+                ),
                 backgroundColor: theme.colorScheme.primary,
                 foregroundColor: theme.colorScheme.onPrimary,
                 elevation: 0.5,
@@ -45,7 +63,8 @@ class CartPage extends StatelessWidget {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Icon(Icons.shopping_cart_outlined,
-                                size: 80, color: Colors.grey.shade400),
+                                size: 80,
+                                color: theme.colorScheme.secondary.withOpacity(0.4)),
                             const SizedBox(height: 20),
                             Text(
                               "لا توجد منتجات في السلة",
@@ -58,8 +77,7 @@ class CartPage extends StatelessWidget {
                       )
                           : ListView.separated(
                         itemCount: orderItems.length + orderOffers.length,
-                        separatorBuilder: (_, __) =>
-                        const SizedBox(height: 12),
+                        separatorBuilder: (_, __) => const SizedBox(height: 12),
                         itemBuilder: (context, index) {
                           if (index < orderItems.length) {
                             final item = orderItems[index];
@@ -89,32 +107,40 @@ class CartPage extends StatelessWidget {
                     ),
                   ),
 
-                  /// -------------------- Bottom Summary & Button -------------------
                   if (orderItems.isNotEmpty || orderOffers.isNotEmpty)
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
                         color: theme.cardColor,
-                        boxShadow: [
+                        boxShadow: const [
                           BoxShadow(
                             color: Colors.black12,
                             blurRadius: 6,
-                            offset: const Offset(0, -2),
+                            offset: Offset(0, -2),
                           )
                         ],
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(16),
+                          topRight: Radius.circular(16),
+                        ),
                       ),
                       child: SafeArea(
                         top: false,
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            /// السعر الإجمالي
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text("الإجمالي:",
-                                    style: theme.textTheme.titleMedium
-                                        ?.copyWith(fontWeight: FontWeight.w600)),
+                                Row(
+                                  children: [
+                                    Icon(Icons.wallet, color: theme.colorScheme.primary),
+                                    const SizedBox(width: 8),
+                                    Text("الإجمالي:",
+                                        style: theme.textTheme.titleMedium
+                                            ?.copyWith(fontWeight: FontWeight.w600)),
+                                  ],
+                                ),
                                 Text(
                                   "${totalPrice.toStringAsFixed(2)} \$",
                                   style: theme.textTheme.titleMedium?.copyWith(
@@ -124,15 +150,13 @@ class CartPage extends StatelessWidget {
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 16),
-
-                            /// زر تأكيد الطلب
+                            const Divider(height: 24, thickness: 1),
                             DefaultButton(
                               onTap: () {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (_) => const OrderConfirmedPage()),
+                                      builder: (_) =>  OrderNextStep()),
                                 );
                               },
                               text: 'تأكيد الطلب',
@@ -169,8 +193,14 @@ class CartPage extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
       decoration: BoxDecoration(
         color: theme.cardColor,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade300),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 6,
+            offset: const Offset(0, 3),
+          ),
+        ],
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -178,10 +208,21 @@ class CartPage extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: isOffer
-                  ? Colors.green.withOpacity(0.05)
-                  : Colors.orange.withOpacity(0.05),
+              gradient: LinearGradient(
+                colors: isOffer
+                    ? [Colors.green.shade100, Colors.green.shade50]
+                    : [Colors.orange.shade100, Colors.orange.shade50],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
               shape: BoxShape.circle,
+              boxShadow: const [
+                BoxShadow(
+                  color: Colors.black12,
+                  blurRadius: 4,
+                  offset: Offset(2, 2),
+                )
+              ],
             ),
             child: Icon(
               isOffer ? Icons.local_offer : Icons.fastfood,

@@ -6,59 +6,36 @@ import '../../blocs/cubit_app/statues.dart';
 import '../../components/defaultButton.dart';
 import '../../components/text.dart';
 import '../../models/get_internal_orders.dart';
-import 'OrderDetailsPage.dart';
+import '../../models/get_order_delivery.dart';
+import '../chief/OrderDetailsPage.dart';
+import 'order_details.dart';
 
-class ChefOrdersExpansionPanelPage extends StatefulWidget {
-  const ChefOrdersExpansionPanelPage({super.key});
+class DeliveryOrders extends StatefulWidget {
+  const DeliveryOrders({super.key});
 
   @override
-  State<ChefOrdersExpansionPanelPage> createState() => _ChefOrdersExpansionPanelPageState();
+  State<DeliveryOrders> createState() => _DeliveryOrdersState();
 }
 
-class _ChefOrdersExpansionPanelPageState extends State<ChefOrdersExpansionPanelPage>
+class _DeliveryOrdersState extends State<DeliveryOrders>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  late ScrollController _scrollController;
 
-  int _currentPage = 1;
-  bool _isLoadingMore = false;
   bool _hasMoreData = true;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
-    _scrollController = ScrollController()..addListener(_scrollListener);
+    _tabController = TabController(length: 2, vsync: this);
 
     final cubit = AppCubit.get(context);
-    cubit.get_internal_orders_waiting(page: _currentPage);
-    cubit.get_internal_orders_preparing();
-    cubit.get_internal_orders_pending();
+    cubit.get_internal_orders_delivering();
   }
 
-  void _scrollListener() {
-    if (_scrollController.position.pixels >=
-        _scrollController.position.maxScrollExtent - 100 &&
-        !_isLoadingMore &&
-        _hasMoreData &&
-        _tabController.index == 0) {
-      _loadMoreOrders();
-    }
-  }
-
-  Future<void> _loadMoreOrders() async {
-    _isLoadingMore = true;
-    _currentPage++;
-    final hasMore = await AppCubit.get(context).get_internal_orders_waiting(page: _currentPage);
-    _hasMoreData = hasMore;
-    _isLoadingMore = false;
-    setState(() {});
-  }
 
   @override
   void dispose() {
     _tabController.dispose();
-    _scrollController.dispose();
     super.dispose();
   }
 
@@ -87,8 +64,7 @@ class _ChefOrdersExpansionPanelPageState extends State<ChefOrdersExpansionPanelP
           unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.normal, fontSize: 15),
           tabs: const [
             Tab(text: "قيد الانتظار"),
-            Tab(text: "قيد التجهيز"),
-            Tab(text: "تم التجهيز"),
+            Tab(text: "قيد التوصيل"),
           ],
         ),
       ),
@@ -99,9 +75,8 @@ class _ChefOrdersExpansionPanelPageState extends State<ChefOrdersExpansionPanelP
           return TabBarView(
             controller: _tabController,
             children: [
-              _buildOrdersList(cubit.orders_waiting_response?.data, "waiting"),
-              _buildOrdersList(cubit.orders_preparing_response?.data, "preparing"),
-              _buildOrdersList(cubit.orders_pending_response?.data, "ready"),
+              _buildOrdersList(cubit.orders_delivering_response?.data, "waiting"),
+              _buildOrdersList(cubit.orders_delivering_response?.data, "preparing"),
             ],
           );
         },
@@ -109,7 +84,7 @@ class _ChefOrdersExpansionPanelPageState extends State<ChefOrdersExpansionPanelP
     );
   }
 
-  Widget _buildOrdersList(List<OrderItem>? orders, String status) {
+  Widget _buildOrdersList(List<OrderData>? orders, String status) {
     final theme = Theme.of(context);
 
     if (orders == null) {
@@ -127,9 +102,8 @@ class _ChefOrdersExpansionPanelPageState extends State<ChefOrdersExpansionPanelP
     }
 
     return ListView.builder(
-      controller: _scrollController,
       padding: const EdgeInsets.all(16),
-      itemCount: orders.length + (_hasMoreData ? 1 : 0),
+      itemCount: orders.length ,
       itemBuilder: (context, index) {
         if (index < orders.length) {
           final order = orders[index];
@@ -139,14 +113,15 @@ class _ChefOrdersExpansionPanelPageState extends State<ChefOrdersExpansionPanelP
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => OrderDetailsPage(
+                  builder: (_) => OrderDeliveryDetailsPage(
                     orderId: order.id,
                     state: order.status,
-                    table_id: order.table_id,
                     type: order.type,
+                    externalOrderInfo: order.externalOrderInfo, // ✅ نمرره
                   ),
                 ),
               );
+
             },
             child: Container(
               margin: const EdgeInsets.symmetric(vertical: 8),
@@ -167,7 +142,7 @@ class _ChefOrdersExpansionPanelPageState extends State<ChefOrdersExpansionPanelP
                   ),
                   const SizedBox(height: 4),
                   CustomText(
-                    text1: "الزبون: ${order.waiterName}",
+                    text1: "العنوان: ${order.externalOrderInfo.location}",
                     size: 14,
                     color: theme.textTheme.bodyMedium?.color,
                   ),

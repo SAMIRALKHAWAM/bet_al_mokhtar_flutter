@@ -7,12 +7,14 @@ class OrderDetailsPage extends StatefulWidget {
   final int orderId;
   final String state;
   final dynamic table_id;
+  final dynamic type;
 
   const OrderDetailsPage({
     super.key,
     required this.orderId,
     required this.state,
     required this.table_id,
+    required this.type
   });
 
   @override
@@ -159,6 +161,15 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
       padding: const EdgeInsets.all(16),
       child: ElevatedButton(
         onPressed: () {
+
+
+widget.type=="ext"?
+AppCubit.get(context).change_internal_order_status_D(
+  status: nextStatus=="finishing"?"delivering":nextStatus,
+  order_id: widget.orderId,
+
+):
+
           AppCubit.get(context).change_internal_order_status(
             table_id: widget.table_id,
             status: nextStatus,

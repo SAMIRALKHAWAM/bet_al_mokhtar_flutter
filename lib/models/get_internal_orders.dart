@@ -40,7 +40,7 @@ class OrderItem {
   final int fullPrice;
   final String status;
   final String type;
-  final String waiterName;
+  final String? waiterName;
   final dynamic? table_id;
 
   OrderItem({

@@ -1,8 +1,11 @@
 import 'package:almoktar/cubits/theme/theme_cubit.dart';
 import 'package:almoktar/screens/app/CartPage.dart';
 import 'package:almoktar/screens/app/FoodPage.dart';
+import 'package:almoktar/screens/app/WaiterOrderInterface.dart';
 import 'package:almoktar/screens/app/layout.dart';
+import 'package:almoktar/screens/app/scanner.dart';
 import 'package:almoktar/screens/chief/chef_order.dart';
+import 'package:almoktar/screens/delivery/delivery_order.dart';
 import 'package:almoktar/screens/waiter/table.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_core/firebase_core.dart';

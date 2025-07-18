@@ -1,7 +1,7 @@
 import 'package:almoktar/blocs/cubit_app/cubit.dart';
 import 'package:almoktar/blocs/cubit_app/statues.dart';
 import 'package:almoktar/components/TweenAnimation.dart';
-import 'package:almoktar/screens/app/FoodHamburgerPage.dart';
+import 'package:almoktar/screens/app/FoodDetailsPage.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

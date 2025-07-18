@@ -1,5 +1,7 @@
 import 'package:almoktar/models/mealModels.dart';
 
+import '../../models/get_discounts.dart';
+
 abstract class AppSates {}
 
 class AppInitialState extends AppSates {}
@@ -17,6 +19,23 @@ class MealInfoErrorState extends AppSates {}
 
 class offerSuccessState extends AppSates {}
 class offerErrorState extends AppSates {}
+
+class BranchSuccessState extends AppSates {}
+class BranchErrorState extends AppSates {}
+class DiscountLoadingState extends AppSates {}
+
+class DiscountSuccessState extends AppSates {
+
+  late final DiscountsResponse discountsResponse;
+  DiscountSuccessState(this.discountsResponse);
+
+}
+class DiscountErrorState extends AppSates {
+
+  final String error;
+  DiscountErrorState(this.error);
+
+}
 
 class addcartSuccessState extends AppSates {}
 class addcartErrorState extends AppSates {}
@@ -46,6 +65,9 @@ class invoiceErrorState extends AppSates {}
 class FavoritesSuccess extends AppSates {}
 class FavoritesError extends AppSates {}
 
+class accept_external_orderSuccessState extends AppSates {}
+class accept_external_orderErrorState extends AppSates {}
+
 // حالة جديدة عند تحديث قائمة المفضلات
 class FavoritesUpdatedState extends AppSates {
   final List<Datumm> favorites;
@@ -59,6 +81,10 @@ class OrderOnTheWay extends AppSates {}
 class OrderDelivered extends AppSates {}
 
 class OrderLoading extends AppSates {}
+
+
+
+
 
 // class OrderLoaded extends AppSates {
 //   final List<OrderModel> orders;

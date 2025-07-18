@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../blocs/cubit_app/cubit.dart';
 import '../../blocs/cubit_app/statues.dart';
 import '../../components/text.dart';
-import 'FoodHamburgerPage.dart';
+import 'FoodDetailsPage.dart';
 import 'offer_pages.dart';
 
 class FoodPage extends StatefulWidget {
@@ -84,6 +84,12 @@ class _FoodPageState extends State<FoodPage> {
                     decoration: InputDecoration(
                       hintText: 'Search food...',
                       prefixIcon: Icon(Icons.search, color: theme.iconTheme.color),
+                      suffixIcon: searchController.text.isNotEmpty
+                          ? IconButton(
+                        icon: Icon(Icons.clear, color: theme.iconTheme.color),
+                        onPressed: () => searchController.clear(),
+                      )
+                          : null,
                       filled: true,
                       fillColor: theme.cardColor,
                       border: OutlineInputBorder(
@@ -91,6 +97,9 @@ class _FoodPageState extends State<FoodPage> {
                         borderSide: BorderSide.none,
                       ),
                     ),
+                    onChanged: (value) {
+                      setState(() {});
+                    },
                   ),
                   const SizedBox(height: 16),
 
@@ -121,7 +130,6 @@ class _FoodPageState extends State<FoodPage> {
                       ],
                     ),
                   ),
-
                   const SizedBox(height: 16),
 
                   // Meals Grid
@@ -155,7 +163,7 @@ class _FoodPageState extends State<FoodPage> {
                             decoration: BoxDecoration(
                               color: theme.cardColor,
                               borderRadius: BorderRadius.circular(16),
-                              boxShadow: const [
+                              boxShadow: [
                                 BoxShadow(
                                   color: Colors.black12,
                                   blurRadius: 6,
@@ -166,7 +174,7 @@ class _FoodPageState extends State<FoodPage> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                // الصورة
+                                // الصورة مع ظل خفيف
                                 ClipRRect(
                                   borderRadius: const BorderRadius.only(
                                     topLeft: Radius.circular(16),
@@ -198,7 +206,7 @@ class _FoodPageState extends State<FoodPage> {
                                       Text(
                                         meal.name,
                                         style: TextStyle(
-                                          fontSize: screenWidth * 0.04, // نسبي
+                                          fontSize: screenWidth * 0.04,
                                           fontWeight: FontWeight.bold,
                                           color: theme.textTheme.titleLarge?.color,
                                         ),
@@ -214,7 +222,7 @@ class _FoodPageState extends State<FoodPage> {
                                             child: Text(
                                               '\$${meal.price.toStringAsFixed(2)}',
                                               style: TextStyle(
-                                                fontSize: screenWidth * 0.035, // نسبي
+                                                fontSize: screenWidth * 0.035,
                                                 color: theme.colorScheme.primary,
                                                 fontWeight: FontWeight.w600,
                                               ),
@@ -266,7 +274,10 @@ class _FoodPageState extends State<FoodPage> {
         labelStyle: TextStyle(
           color:
           selected ? theme.colorScheme.onPrimary : theme.textTheme.bodyMedium?.color,
+          fontWeight: selected ? FontWeight.bold : FontWeight.normal,
         ),
+        elevation: selected ? 4 : 0,
+        shadowColor: selected ? Colors.black26 : null,
       ),
     );
   }
