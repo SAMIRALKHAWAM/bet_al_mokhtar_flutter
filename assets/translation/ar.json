@@ -1,0 +1,45 @@
+{
+  "enter_code": "أدخل الرمز",
+  "enter_code_desc": "يرجى إدخال الرمز المرسل إلى بريدك الإلكتروني",
+  "submit": "إرسال",
+  "not_receive_code": "لم يصلك الرمز؟",
+  "resend": "إعادة الإرسال",
+  "code_hint": "الرمز*",
+  "please_enter_code": "يرجى إدخال الرمز",
+
+  "find_account": "ابحث عن حسابك",
+  "find_account_desc": "يرجى إدخال بريدك الإلكتروني للبحث عن حسابك",
+  "your_email": "بريدك الإلكتروني",
+  "please_enter_email": "يرجى إدخال بريدك الإلكتروني",
+  "search": "بحث",
+
+  "login": "تسجيل الدخول",
+  "welcome_back": "مرحبًا بعودتك 👋👋",
+  "enter_email": "أدخل بريدك الإلكتروني",
+  "enter_password": "أدخل كلمة المرور",
+  "forgot_password": "نسيت كلمة المرور؟",
+  "dont_have_account": "ليس لديك حساب؟",
+  "sign_up": "إنشاء حساب",
+
+  "create_account": "إنشاء حساب",
+  "create_account_desc": "قم بإنشاء حساب للبدء بالطلب!",
+  "your_full_name": "الاسم الكامل",
+  "email_address": "البريد الإلكتروني",
+  "create_password": "أنشئ كلمة مرور",
+  "confirm_password": "تأكيد كلمة المرور",
+  "join_now": "انضم الآن",
+  "already_have_account": "لديك حساب بالفعل؟",
+
+   "bill_title": "💵 الفاتورة",
+  "subtotal": "الإجمالي الفرعي",
+  "tax": "الضريبة (%s%%)",
+  "discount": "الخصم",
+  "coupon_hint": "أدخل كود الكوبون",
+  "apply_coupon": "تطبيق الكوبون",
+  "total_amount": "الإجمالي النهائي:",
+  "place_order": "إنهاء الطلب",
+  "order_closed": "✅ تم إغلاق الطلب",
+  "coupon_applied": "🎉 تم تطبيق الخصم %s ر.س",
+  "coupon_invalid": "❌ الكوبون غير صالح"
+}
+

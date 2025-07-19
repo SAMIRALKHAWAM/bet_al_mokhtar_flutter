@@ -45,6 +45,7 @@ dependencies:
   smooth_page_indicator: ^1.2.1
   svg_flutter: ^0.0.1
   mobile_scanner: ^7.0.1
+  easy_localization: ^3.0.7+1
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -1,15 +1,17 @@
 import 'package:almoktar/components/defaultButton.dart';
 import 'package:almoktar/components/text.dart';
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../../components/colors.dart';
 import '../../components/textButton.dart';
 import '../../components/textfromfilde.dart';
 
-class code extends StatelessWidget {
-  code({required this.email});
-  String email;
-  var codecontroller = TextEditingController();
-  var formkay = GlobalKey<FormState>();
+class CodePage extends StatelessWidget {
+  CodePage({required this.email, super.key});
+
+  final String email;
+  final codecontroller = TextEditingController();
+  final formkey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -17,56 +19,53 @@ class code extends StatelessWidget {
       backgroundColor: ColorApp.colorback,
       body: SingleChildScrollView(
         child: Form(
-          key: formkay,
+          key: formkey,
           child: Column(
             children: [
-              SizedBox(height: 100),
-              Image(
+              const SizedBox(height: 100),
+              const Image(
                 image: AssetImage("assets/images/Forgot password.png"),
                 height: 200,
               ),
-              SizedBox(height: 15),
+              const SizedBox(height: 15),
               CustomText(
-                text1: 'Enter Code ',
+                text1: 'enter_code'.tr(),
                 size: 30,
                 font: "title",
                 fontWeight: FontWeight.w100,
                 color: ColorApp.color1,
               ),
-
-              // text(text1: 'please enter your email address to search for your account ',),
-              SizedBox(height: 4),
+              const SizedBox(height: 4),
               Padding(
                 padding: const EdgeInsets.all(10.0),
                 child: CustomText(
-                  text1: 'please enter Code sent to ${email}  ',
+                  text1: 'enter_code_desc'.tr() + ' ${email}',
                   size: 15,
                   fontWeight: FontWeight.normal,
                 ),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               Padding(
-                padding: const EdgeInsets.only(
-                  left: 18.0,
-                  right: 18.0,
-                  bottom: 18.0,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 18.0),
                 child: CustomTextFormField(
-                  hint: 'Code*',
+                  hint: 'code_hint'.tr(),
                   controller: codecontroller,
-                  color : Colors.grey[200],
-
+                  color: Colors.grey[200],
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return "please enter code";
+                      return "please_enter_code".tr();
                     }
                     return null;
                   },
                 ),
               ),
               DefaultButton(
-                onTap: () {},
-                text: "Submit",
+                onTap: () {
+                  if (formkey.currentState!.validate()) {
+                    // handle submit
+                  }
+                },
+                text: "submit".tr(),
                 width: 130,
                 height: 45,
                 borderRadius: 10,
@@ -80,12 +79,15 @@ class code extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       CustomText(
-                        text1: "Not Receive Code?",
+                        text1: "not_receive_code".tr(),
                         size: 14,
                         fontWeight: FontWeight.w100,
                         color: Colors.black45,
                       ),
-                      TextButtonCustom(text: "Resend", onTap: () {}),
+                      TextButtonCustom(
+                        text: "resend".tr(),
+                        onTap: () {},
+                      ),
                     ],
                   ),
                 ),
