@@ -1,14 +1,21 @@
+import 'package:almoktar/blocs/auth_cubit/cubit.dart';
+import 'package:almoktar/blocs/cubit_app/cubit.dart';
+import 'package:almoktar/blocs/cubit_app/statues.dart';
 import 'package:almoktar/config/theme_manager.dart';
 import 'package:almoktar/cubits/theme/theme_cubit.dart';
+import 'package:almoktar/network/end_point.dart';
 import 'package:almoktar/screens/app/layout.dart';
 import 'package:almoktar/screens/auth/signup.dart';
+import 'package:almoktar/screens/waiter/table.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
+import '../../blocs/auth_cubit/statuse.dart';
 import '../../components/defaultButton.dart';
 import '../../components/text.dart';
 import '../../components/textButton.dart';
 import '../../components/textfromfilde.dart';
+import '../../network/cash_helper.dart';
 
 class LoginPage extends StatelessWidget {
   LoginPage({super.key});
@@ -19,7 +26,24 @@ class LoginPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ThemeCubit, ThemeState>(
+    return BlocConsumer<AuthCubit, AuthStates>(
+      listener: (context, state) {
+if(state is LoginSuccessState){
+  CachHelper.saveData(key: "token", value: AuthCubit.get(context).loginModel?.data.token.toString());
+  token=CachHelper.getData(key: "token");
+  print(token);
+
+          Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => TablesScreen(),
+    ),
+  );
+
+}
+
+
+      },
       builder: (context, state) {
         final theme = Theme.of(context);
 
@@ -89,7 +113,7 @@ class LoginPage extends StatelessWidget {
                                 CustomTextFormField(
                                   controller: emailController,
                                   hint: 'enter_email'.tr(),
-                                  keyboardType: TextInputType.emailAddress,
+                                  // keyboardType: TextInputType.emailAddress,
                                   radius: 15,
                                   color: theme.colorScheme.onSecondaryFixed,
                                   prefixIcon: Icon(
@@ -128,13 +152,12 @@ class LoginPage extends StatelessWidget {
                                 DefaultButton(
                                   onTap: () {
                                     if (formKey.currentState!.validate()) {
+
+                                      AuthCubit.get(context).Login_emp(
+                                          user_name:emailController.text ,
+                                          password:passwordController.text);
                                       print("Logged in successfully");
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => LayoutScreen(),
-                                        ),
-                                      );
+
                                     }
                                   },
                                   text: 'login'.tr(),

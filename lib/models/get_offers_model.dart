@@ -37,7 +37,7 @@ class Offer {
   final String toDate;
   final int available;
   final List<OfferItem> offerItems;
-  final List<OfferBranch> offerBranches;
+  final List<OfferBranch> offerBranches ;
 
   Offer({
     required this.id,

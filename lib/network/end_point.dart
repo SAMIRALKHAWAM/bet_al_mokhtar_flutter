@@ -1,9 +1,20 @@
-const String  baseurl = 'http://192.168.1.107:8000/api/admin/';
+const String  baseurl = 'https://samir.comma-test.com/api/admin/';
+const String  baseurl_Waiter = 'https://samir.comma-test.com/api/waiter/';
 
 // https://samir.comma-test.com/
-String? token = " ";
+String? token = "";
 String? id = "1";
 String? fcm_token = " ";
 String? role = "";
-String? emp_id = "2";
+String? emp_id = "1";
 String? branch_id = "1";
+String? refreshToken = "";
+
+
+// void setToken(String newToken) {
+//   token = newToken;
+// }
+//
+// void setRefreshToken(String newRefreshToken) {
+//   refreshToken = newRefreshToken;
+// }

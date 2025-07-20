@@ -15,8 +15,8 @@ class _WaiterOrderInterfaceState extends State<WaiterOrderInterface> {
   void initState() {
     super.initState();
     final cubit = AppCubit.get(context);
-    cubit.category();
-    cubit.MealAll();
+    cubit.category_emp();
+    cubit.MealAll_emp();
   }
 
   void addToCart(String mealName, num price) {
@@ -88,13 +88,13 @@ class _WaiterOrderInterfaceState extends State<WaiterOrderInterface> {
       builder: (context, state) {
         final cubit = AppCubit.get(context);
 
-        if (cubit.cat_map == null || cubit.mealAllModel == null) {
+        if (cubit.cat_map_emp == null || cubit.mealAllModel_emp == null) {
           return Scaffold(
             body: Center(child: CircularProgressIndicator()),
           );
         }
 
-        final categories = Map<int, String>.from(cubit.cat_map!);
+        final categories = Map<int, String>.from(cubit.cat_map_emp!);
 
         if (selectedCategoryId == null && categories.isNotEmpty) {
           final first = categories.entries.first;
@@ -103,7 +103,7 @@ class _WaiterOrderInterfaceState extends State<WaiterOrderInterface> {
           });
         }
 
-        final meals = cubit.mealAllModel!.data ?? [];
+        final meals = cubit.mealAllModel_emp!.data ?? [];
 
         return Scaffold(
           body: SafeArea(

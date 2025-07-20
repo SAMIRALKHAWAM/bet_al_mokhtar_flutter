@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:almoktar/blocs/cubit_app/cubit.dart';
 import 'package:almoktar/blocs/cubit_app/statues.dart';
+import 'ReadyOrderScreen.dart';
 import 'emp.dart';
 
 class TablesScreen extends StatefulWidget {
@@ -32,8 +33,19 @@ class _TablesScreenState extends State<TablesScreen> {
                 icon: Icon(Icons.refresh),
                 onPressed: () => AppCubit.get(context).Table_get(),
               ),
+              IconButton(
+                icon: Icon(Icons.assignment_turned_in_outlined),
+                tooltip: "الطلبات الجاهزة",
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => ReadyOrdersScreen()),
+                  );
+                },
+              ),
             ],
           ),
+
           body: Padding(
             padding: const EdgeInsets.all(16),
             child: state is LoadingState

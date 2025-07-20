@@ -29,20 +29,22 @@ class OffersPage extends StatelessWidget {
                     ? item.itemImages.first.image
                     : 'http://${item.itemImages.first.image}')
                     : null;
-                return ListTile(
-                  leading: imageUrl != null
-                      ? ClipRRect(
-                    borderRadius: BorderRadius.circular(6),
-                    child: Image.network(
-                      imageUrl,
-                      width: 50,
-                      height: 50,
-                      fit: BoxFit.cover,
-                    ),
-                  )
-                      : const Icon(Icons.image_not_supported),
-                  title: Text(item.name),
-                );
+                return
+                  // ListTile(
+                  // leading: imageUrl != null
+                  //     ? ClipRRect(
+                  //   borderRadius: BorderRadius.circular(6),
+                  //   child: Image.network(
+                  //     imageUrl,
+                  //     width: 50,
+                  //     height: 50,
+                  //     fit: BoxFit.cover,
+                  //   ),
+                  // )
+                  //     : const Icon(Icons.image_not_supported),
+                  // title:
+                  Text("${item.name}   ");
+                // );
               },
             ),
           ),
@@ -136,24 +138,27 @@ class OffersPage extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(16),
+                            topRight: Radius.circular(16),
+                          ),
                           child: imageUrl != null
                               ? Image.network(
                             imageUrl,
-                            width: 90,
-                            height: 90,
+                            height: 120,
+                            width: double.infinity,
                             fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                            const Icon(Icons.broken_image, size: 60), // ← الصورة المكسورة بتظهر هون
                           )
                               : Container(
-                            width: 90,
-                            height: 90,
-                            color: Colors.grey[200],
-                            child: const Icon(
-                              Icons.image_not_supported,
-                              size: 40,
-                            ),
+                            height: 120,
+                            width: double.infinity,
+                            color: Colors.grey[300],
+                            child: const Icon(Icons.fastfood, size: 60),
                           ),
                         ),
+
                         const SizedBox(width: 12),
                         Expanded(
                           child: Column(

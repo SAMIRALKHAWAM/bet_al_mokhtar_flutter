@@ -1,11 +1,12 @@
 import 'package:almoktar/cubits/theme/theme_cubit.dart';
 import 'package:almoktar/screens/app/CartPage.dart';
 import 'package:almoktar/screens/app/FoodPage.dart';
-import 'package:almoktar/screens/app/WaiterOrderInterface.dart';
 import 'package:almoktar/screens/app/layout.dart';
 import 'package:almoktar/screens/app/scanner.dart';
+import 'package:almoktar/screens/auth/login.dart';
 import 'package:almoktar/screens/chief/chef_order.dart';
 import 'package:almoktar/screens/delivery/delivery_order.dart';
+import 'package:almoktar/screens/waiter/emp.dart';
 import 'package:almoktar/screens/waiter/table.dart';
 import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -15,9 +16,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
+import 'blocs/auth_cubit/cubit.dart';
 import 'blocs/bloc_observer.dart';
 import 'blocs/cubit_app/cubit.dart';
+import 'network/cash_helper.dart';
 import 'network/dio_helper.dart';
+import 'network/end_point.dart';
 
 /// خلفية: استقبال الإشعارات في الخلفية
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -34,24 +38,38 @@ void main() async {
 
   final themeCubit = ThemeCubit();
   await themeCubit.getTheme();
+   Widget startwidget;
 
   Bloc.observer = MyBlocObserver();
   DioHelper.init();
+  await CachHelper.init();
 
+
+
+
+  if (CachHelper.getData(key: 'token') != null) {
+    token = CachHelper.getData(key: 'token');
+    startwidget = TablesScreen();
+  } else {
+    startwidget = LoginPage();
+  }
+
+
+  print('');
   runApp(
     EasyLocalization(
       supportedLocales: const [Locale('en'), Locale('ar')],
       path: 'assets/translation',
       fallbackLocale: const Locale('en'),
-      child: MyApp(themeCubit),
+      child: MyApp(themeCubit,startwidget),
     ),
   );
 }
 
 class MyApp extends StatefulWidget {
   final ThemeCubit themeCubit;
-
-  MyApp(this.themeCubit);
+Widget startwidget;
+  MyApp(this.themeCubit,this.startwidget);
 
   @override
   State<MyApp> createState() => _MyAppState();
@@ -133,7 +151,10 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
-      providers: [BlocProvider(create: (BuildContext context) => AppCubit())],
+      providers: [
+        BlocProvider(create: (BuildContext context) => AppCubit()),
+        BlocProvider(create: (BuildContext context) => AuthCubit())
+      ],
       child: BlocProvider.value(
         value: widget.themeCubit,
         child: BlocBuilder<ThemeCubit, ThemeState>(
@@ -147,7 +168,7 @@ class _MyAppState extends State<MyApp> {
                 locale: context.locale,
               supportedLocales: context.supportedLocales,
               localizationsDelegates: context.localizationDelegates,
-              home: LayoutScreen(),
+              home:TablesScreen(),
               // home: ProfileFormPage(),
               // home: TableBookingPage(),
               // home: OrderTrackingPage(),

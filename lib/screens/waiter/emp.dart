@@ -108,9 +108,9 @@ class _WaiterOrderInterfaceState extends State<WaiterOrderInterface> with Single
   void initState() {
     super.initState();
     final cubit = AppCubit.get(context);
-    cubit.category();
-    cubit.MealAll();
-    cubit.OfferAll();
+    cubit.category_emp();
+    cubit.MealAll_emp();
+    cubit.OfferAll_emp();
     // cubit.get_one_invoice(invoice_id: widget.invoice_id);
 
     _tabController = TabController(length: 2, vsync: this);
@@ -384,17 +384,17 @@ class _WaiterOrderInterfaceState extends State<WaiterOrderInterface> with Single
       builder: (context, state) {
         final cubit = AppCubit.get(context);
 
-        if (cubit.cat_map == null ||
-            cubit.mealAllModel == null ||
-            cubit.Offer_response == null) {
+        if (cubit.cat_map_emp == null ||
+            cubit.mealAllModel_emp == null ||
+            cubit.Offer_response_emp == null) {
           return Scaffold(
             body: Center(child: CircularProgressIndicator()),
           );
         }
 
-        final categories = Map<int, String>.from(cubit.cat_map!);
-        final allMeals = cubit.mealAllModel!.data;
-        final offers = cubit.Offer_response!.data;
+        final categories = Map<int, String>.from(cubit.cat_map_emp!);
+        final allMeals = cubit.mealAllModel_emp!.data;
+        final offers = cubit.Offer_response_emp!.data;
         groupMealsByCategory(allMeals);
 
         return Scaffold(
@@ -641,6 +641,7 @@ class _WaiterOrderInterfaceState extends State<WaiterOrderInterface> with Single
                   items: items,
                   offers: offers,
                 );              }
+              else
 
               AppCubit.get(context).create_internal_order(
                 table_id: widget.table_id,
