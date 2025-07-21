@@ -1,4 +1,5 @@
 import 'package:almoktar/models/mealModels.dart';
+import 'package:latlong2/latlong.dart';
 
 import '../../models/get_discounts.dart';
 
@@ -88,6 +89,14 @@ class OrderLoading extends AppSates {}
 
 
 
+
+// /////تتبع طلب
+
+// class OrderLocationUpdatedState extends AppSates {
+//   final LatLng location;
+
+//   OrderLocationUpdatedState(this.location);
+// }
 
 
 

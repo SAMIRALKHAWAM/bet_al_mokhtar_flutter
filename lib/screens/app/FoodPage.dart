@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../blocs/cubit_app/cubit.dart';
@@ -55,7 +56,7 @@ class _FoodPageState extends State<FoodPage> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       CustomText(
-                        text1: 'Food Menu',
+                        text1: 'food_menu'.tr(),
                         size: 28,
                         fontWeight: FontWeight.bold,
                         color: theme.textTheme.titleLarge?.color,
@@ -73,7 +74,7 @@ class _FoodPageState extends State<FoodPage> {
                             MaterialPageRoute(builder: (_) => OffersPage()),
                           );
                         },
-                      )
+                      ),
                     ],
                   ),
                   const SizedBox(height: 12),
@@ -82,14 +83,21 @@ class _FoodPageState extends State<FoodPage> {
                   TextField(
                     controller: searchController,
                     decoration: InputDecoration(
-                      hintText: 'Search food...',
-                      prefixIcon: Icon(Icons.search, color: theme.iconTheme.color),
-                      suffixIcon: searchController.text.isNotEmpty
-                          ? IconButton(
-                        icon: Icon(Icons.clear, color: theme.iconTheme.color),
-                        onPressed: () => searchController.clear(),
-                      )
-                          : null,
+                      hintText: 'search_hint'.tr(),
+                      prefixIcon: Icon(
+                        Icons.search,
+                        color: theme.iconTheme.color,
+                      ),
+                      suffixIcon:
+                          searchController.text.isNotEmpty
+                              ? IconButton(
+                                icon: Icon(
+                                  Icons.clear,
+                                  color: theme.iconTheme.color,
+                                ),
+                                onPressed: () => searchController.clear(),
+                              )
+                              : null,
                       filled: true,
                       fillColor: theme.cardColor,
                       border: OutlineInputBorder(
@@ -108,18 +116,23 @@ class _FoodPageState extends State<FoodPage> {
                     scrollDirection: Axis.horizontal,
                     child: Row(
                       children: [
-                        _buildCategoryChip(context, 'All', selectedCategory == 'All', () {
-                          setState(() {
-                            selectedCategory = 'All';
-                            cubit.MealAll();
-                          });
-                        }),
+                        _buildCategoryChip(
+                          context,
+                         'all'.tr(),
+                          selectedCategory == 'All',
+                          () {
+                            setState(() {
+                              selectedCategory = 'All';
+                              cubit.MealAll();
+                            });
+                          },
+                        ),
                         ...cubit.cat_map!.entries.map((entry) {
                           return _buildCategoryChip(
                             context,
                             entry.value,
                             selectedCategory == entry.value,
-                                () {
+                            () {
                               setState(() {
                                 selectedCategory = entry.value;
                                 cubit.Meal(entry.key);
@@ -137,17 +150,19 @@ class _FoodPageState extends State<FoodPage> {
                     child: GridView.builder(
                       itemCount: meals.length,
                       padding: EdgeInsets.zero,
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        mainAxisSpacing: 16,
-                        crossAxisSpacing: 16,
-                        childAspectRatio: 0.68,
-                      ),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            mainAxisSpacing: 16,
+                            crossAxisSpacing: 16,
+                            childAspectRatio: 0.68,
+                          ),
                       itemBuilder: (context, index) {
                         final meal = meals[index];
-                        final imageUrl = meal.itemImages.isNotEmpty
-                            ? '${meal.itemImages.first.image}'
-                            : null;
+                        final imageUrl =
+                            meal.itemImages.isNotEmpty
+                                ? '${meal.itemImages.first.image}'
+                                : null;
 
                         return GestureDetector(
                           onTap: () {
@@ -155,7 +170,8 @@ class _FoodPageState extends State<FoodPage> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (_) => FoodHamburgerPage(itemId: meal.id),
+                                builder:
+                                    (_) => FoodHamburgerPage(itemId: meal.id),
                               ),
                             );
                           },
@@ -180,57 +196,72 @@ class _FoodPageState extends State<FoodPage> {
                                     topLeft: Radius.circular(16),
                                     topRight: Radius.circular(16),
                                   ),
-                                  child: imageUrl != null
-                                      ? Image.network(
-                                    imageUrl,
-                                    height: 120,
-                                    width: double.infinity,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stackTrace) =>
-                                    const Icon(Icons.broken_image, size: 60),
-                                  )
-                                      : Container(
-                                    height: 120,
-                                    width: double.infinity,
-                                    color: Colors.grey[300],
-                                    child: const Icon(Icons.fastfood, size: 60),
-                                  ),
+                                  child:
+                                      imageUrl != null
+                                          ? Image.network(
+                                            imageUrl,
+                                            height: 120,
+                                            width: double.infinity,
+                                            fit: BoxFit.cover,
+                                            errorBuilder:
+                                                (context, error, stackTrace) =>
+                                                    const Icon(
+                                                      Icons.broken_image,
+                                                      size: 60,
+                                                    ),
+                                          )
+                                          : Container(
+                                            height: 120,
+                                            width: double.infinity,
+                                            color: Colors.grey[300],
+                                            child: const Icon(
+                                              Icons.fastfood,
+                                              size: 60,
+                                            ),
+                                          ),
                                 ),
 
                                 // الاسم + السعر + زر المفضلة (ريسبونسف)
                                 Padding(
                                   padding: const EdgeInsets.all(12.0),
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         meal.name,
                                         style: TextStyle(
                                           fontSize: screenWidth * 0.04,
                                           fontWeight: FontWeight.bold,
-                                          color: theme.textTheme.titleLarge?.color,
+                                          color:
+                                              theme.textTheme.titleLarge?.color,
                                         ),
                                         maxLines: 2,
                                         overflow: TextOverflow.ellipsis,
                                       ),
                                       const SizedBox(height: 8),
                                       Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
                                         children: [
                                           Flexible(
                                             child: Text(
                                               '\$${meal.price.toStringAsFixed(2)}',
                                               style: TextStyle(
                                                 fontSize: screenWidth * 0.035,
-                                                color: theme.colorScheme.primary,
+                                                color:
+                                                    theme.colorScheme.primary,
                                                 fontWeight: FontWeight.w600,
                                               ),
                                               overflow: TextOverflow.ellipsis,
                                             ),
                                           ),
                                           IconButton(
-                                            icon: const Icon(Icons.favorite_border),
+                                            icon: const Icon(
+                                              Icons.favorite_border,
+                                            ),
                                             color: theme.colorScheme.primary,
                                             iconSize: 20,
                                             padding: EdgeInsets.zero,
@@ -261,7 +292,11 @@ class _FoodPageState extends State<FoodPage> {
   }
 
   Widget _buildCategoryChip(
-      BuildContext context, String label, bool selected, VoidCallback onTap) {
+    BuildContext context,
+    String label,
+    bool selected,
+    VoidCallback onTap,
+  ) {
     final theme = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.only(right: 8.0),
@@ -273,7 +308,9 @@ class _FoodPageState extends State<FoodPage> {
         backgroundColor: theme.cardColor,
         labelStyle: TextStyle(
           color:
-          selected ? theme.colorScheme.onPrimary : theme.textTheme.bodyMedium?.color,
+              selected
+                  ? theme.colorScheme.onPrimary
+                  : theme.textTheme.bodyMedium?.color,
           fontWeight: selected ? FontWeight.bold : FontWeight.normal,
         ),
         elevation: selected ? 4 : 0,

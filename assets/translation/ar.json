@@ -40,6 +40,64 @@
   "place_order": "إنهاء الطلب",
   "order_closed": "✅ تم إغلاق الطلب",
   "coupon_applied": "🎉 تم تطبيق الخصم %s ر.س",
-  "coupon_invalid": "❌ الكوبون غير صالح"
+  "coupon_invalid": "❌ الكوبون غير صالح",
+
+
+   "settings": "الإعدادات",
+  "my_profile": "صفحتي الشخصية",
+  "my_orders": "طلباتي",
+  "scan_qr": "امسح رمز QR",
+  "change_language": "تغيير اللغة",
+  "change_password": "تغيير كلمة المرور",
+  "logout": "تسجيل الخروج",
+  "logout_confirm": "هل أنت متأكد من تسجيل الخروج؟",
+  "cancel": "إلغاء",
+  "confirm": "تأكيد",
+  "exit": "خروج",
+  "feature_in_progress": "ميزة قيد التطوير",
+
+ "cart_title": "سلة المشتريات",
+  "cart_empty": "لا توجد منتجات في السلة",
+  "total_label": "الإجمالي:",
+  "confirm_order": "تأكيد الطلب",
+  "quantity": "الكمية",
+
+   "add_to_cart": "أضف إلى السلة",
+  "product_description": "{name} لذيذ محضر بمكونات طازجة وصلصتنا الخاصة.",
+  "added_successfully": "تمت الإضافة بنجاح",
+
+    "food_menu": "قائمة الطعام",
+  "search_hint": "ابحث عن الطعام...",
+  "all": "الكل",
+  "offers": "العروض",
+
+
+    "home": "الرئيسية",
+  "cart": "السلة",
+  "fav": "المفضلة",
+  "setting": "الإعدادات",
+
+
+
+  "order_details": "تفاصيل الطلب",
+  "select_branch": "اختر الفرع",
+  "select_branch_hint": "اختر فرع المطعم",
+  "address": "العنوان",
+  "enter_address": "أدخل عنوان التوصيل بالتفصيل",
+  "phone": "رقم الجوال",
+  "phone_example": "مثال: 09XXXXXXXX",
+  "discount_code": "كود الخصم",
+  "enter_discount": "أدخل كود الخصم",
+  "verify": "تحقق",
+  "continue": "متابعة",
+  "discount_code_min_length": "الكود يجب أن يكون 6 خانات على الأقل",
+  "discount_valid": "تم التحقق من كود الخصم بنجاح!",
+  "discount_invalid": "كود الخصم غير صالح",
+  "order_sent_success": "تم إرسال الطلب بنجاح",
+  "order_sent_error": "حدث خطأ أثناء إرسال الطلب",
+  "branch_load_error": "حدث خطأ في تحميل الفروع",
+  "no_branches": "لا توجد فروع متاحة حالياً"
+
+
 }
 

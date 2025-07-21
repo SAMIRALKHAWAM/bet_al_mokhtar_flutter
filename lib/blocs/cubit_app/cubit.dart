@@ -4,6 +4,7 @@ import 'package:almoktar/blocs/cubit_app/statues.dart';
 import 'package:almoktar/models/FavModel.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:latlong2/latlong.dart';
 
 import '../../models/add_order_user.dart';
 import '../../models/category_models.dart';
@@ -721,6 +722,7 @@ class AppCubit extends Cubit<AppSates> {
   }
 
 
+/////////////
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////   WAITER
@@ -1012,5 +1014,11 @@ class AppCubit extends Cubit<AppSates> {
 
 
 }
+
+
+  
+
+
+
 
 

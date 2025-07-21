@@ -37,5 +37,69 @@
   "place_order": "Place Order",
   "order_closed": "✅ Order has been closed",
   "coupon_applied": "🎉 Discount of %s SAR applied",
-  "coupon_invalid": "❌ Invalid coupon code"
+  "coupon_invalid": "❌ Invalid coupon code",
+
+
+
+
+  "settings": "Settings",
+  "my_profile": "My Profile",
+  "my_orders": "My Orders",
+  "scan_qr": "Scan QR Code",
+  "change_language": "Change Language",
+  "change_password": "Change Password",
+  "logout": "Log Out",
+  "logout_confirm": "Are you sure you want to log out?",
+  "cancel": "Cancel",
+  "confirm": "Confirm",
+  "exit": "Exit",
+  "feature_in_progress": "Feature in progress",
+
+ "cart_title": "Shopping Cart",
+  "cart_empty": "No products in the cart",
+  "total_label": "Total:",
+  "confirm_order": "Confirm Order",
+  "quantity": "Quantity",
+  
+
+
+
+ 
+  "add_to_cart": "Add to Cart",
+  "product_description": "Delicious {name} made with fresh ingredients and our special sauce.",
+  "added_successfully": "Added successfully",
+
+   "food_menu": "Food Menu",
+  "search_hint": "Search food...",
+  "all": "All",
+  "offers": "Offers",
+
+
+ "home": "Home",
+  "cart": "Cart",
+  "fav": "Favorites",
+  "setting": "Settings",
+
+
+
+   "order_details": "Order Details",
+  "select_branch": "Select Branch",
+  "select_branch_hint": "Choose restaurant branch",
+  "address": "Address",
+  "enter_address": "Enter full delivery address",
+  "phone": "Phone Number",
+  "phone_example": "e.g. 09XXXXXXXX",
+  "discount_code": "Discount Code",
+  "enter_discount": "Enter discount code",
+  "verify": "Verify",
+  "continue": "Continue",
+  "discount_code_min_length": "Code must be at least 6 characters",
+  "discount_valid": "Discount code verified successfully!",
+  "discount_invalid": "Invalid discount code",
+  "order_sent_success": "Order sent successfully",
+  "order_sent_error": "An error occurred while sending the order",
+  "branch_load_error": "Error loading branches",
+  "no_branches": "No branches available currently"
+
+
 }

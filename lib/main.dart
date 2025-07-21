@@ -1,3 +1,4 @@
+import 'package:almoktar/cubits/Location/location_cubit.dart';
 import 'package:almoktar/cubits/theme/theme_cubit.dart';
 import 'package:almoktar/screens/app/CartPage.dart';
 import 'package:almoktar/screens/app/FoodPage.dart';
@@ -6,6 +7,7 @@ import 'package:almoktar/screens/app/scanner.dart';
 import 'package:almoktar/screens/auth/CustomSplashScreen.dart';
 import 'package:almoktar/screens/auth/login.dart';
 import 'package:almoktar/screens/chief/chef_order.dart';
+import 'package:almoktar/screens/delivery/TrackOrderPage.dart';
 import 'package:almoktar/screens/delivery/delivery_order.dart';
 import 'package:almoktar/screens/waiter/emp.dart';
 import 'package:almoktar/screens/waiter/table.dart';
@@ -16,6 +18,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 import 'blocs/auth_cubit/cubit.dart';
 import 'blocs/bloc_observer.dart';
@@ -39,14 +42,11 @@ void main() async {
 
   final themeCubit = ThemeCubit();
   await themeCubit.getTheme();
-   Widget startwidget;
+  Widget startwidget;
 
   Bloc.observer = MyBlocObserver();
   DioHelper.init();
   await CachHelper.init();
-
-
-
 
   if (CachHelper.getData(key: 'token') != null) {
     token = CachHelper.getData(key: 'token');
@@ -55,22 +55,35 @@ void main() async {
     startwidget = LoginPage();
   }
 
-
   print('');
+
+  /// ✅ انشئ socket هنا
+  final IO.Socket socket = IO.io(
+    'http://localhost:5002', // استبدلها بعنوان السيرفر الحقيقي
+    IO.OptionBuilder().setTransports(['websocket']).enableAutoConnect().build(),
+  );
+
   runApp(
     EasyLocalization(
       supportedLocales: const [Locale('en'), Locale('ar')],
       path: 'assets/translation',
       fallbackLocale: const Locale('en'),
-      child: MyApp(themeCubit,startwidget),
+      // child: MyApp(themeCubit,startwidget),
+      child: MyApp(
+        themeCubit,
+        socket,
+        startwidget, // مرر الـ socket للـ MyApp
+      ),
     ),
   );
 }
 
 class MyApp extends StatefulWidget {
   final ThemeCubit themeCubit;
-Widget startwidget;
-  MyApp(this.themeCubit,this.startwidget);
+  Widget startwidget;
+  // MyApp(this.themeCubit,this.startwidget);
+  final IO.Socket socket;
+  MyApp(this.themeCubit, this.socket, this.startwidget);
 
   @override
   State<MyApp> createState() => _MyAppState();
@@ -79,7 +92,7 @@ Widget startwidget;
 class _MyAppState extends State<MyApp> {
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-  FlutterLocalNotificationsPlugin();
+      FlutterLocalNotificationsPlugin();
 
   @override
   void initState() {
@@ -90,16 +103,17 @@ class _MyAppState extends State<MyApp> {
 
   void _initializeLocalNotifications() async {
     const AndroidInitializationSettings initializationSettingsAndroid =
-    AndroidInitializationSettings('@mipmap/ic_launcher');
+        AndroidInitializationSettings('@mipmap/ic_launcher');
 
     const InitializationSettings initializationSettings =
-    InitializationSettings(android: initializationSettingsAndroid);
+        InitializationSettings(android: initializationSettingsAndroid);
 
     await flutterLocalNotificationsPlugin.initialize(initializationSettings);
   }
 
   Future<void> _setupFCM() async {
-    NotificationSettings settings = await _firebaseMessaging.requestPermission();
+    NotificationSettings settings =
+        await _firebaseMessaging.requestPermission();
 
     if (settings.authorizationStatus == AuthorizationStatus.authorized) {
       print('✅ Notification permission granted');
@@ -122,20 +136,24 @@ class _MyAppState extends State<MyApp> {
     });
 
     // فتح التطبيق من إشعار بارد
-    RemoteMessage? initialMessage = await _firebaseMessaging.getInitialMessage();
+    RemoteMessage? initialMessage =
+        await _firebaseMessaging.getInitialMessage();
     if (initialMessage != null) {
-      print('🚀 App Launched from Notification: ${initialMessage.notification?.title}');
+      print(
+        '🚀 App Launched from Notification: ${initialMessage.notification?.title}',
+      );
     }
   }
 
   void _showLocalNotification(RemoteMessage message) async {
-    const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
-      'default_channel',
-      'Default Channel',
-      importance: Importance.max,
-      priority: Priority.high,
-      showWhen: true,
-    );
+    const AndroidNotificationDetails androidDetails =
+        AndroidNotificationDetails(
+          'default_channel',
+          'Default Channel',
+          importance: Importance.max,
+          priority: Priority.high,
+          showWhen: true,
+        );
 
     const NotificationDetails platformDetails = NotificationDetails(
       android: androidDetails,
@@ -154,8 +172,12 @@ class _MyAppState extends State<MyApp> {
     return MultiBlocProvider(
       providers: [
         BlocProvider(create: (BuildContext context) => AppCubit()),
-        BlocProvider(create: (BuildContext context) => AuthCubit())
+        BlocProvider(create: (BuildContext context) => AuthCubit()),
+        BlocProvider(
+          create: (BuildContext context) => LocationCubit(widget.socket),
+        ),
       ],
+
       child: BlocProvider.value(
         value: widget.themeCubit,
         child: BlocBuilder<ThemeCubit, ThemeState>(
@@ -166,11 +188,14 @@ class _MyAppState extends State<MyApp> {
               debugShowCheckedModeBanner: false,
               title: 'almoktar',
               theme: themeData,
-                locale: context.locale,
+              locale: context.locale,
               supportedLocales: context.supportedLocales,
               localizationsDelegates: context.localizationDelegates,
-              home:LayoutScreen( )
-              ,
+              home: LayoutScreen(),
+
+              //  home: LayoutScreen(),
+              // home: TrackOrderPage(),
+
               // home: ProfileFormPage(),
               // home: TableBookingPage(),
               // home: OrderTrackingPage(),

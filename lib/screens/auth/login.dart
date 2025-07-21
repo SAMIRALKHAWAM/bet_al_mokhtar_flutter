@@ -2,6 +2,7 @@ import 'package:almoktar/blocs/auth_cubit/cubit.dart';
 import 'package:almoktar/blocs/cubit_app/cubit.dart';
 import 'package:almoktar/blocs/cubit_app/statues.dart';
 import 'package:almoktar/config/theme_manager.dart';
+import 'package:almoktar/cubits/password_visibility/password_visibility_cubit.dart';
 import 'package:almoktar/cubits/theme/theme_cubit.dart';
 import 'package:almoktar/network/end_point.dart';
 import 'package:almoktar/screens/app/layout.dart';
@@ -122,17 +123,49 @@ if(state is LoginSuccessState){
                                   ),
                                 ),
                                 const SizedBox(height: 20),
-                                CustomTextFormField(
-                                  controller: passwordController,
-                                  hint: 'enter_password'.tr(),
-                                  obscureText: true,
-                                  radius: 15,
-                                  color: theme.colorScheme.onSecondaryFixed,
-                                  prefixIcon: Icon(
-                                    Icons.lock,
-                                    color: theme.colorScheme.primary,
-                                  ),
+
+ BlocBuilder<
+                                  PasswordVisibilityCubit,
+                                  PasswordVisibilityState
+                                >(
+                                  builder: (context, stateVisibility) {
+                                    return CustomTextFormField(
+                                      controller: passwordController,
+                                      hint:  ' enter_password'.tr(),
+                                      obscureText: stateVisibility.isObscure,
+                                      radius: 15,
+                                      color: theme.colorScheme.onSecondaryFixed,
+                                      prefixIcon: Icon(
+                                        Icons.lock,
+                                        color: theme.colorScheme.primary,
+                                      ),
+                                      suffixIcon: IconButton(
+                                        icon: Icon(
+                                          stateVisibility.isObscure
+                                              ? Icons.visibility_off
+                                              : Icons.visibility,
+                                        ),
+                                        onPressed: () {
+                                          context
+                                              .read<PasswordVisibilityCubit>()
+                                              .toggleVisibility();
+                                        },
+                                      ),
+                                    );
+                                  },
                                 ),
+
+                                // CustomTextFormField(
+                                //   controller: passwordController,
+                                //   hint: 'enter_password'.tr(),
+                                //   obscureText: true,
+                                //   radius: 15,
+                                //   color: theme.colorScheme.onSecondaryFixed,
+                                //   prefixIcon: Icon(
+                                //     Icons.lock,
+                                //     color: theme.colorScheme.primary,
+                                //   ),
+                                // ),
                                 Align(
                                   alignment: Alignment.centerRight,
                                   child: TextButtonCustom(

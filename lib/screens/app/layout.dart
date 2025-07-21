@@ -5,6 +5,7 @@ import 'package:almoktar/screens/app/FavPage.dart';
 import 'package:almoktar/screens/app/FoodPage.dart';
 import 'package:almoktar/screens/auth/ProfileFormPage.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -14,31 +15,39 @@ import 'Setting.dart';
 //   @override
 //   _LayoutScreenState createState() => _LayoutScreenState();
 // }
-//
+
 // class _LayoutScreenState extends State<LayoutScreen> {
 //   int _page = 0;
-//
+
 //   final List<Widget> _pages = [
 //     FoodPage(),
 //     CartPage(),
 //     FavoritesPage(),
 //     SettingsPage(),
 //   ];
-//
+
 //   final List<IconData> _icons = [
 //     Icons.home,
 //     Icons.shopping_cart,
 //     Icons.favorite,
 //     Icons.person,
 //   ];
-//
+
+
+// //  final List<String> _labels = [
+// //     'home',
+// //     'cart',
+// //     'fav',
+// //     'setting',
+// //   ];
+
 //   @override
 //   Widget build(BuildContext context) {
 //     return BlocBuilder<ThemeCubit, ThemeState>(
 //       builder: (context, state) {
 //         final themeCubit = context.read<ThemeCubit>();
 //         final themeData = themeCubit.themeData;
-//
+
 //         return Scaffold(
 //           body: _pages[_page],
 //           bottomNavigationBar: CurvedNavigationBar(
@@ -136,13 +145,13 @@ class _LayoutScreenState extends State<LayoutScreen> {
               });
             },
             backgroundColor: Colors.white,
-            selectedItemColor:ColorApp.color1,
+            selectedItemColor: Colors.blue, // عدل اللون حسب ثيمك
             unselectedItemColor: Colors.grey,
             type: BottomNavigationBarType.fixed,
             items: List.generate(_icons.length, (index) {
               return BottomNavigationBarItem(
                 icon: Icon(_icons[index]),
-                label: _labels[index],
+                label: _labels[index].tr(),
               );
             }),
           ),

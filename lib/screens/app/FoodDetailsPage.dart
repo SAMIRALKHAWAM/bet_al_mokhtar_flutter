@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 import '../../blocs/cubit_app/cubit.dart';
 import '../../blocs/cubit_app/statues.dart';
@@ -101,8 +102,7 @@ class _FoodHamburgerPageState extends State<FoodHamburgerPage> {
                           });
                         },
                         itemBuilder: (context, index) {
-                          final imageUrl =
-                          getFullImageUrl(meal.itemImages[index].image);
+                          final imageUrl = getFullImageUrl(meal.itemImages[index].image);
                           return ClipRRect(
                             borderRadius: BorderRadius.circular(20),
                             child: Image.network(
@@ -155,10 +155,12 @@ class _FoodHamburgerPageState extends State<FoodHamburgerPage> {
 
                 const SizedBox(height: 12),
 
-                // الوصف
+                // الوصف (مترجم)
                 CustomText(
-                  text1:
-                  'Delicious ${meal.name.toLowerCase()} made with fresh ingredients and our special sauce.',
+                  text1: tr(
+                    'product_description',
+                    namedArgs: {'name': meal.name},
+                  ),
                   size: 16,
                   color: theme.textTheme.bodyMedium?.color,
                 ),
@@ -169,7 +171,7 @@ class _FoodHamburgerPageState extends State<FoodHamburgerPage> {
                 Row(
                   children: [
                     CustomText(
-                      text1: 'Quantity',
+                      text1: 'quantity'.tr(),
                       size: 16,
                       fontWeight: FontWeight.w600,
                       color: theme.textTheme.bodyMedium?.color,
@@ -211,9 +213,9 @@ class _FoodHamburgerPageState extends State<FoodHamburgerPage> {
 
                 const SizedBox(height: 24),
 
-                // زر الإضافة للسلة
+                // زر الإضافة للسلة (مترجم)
                 DefaultButton(
-                  text: 'Add to Cart',
+                  text: 'add_to_cart'.tr(),
                   color: theme.colorScheme.primary,
                   textColor: theme.colorScheme.onPrimary,
                   width: double.infinity,
@@ -228,10 +230,9 @@ class _FoodHamburgerPageState extends State<FoodHamburgerPage> {
                     );
 
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('تمت الإضافة بنجاح')),
+                      SnackBar(content: Text('added_successfully'.tr())),
                     );
                   },
-
                 ),
               ],
             ),

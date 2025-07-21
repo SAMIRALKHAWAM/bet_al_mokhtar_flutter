@@ -1,10 +1,10 @@
 import 'package:almoktar/blocs/cubit_app/statues.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:almoktar/screens/app/OrderConfirmedPage.dart';
 import 'package:almoktar/blocs/cubit_app/cubit.dart';
 import 'package:almoktar/cubits/theme/theme_cubit.dart';
 import 'package:almoktar/components/defaultButton.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 import 'NextSteps.dart';
 
@@ -32,7 +32,7 @@ class CartPage extends StatelessWidget {
               appBar: AppBar(
                 title: Row(
                   children: [
-                    const Text("سلة المشتريات"),
+                    Text("cart_title".tr()),
                     if (orderItems.isNotEmpty || orderOffers.isNotEmpty)
                       Padding(
                         padding: const EdgeInsets.only(right: 8.0),
@@ -67,7 +67,7 @@ class CartPage extends StatelessWidget {
                                 color: theme.colorScheme.secondary.withOpacity(0.4)),
                             const SizedBox(height: 20),
                             Text(
-                              "لا توجد منتجات في السلة",
+                              "cart_empty".tr(),
                               style: theme.textTheme.titleMedium?.copyWith(
                                 color: Colors.grey,
                               ),
@@ -136,7 +136,7 @@ class CartPage extends StatelessWidget {
                                   children: [
                                     Icon(Icons.wallet, color: theme.colorScheme.primary),
                                     const SizedBox(width: 8),
-                                    Text("الإجمالي:",
+                                    Text("total_label".tr(),
                                         style: theme.textTheme.titleMedium
                                             ?.copyWith(fontWeight: FontWeight.w600)),
                                   ],
@@ -159,7 +159,7 @@ class CartPage extends StatelessWidget {
                                       builder: (_) =>  OrderNextStep()),
                                 );
                               },
-                              text: 'تأكيد الطلب',
+                              text: "confirm_order".tr(),
                               color: theme.colorScheme.primary,
                               textColor: theme.colorScheme.onPrimary,
                               size: 18,
@@ -244,7 +244,7 @@ class CartPage extends StatelessWidget {
                 Row(
                   children: [
                     Text(
-                      "الكمية: $quantity",
+                      "${"quantity".tr()}: $quantity",
                       style: theme.textTheme.bodySmall
                           ?.copyWith(color: Colors.grey[600]),
                     ),
