@@ -340,6 +340,52 @@ class AppCubit extends Cubit<AppSates> {
   }
 
 
+  ///////////////////////////////////////////////  change_internal_order_status
+  void change_internal_order_status({
+    required  table_id,
+    required  status,
+    required  order_id,
+  }) {
+    print(table_id);
+    print(status);
+    print(order_id);
+
+    emit(LoadingState());
+
+    DioHelper.postData(
+      url: baseurl + "change_internal_order_status/${order_id}",
+      data: {
+        "table_id": table_id,
+        "status": status,
+"branch_id":branch_id,
+        "captain_id":3
+
+
+      },
+    ).then((value) {
+      emit(orderchangeSuccessState());
+      print(value.data);
+    })..catchError((error) {
+      if (error is DioError) {
+        // طبع الخطأ الأساسي
+        print("Dio error message: ${error.message}");
+
+        // طبع استجابة السيرفر لو موجودة
+        if (error.response != null) {
+          print("Status code: ${error.response?.statusCode}");
+          print("Response data: ${error.response?.data}");
+        }
+      } else {
+        // لو الخطأ مش DioError اطبع النص عادي
+        print("Error: ${error.toString()}");
+      }
+
+      emit(orderchangeErrorState());
+    });
+
+  }
+
+
 
   /////////////////////////////////////////////  Branch
 
@@ -760,17 +806,31 @@ class AppCubit extends Cubit<AppSates> {
   TableResponse ? Table_model;
   void Table_get() {
     emit(LoadingState());
-    DioHelper.getData(url: baseurl_Waiter + "get_tables?branchId=${branch_id}")
+    DioHelper.getData(url: baseurl_Waiter + "get_tables?branchId=3")
         .then((value) {
       emit(tableSuccessState());
       Table_model = TableResponse.fromJson(value.data);
 
       // print(value.data.toString());
-    })
-        .catchError((error) {
-      print(error.toString());
-      emit((tableErrorState()));
+    }).
+    catchError((error) {
+      if (error is DioError) {
+        // طبع الخطأ الأساسي
+        print("Dio error message: ${error.message}");
+
+        // طبع استجابة السيرفر لو موجودة
+        if (error.response != null) {
+          print("Status code: ${error.response?.statusCode}");
+          print("Response data: ${error.response?.data}");
+        }
+      } else {
+        // لو الخطأ مش DioError اطبع النص عادي
+        print("Error: ${error.toString()}");
+      }
+
+      emit(orderchangeErrorState());
     });
+
   }
 
   ///////////////////////////////////////////////  table_change_statu
@@ -888,7 +948,7 @@ class AppCubit extends Cubit<AppSates> {
 
 
   ///////////////////////////////////////////////  change_internal_order_status
-  void change_internal_order_status({
+  void change_internal_order_status_waiter({
     required  table_id,
     required  status,
     required  order_id,

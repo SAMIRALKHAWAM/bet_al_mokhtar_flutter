@@ -3,6 +3,7 @@ import 'package:almoktar/screens/app/CartPage.dart';
 import 'package:almoktar/screens/app/FoodPage.dart';
 import 'package:almoktar/screens/app/layout.dart';
 import 'package:almoktar/screens/app/scanner.dart';
+import 'package:almoktar/screens/auth/CustomSplashScreen.dart';
 import 'package:almoktar/screens/auth/login.dart';
 import 'package:almoktar/screens/chief/chef_order.dart';
 import 'package:almoktar/screens/delivery/delivery_order.dart';
@@ -168,7 +169,8 @@ class _MyAppState extends State<MyApp> {
                 locale: context.locale,
               supportedLocales: context.supportedLocales,
               localizationsDelegates: context.localizationDelegates,
-              home:TablesScreen(),
+              home:LayoutScreen( )
+              ,
               // home: ProfileFormPage(),
               // home: TableBookingPage(),
               // home: OrderTrackingPage(),

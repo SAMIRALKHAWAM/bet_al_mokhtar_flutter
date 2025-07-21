@@ -146,7 +146,7 @@ class _FoodPageState extends State<FoodPage> {
                       itemBuilder: (context, index) {
                         final meal = meals[index];
                         final imageUrl = meal.itemImages.isNotEmpty
-                            ? 'http://${meal.itemImages.first.image}'
+                            ? '${meal.itemImages.first.image}'
                             : null;
 
                         return GestureDetector(

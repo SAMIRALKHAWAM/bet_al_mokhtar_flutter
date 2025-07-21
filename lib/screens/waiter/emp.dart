@@ -62,7 +62,7 @@ class _EditableExpansionTileState extends State<EditableExpansionTile> {
                 tooltip: 'تعديل الطلب',
                 onPressed: () {
                   if (widget.onAddOldOrderToCart != null && widget.oldOrder != null) {
-                 AppCubit.get(context).change_internal_order_status(table_id: widget.table_id,
+                 AppCubit.get(context).change_internal_order_status_waiter(table_id: widget.table_id,
                      status: "pending", order_id: widget.title);
                  print(widget.table_id);
 

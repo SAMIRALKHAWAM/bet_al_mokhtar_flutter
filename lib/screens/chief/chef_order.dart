@@ -167,7 +167,9 @@ class _ChefOrdersExpansionPanelPageState extends State<ChefOrdersExpansionPanelP
                   ),
                   const SizedBox(height: 4),
                   CustomText(
-                    text1: "الزبون: ${order.waiterName}",
+                    text1:
+                    order.type=="int"?
+                    " نوع الطلب : داخلي ":" نوع الطلب : خارجي ",
                     size: 14,
                     color: theme.textTheme.bodyMedium?.color,
                   ),

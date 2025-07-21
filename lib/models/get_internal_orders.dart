@@ -1,10 +1,10 @@
 class OrderResponse {
   final bool success;
   final String message;
-  final int perPage;
-  final int total;
-  final int currentPage;
-  final int lastPage;
+  final num perPage;
+  final int? total;
+  final int? currentPage;
+  final int? lastPage;
   final List<OrderItem> data;
 
   OrderResponse({
@@ -36,8 +36,8 @@ class OrderItem {
   final int id;
   final int invoiceId;
   final int? waiterId;
-  final int discount;
-  final int fullPrice;
+  final int? discount;
+  final int? fullPrice;
   final String status;
   final String type;
   final String? waiterName;

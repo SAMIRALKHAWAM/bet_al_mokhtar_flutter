@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:almoktar/screens/app/layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:almoktar/cubits/theme/theme_cubit.dart';
@@ -51,7 +52,7 @@ class _CustomSplashScreenState extends State<CustomSplashScreen>
             Timer(const Duration(seconds: 6), () {
               Navigator.of(
                 context,
-              ).pushReplacement(MaterialPageRoute(builder: (_) => LoginPage()));
+              ).pushReplacement(MaterialPageRoute(builder: (_) => LayoutScreen()));
             });
           }
         });

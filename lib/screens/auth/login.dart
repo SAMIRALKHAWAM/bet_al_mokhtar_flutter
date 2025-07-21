@@ -36,7 +36,7 @@ if(state is LoginSuccessState){
           Navigator.push(
     context,
     MaterialPageRoute(
-      builder: (context) => TablesScreen(),
+      builder: (context) => LayoutScreen(),
     ),
   );
 

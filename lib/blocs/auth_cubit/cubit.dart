@@ -46,4 +46,47 @@ class AuthCubit extends Cubit<AuthStates> {
       emit(LoginErrorState());
     });
   }
+
+
+
+
 }
+
+
+//
+// ///////////////////////////////////////////////  change_internal_order_status
+// LoginModel? loginModel;
+// void Login({required user_name, required password}) {
+//   emit(LoadingState());
+//
+//   DioHelper.postData(
+//     url: baseurl + "employee_login",
+//     data: {"password": password, "user_name": user_name},
+//   ).then((value) {
+//     loginModel = LoginModel.fromJson(value.data);
+//
+//     emit(LoginSuccessState(loginModel!));
+//     // CachHelper.saveData(key: "token", value: loginModel.token);
+//     // token=CachHelper.getData(key: "token");
+//
+//
+//     // print(value.data);
+//   })..catchError((error) {
+//     if (error is DioError) {
+//       // طبع الخطأ الأساسي
+//       print("Dio error message: ${error.message}");
+//
+//       // طبع استجابة السيرفر لو موجودة
+//       if (error.response != null) {
+//         print("Status code: ${error.response?.statusCode}");
+//         print("Response data: ${error.response?.data}");
+//       }
+//     } else {
+//       // لو الخطأ مش DioError اطبع النص عادي
+//       print("Error: ${error.toString()}");
+//     }
+//
+//     emit(LoginErrorState());
+//   });
+// }
+// }
