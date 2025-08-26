@@ -46,10 +46,10 @@ class DeliveryResponse {
 
 class OrderData {
   final int id;
-  final int invoiceId;
+  final int? invoiceId;
   final int? waiterId;
-  final int discount;
-  final int fullPrice;
+  final int? discount;
+  final int? fullPrice;
   final String status;
   final String type;
   final String? waiterName;
@@ -102,9 +102,9 @@ class OrderData {
 }
 
 class ExternalOrderInfo {
-  final int id;
-  final int invoiceId;
-  final int userId;
+  final int? id;
+  final int? invoiceId;
+  final int? userId;
   final String location;
   final String phone;
   final String qr;

@@ -299,6 +299,39 @@ class _WaiterOrderInterfaceState extends State<WaiterOrderInterface> with Single
     });
     Navigator.of(context).pop();
   }
+  void endTableOrders() async {
+    final cubit = AppCubit.get(context);
+
+    final statusCode = await cubit.change_invoice_status(
+      table_id: widget.table_id,
+      invoice_id: widget.invoice_id,
+    );
+
+    if (statusCode == 200) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('تم إنهاء الطلبات بنجاح')),
+      );
+    } else if (statusCode == 422) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+
+          content: Text('يجب أن تكون حالة جميع الطلبات الداخلية الخاصة بالفاتورة مستلمة'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text('حسناً'),
+            ),
+          ],
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('حدث خطأ في الاتصال')),
+      );
+    }
+  }
+
 
   Widget buildOldOrdersBottomSheet() {
     return BlocBuilder<AppCubit, AppSates>(
@@ -308,6 +341,11 @@ class _WaiterOrderInterfaceState extends State<WaiterOrderInterface> with Single
         if (invoice == null) {
           return Center(child: CircularProgressIndicator());
         }
+
+        if(state is LoadingState)
+      {
+        return Center(child: CircularProgressIndicator(),);
+      }
 
         if (invoice.internalOrders.isEmpty) {
           return Padding(
@@ -378,9 +416,26 @@ class _WaiterOrderInterfaceState extends State<WaiterOrderInterface> with Single
     );
   }
 
+
+
+
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<AppCubit, AppSates>(
+    return BlocConsumer<AppCubit, AppSates>(
+      listener: (context,state){
+        if(state is addcartSuccessState){
+          confirmOrder();
+
+        }
+        if(state is addcartErrorState){
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('هناك خطا ما أعد المحاولة ')),
+          );
+
+        }
+
+
+      },
       builder: (context, state) {
         final cubit = AppCubit.get(context);
 
@@ -417,10 +472,40 @@ class _WaiterOrderInterfaceState extends State<WaiterOrderInterface> with Single
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
                       ),
+
                       builder: (_) => buildOldOrdersBottomSheet(),
                     );
                   },
                 ),
+
+              IconButton(
+                icon: Icon(Icons.check_circle_outline, color: Colors.white),
+                tooltip: 'إنهاء الطلبات',
+                onPressed: () {
+                  // هنا نعرض الـ Dialog للتأكيد
+                  showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: Text('تأكيد'),
+                      content: Text('هل تريد إنهاء جميع الطلبات للطاولة؟'),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(), // إلغاء
+                          child: Text('إلغاء'),
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.of(context).pop(); // إغلاق الـ dialog
+                            // هنا تنفذ الدالة اللي بتنهي الطلبات
+                            endTableOrders();
+                          },
+                          child: Text('نعم'),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
             ],
             bottom: MediaQuery.of(context).size.width < 600
                 ? TabBar(
@@ -441,7 +526,7 @@ class _WaiterOrderInterfaceState extends State<WaiterOrderInterface> with Single
                   return Row(
                     children: [
                       Expanded(
-                        flex: 3,
+                        flex: 2,
                         child: Padding(
                           padding: const EdgeInsets.all(12.0),
                           child: buildMenuSection(categories, offers),
@@ -649,7 +734,6 @@ class _WaiterOrderInterfaceState extends State<WaiterOrderInterface> with Single
                 offers: offers,
               );
 
-              confirmOrder();
             },              child: Text("تأكيد الطلب"),
             style: ElevatedButton.styleFrom(
               backgroundColor: ColorApp.accent,

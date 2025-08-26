@@ -65,6 +65,12 @@ class _FoodHamburgerPageState extends State<FoodHamburgerPage> {
           );
         }
 
+        if (state is LoadingState) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+
         final Data meal = cubit.get_one_item_model!.data;
 
         return Scaffold(

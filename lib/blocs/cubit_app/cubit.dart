@@ -10,6 +10,7 @@ import '../../models/add_order_user.dart';
 import '../../models/category_models.dart';
 import '../../models/dd_order_offer_user.dart';
 import '../../models/get_branch.dart';
+import '../../models/get_deliveryman.dart';
 import '../../models/get_discounts.dart';
 import '../../models/get_internal_order_items.dart';
 import '../../models/get_internal_orders.dart';
@@ -24,6 +25,7 @@ import '../../network/end_point.dart';
 
 class AppCubit extends Cubit<AppSates> {
   AppCubit() : super(AppInitialState());
+
   static AppCubit get(context) => BlocProvider.of(context);
 
   ///////////////////////Get category
@@ -35,83 +37,87 @@ class AppCubit extends Cubit<AppSates> {
     // '3': 'Drinks',
   };
   CategoryModel? categoryModel;
+
   void category() {
     emit(LoadingState());
     DioHelper.getData(url: baseurl + "get_categories")
         .then((value) {
-          emit(categorySuccessState());
-          categoryModel = CategoryModel.fromJson(value.data);
-          // print(value.toString());
+      emit(categorySuccessState());
+      categoryModel = CategoryModel.fromJson(value.data);
+      // print(value.toString());
 
-          cat_map?.clear();
-          for (var item in categoryModel!.data) {
-            cat_map?[item.id] = item.name;
-          }
-          print(cat_map);
+      cat_map?.clear();
+      for (var item in categoryModel!.data) {
+        cat_map?[item.id] = item.name;
+      }
+      print(cat_map);
 
-          // حدد أول عنصر تلقائي
-          if (cat_map!.isNotEmpty) {
-            selectedCategory = cat_map!.entries.first.value;
-          }
-
-        })
+      // حدد أول عنصر تلقائي
+      if (cat_map!.isNotEmpty) {
+        selectedCategory = cat_map!.entries.first.value;
+      }
+    })
         .catchError((error) {
-          print(error.toString());
-          emit((categoryErrorState()));
-        });
+      print(error.toString());
+      emit((categoryErrorState()));
+    });
   }
 
   MealModel? mealAllModel;
+
   void MealAll() {
     emit(LoadingState());
     DioHelper.getData(url: baseurl + "get_items")
         .then((value) {
-          emit(MealSuccessState());
-          mealAllModel = MealModel.fromJson(value.data);
+      emit(MealSuccessState());
+      mealAllModel = MealModel.fromJson(value.data);
 
-          // print(value.data.toString());
-        })
+      print(value.data.toString());
+    })
         .catchError((error) {
-          print(error.toString());
-          emit((MealErrorState()));
-        });
+      print(error.toString());
+      emit((MealErrorState()));
+    });
   }
 
   MealModel? mealModel;
+
   void Meal(cat_Id) {
     print(cat_Id);
     emit(LoadingState());
     DioHelper.getData(url: baseurl + "get_items?categoryId=$cat_Id")
         .then((value) {
-          emit(MealSuccessState());
+      emit(MealSuccessState());
 
-          mealAllModel = MealModel.fromJson(value.data);
+      mealAllModel = MealModel.fromJson(value.data);
 
-          // print(value.data.toString());
-        })
+      // print(value.data.toString());
+    })
         .catchError((error) {
-          print(error.toString());
-          emit((MealErrorState()));
-        });
+      print(error.toString());
+      emit((MealErrorState()));
+    });
   }
 
   Get_one_itemModel? get_one_item_model;
-  get favoriteItems => null;
+
+  // get favoriteItems => null;
+
   void get_one_item(item) {
-    get_one_item_model==null;
+    get_one_item_model == null;
     emit(LoadingState());
     DioHelper.getData(url: baseurl + "get_one_item/$item")
         .then((value) {
-          emit(MealSuccessState());
+      emit(MealSuccessState());
 
-          get_one_item_model = Get_one_itemModel.fromJson(value.data);
+      get_one_item_model = Get_one_itemModel.fromJson(value.data);
 
-          // print(value.data.toString());
-        })
+      // print(value.data.toString());
+    })
         .catchError((error) {
-          print(error.toString());
-          emit((MealErrorState()));
-        });
+      print(error.toString());
+      emit((MealErrorState()));
+    });
   }
 
 
@@ -173,19 +179,18 @@ class AppCubit extends Cubit<AppSates> {
   //   });
 
 
-
   void setPreparing() => emit(OrderPreparing());
+
   void setOnTheWay() => emit(OrderOnTheWay());
+
   void setDelivered() => emit(OrderDelivered());
-
-
-
 
 
   /////////////////////////////////////////////  OFFER
 
 
   OfferResponse? Offer_response;
+
   void OfferAll() {
     emit(LoadingState());
     DioHelper.getData(url: baseurl + "get_offers?active=1")
@@ -202,11 +207,11 @@ class AppCubit extends Cubit<AppSates> {
   }
 
 
-
   ///////////////////////////////////////////////  change_internal_order_status
-  void change_internal_order_status_D({
-    required  status,
-    required  order_id,
+  void change_external_order_status({
+    required status,
+    required order_id,
+    required delivery_man_id
   }) {
     print(status);
     print(order_id);
@@ -216,46 +221,43 @@ class AppCubit extends Cubit<AppSates> {
     DioHelper.postData(
       url: baseurl + "change_external_order_status/${order_id}",
       data: {
-        // "table_id": table_id,
-        "branch_id": 1,
+        "branch_id": branch_id,
         "captain_id": emp_id,
         "status": status,
+        "deliveryman_id":delivery_man_id
 
       },
     ).then((value) {
       emit(orderchangeSuccessState());
       print(value.data);
-    })..catchError((error) {
-      if (error is DioError) {
-        // طبع الخطأ الأساسي
-        print("Dio error message: ${error.message}");
+    })
+      ..catchError((error) {
+        if (error is DioError) {
+          // طبع الخطأ الأساسي
+          print("Dio error message: ${error.message}");
 
-        // طبع استجابة السيرفر لو موجودة
-        if (error.response != null) {
-          print("Status code: ${error.response?.statusCode}");
-          print("Response data: ${error.response?.data}");
+          // طبع استجابة السيرفر لو موجودة
+          if (error.response != null) {
+            print("Status code: ${error.response?.statusCode}");
+            print("Response data: ${error.response?.data}");
+          }
+        } else {
+          // لو الخطأ مش DioError اطبع النص عادي
+          print("Error: ${error.toString()}");
         }
-      } else {
-        // لو الخطأ مش DioError اطبع النص عادي
-        print("Error: ${error.toString()}");
-      }
 
-      emit(orderchangeErrorState());
-    });
-
+        emit(orderchangeErrorState());
+      });
   }
-
-
 
 
   //////////////////////////////////////////// get_internal_order_items
 
   InternalOrderResponse ? internalorderResponse;
-  void get_internal_order_items(
-  {
+
+  void get_internal_order_items({
     required id,
-}
-      ) {
+  }) {
     emit(LoadingState());
     DioHelper.getData(url: baseurl + "get_internal_order_items/${id}")
         .then((value) {
@@ -272,31 +274,42 @@ class AppCubit extends Cubit<AppSates> {
 
   //////////////////////////////////////////// get_internal_orders_pending
 
-  OrderResponse  ? orders_pending_response ;
-  void get_internal_orders_pending() {
-    emit(LoadingState());
-    DioHelper.getData(url: baseurl + "get_internal_orders?status=pending")
-        .then((value) {
-      emit(get_order_SuccessState());
-      orders_pending_response = OrderResponse.fromJson(value.data);
+  OrderResponse ? orders_finshing_response;
 
-      // print(value.data.toString());
-    })
-        .catchError((error) {
-      print(error.toString());
-      emit((get_order_ErrorState()));
-    });
+  Future<bool> get_internal_orders_finshing({int page = 1}) async {
+    emit(LoadingState());
+    try {
+      final response = await DioHelper.getData(
+        url: "${baseurl}get_internal_orders?status=finishing&page=$page",
+      );
+
+      final result = OrderResponse.fromJson(response.data);
+
+      if (page == 1) {
+        orders_finshing_response = result;
+      } else {
+        orders_finshing_response?.data.addAll(result.data);
+      }
+
+      emit(get_order_SuccessState());
+
+      return result.data.length >=
+          result.perPage; // ترجع true إذا ممكن توجد صفحة أخرى
+    } catch (error) {
+      emit(get_order_ErrorState());
+      print("Error loading orders: $error");
+      return false;
+    }
   }
 
 
   //////////////////////////////////////////// get_internal_orders_waiting
 
-  OrderResponse  ? orders_waiting_response ;
+  OrderResponse ? orders_waiting_response;
+
   Future<bool> get_internal_orders_waiting({int page = 1}) async {
     emit(LoadingState());
     try {
-
-
       final response = await DioHelper.getData(
         url: "${baseurl}get_internal_orders?status=waiting&page=$page",
       );
@@ -320,32 +333,41 @@ class AppCubit extends Cubit<AppSates> {
   }
 
 
-
-
   //////////////////////////////////////////// get_internal_orders_preparing
 
-  OrderResponse  ? orders_preparing_response ;
-  void get_internal_orders_preparing  () {
-    emit(LoadingState());
-    DioHelper.getData(url: baseurl + "get_internal_orders?status=preparing  ")
-        .then((value) {
-      emit(get_order_SuccessState());
-      orders_preparing_response = OrderResponse.fromJson(value.data);
+  OrderResponse? orders_preparing_response;
 
-      // print(value.data.toString());
-    })
-        .catchError((error) {
-      print(error.toString());
-      emit((get_order_ErrorState()));
-    });
+  Future<bool> get_internal_orders_preparing({int page = 1}) async {
+    emit(LoadingState());
+    try {
+      final response = await DioHelper.getData(
+        url: "${baseurl}get_internal_orders?status=preparing&page=$page",
+      );
+
+      final result = OrderResponse.fromJson(response.data);
+
+      if (page == 1) {
+        orders_preparing_response = result;
+      } else {
+        orders_preparing_response?.data.addAll(result.data);
+      }
+
+      emit(get_order_SuccessState());
+
+      return result.data.length >= result.perPage;
+    } catch (error) {
+      emit(get_order_ErrorState());
+      print("Error loading preparing orders: $error");
+      return false;
+    }
   }
 
 
   ///////////////////////////////////////////////  change_internal_order_status
   void change_internal_order_status({
-    required  table_id,
-    required  status,
-    required  order_id,
+     table_id,
+    required status,
+    required order_id,
   }) {
     print(table_id);
     print(status);
@@ -358,32 +380,136 @@ class AppCubit extends Cubit<AppSates> {
       data: {
         "table_id": table_id,
         "status": status,
-"branch_id":branch_id,
-        "captain_id":3
-
-
+        "branch_id": branch_id,
+        "captain_id": 3
       },
     ).then((value) {
       emit(orderchangeSuccessState());
       print(value.data);
-    })..catchError((error) {
-      if (error is DioError) {
-        // طبع الخطأ الأساسي
-        print("Dio error message: ${error.message}");
+    })
+      ..catchError((error) {
+        if (error is DioError) {
+          // طبع الخطأ الأساسي
+          print("Dio error message: ${error.message}");
 
-        // طبع استجابة السيرفر لو موجودة
-        if (error.response != null) {
-          print("Status code: ${error.response?.statusCode}");
-          print("Response data: ${error.response?.data}");
+          // طبع استجابة السيرفر لو موجودة
+          if (error.response != null) {
+            print("Status code: ${error.response?.statusCode}");
+            print("Response data: ${error.response?.data}");
+          }
+        } else {
+          // لو الخطأ مش DioError اطبع النص عادي
+          print("Error: ${error.toString()}");
         }
-      } else {
-        // لو الخطأ مش DioError اطبع النص عادي
-        print("Error: ${error.toString()}");
-      }
 
-      emit(orderchangeErrorState());
-    });
+        emit(orderchangeErrorState());
+      });
+  }
 
+
+  ///////////////////////////////////////////////  change_ext_order_status
+  void change_ext_order_status({
+    required status,
+    required order_id,
+  }) {
+
+    print(status);
+    print(order_id);
+
+    emit(LoadingState());
+
+    DioHelper.postData(
+      url: baseurl + "change_external_order_status/${order_id}",
+      data: {
+        "status": status,
+        "branch_id": branch_id,
+        "captain_id": emp_id
+      },
+    ).then((value) {
+      emit(orderchangeSuccessState());
+      print(value.data);
+    })
+      ..catchError((error) {
+        if (error is DioError) {
+          // طبع الخطأ الأساسي
+          print("Dio error message: ${error.message}");
+
+          // طبع استجابة السيرفر لو موجودة
+          if (error.response != null) {
+            print("Status code: ${error.response?.statusCode}");
+            print("Response data: ${error.response?.data}");
+          }
+        } else {
+          // لو الخطأ مش DioError اطبع النص عادي
+          print("Error: ${error.toString()}");
+        }
+
+        emit(orderchangeErrorState());
+      });
+  }
+
+///////////////////////////////////////////////
+
+  DeliveryManResponse? deliveryman_model;
+
+  Future<void> Delivery_Man() async {
+    emit(LoadingState());
+    try {
+      final value = await DioHelper.getData(
+        url: baseurl + "get_employees?branchId=${branch_id}&type=deliveryman",
+      );
+
+      deliveryman_model = DeliveryManResponse.fromJson(value.data);
+      print("موظفين التوصيل: ${deliveryman_model?.data}");
+      emit(BranchSuccessState());
+    } catch (error) {
+      print("خطأ أثناء جلب موظفين التوصيل: $error");
+      emit(BranchErrorState());
+    }
+  }
+//////////////////////////////////////////////  add_table_reservation
+
+
+
+  void add_table_reservation({
+    required date,
+    required from_time,
+    required to_time,
+    required branch_id,
+    required chairs
+  }) {
+    emit(LoadingState());
+
+    DioHelper.postData(
+      url: baseurl + "add_table_reservation",
+      data: {
+        "to_time": to_time,
+        "from_time": from_time,
+        "date": date,
+        "branch_id":branch_id,
+        "chairs":chairs
+      },
+    ).then((value) {
+      emit(reservationSuccessState());
+      print(value.data);
+    })
+      ..catchError((error) {
+        if (error is DioError) {
+          // طبع الخطأ الأساسي
+          print("Dio error message: ${error.message}");
+
+          // طبع استجابة السيرفر لو موجودة
+          if (error.response != null) {
+            print("Status code: ${error.response?.statusCode}");
+            print("Response data: ${error.response?.data}");
+          }
+        } else {
+          // لو الخطأ مش DioError اطبع النص عادي
+          print("Error: ${error.toString()}");
+        }
+
+        emit(reservationErrorState());
+      });
   }
 
 
@@ -392,6 +518,7 @@ class AppCubit extends Cubit<AppSates> {
 
 
   BranchesResponse? branch_model;
+
   void Branch() {
     emit(LoadingState());
     DioHelper.getData(url: baseurl + "get_branches")
@@ -441,11 +568,10 @@ class AppCubit extends Cubit<AppSates> {
   }
 
 
-
-
   //////////////////////////////////////////// get_internal_orders_pending
 
-  DeliveryResponse  ? orders_delivering_response ;
+  DeliveryResponse ? orders_delivering_response;
+
   void get_internal_orders_delivering() {
     emit(LoadingState());
     DioHelper.getData(url: baseurl + "get_internal_orders?status=delivering")
@@ -462,11 +588,6 @@ class AppCubit extends Cubit<AppSates> {
   }
 
 
-
-
-
-
-
   ///////////////////////////////////////////////  create_external_order
 
   void create_external_order({
@@ -478,13 +599,15 @@ class AppCubit extends Cubit<AppSates> {
     emit(LoadingState());
 
     // تحويل العناصر إلى مصفوفة من id و quantity فقط
-    List<Map<String, dynamic>> items = orderItems.map((item) => {
+    List<Map<String, dynamic>> items = orderItems.map((item) =>
+    {
       "item_id": item.id,
       "quantity": item.quantity,
     }).toList();
 
     // تحويل العروض إلى نفس الصيغة
-    List<Map<String, dynamic>> offers = orderOffers.map((offer) => {
+    List<Map<String, dynamic>> offers = orderOffers.map((offer) =>
+    {
       "offer_id": offer.id,
       "quantity": offer.quantity,
     }).toList();
@@ -525,7 +648,7 @@ class AppCubit extends Cubit<AppSates> {
 
 ///////////////////////////////////////////////  accept_external_order
   void accept_external_order({
-    required  code,
+    required code,
 
   }) {
     emit(LoadingState());
@@ -582,7 +705,6 @@ class AppCubit extends Cubit<AppSates> {
   }
 
 
-
   List<AddOrderOffer> orderOffers = [];
 
   void addOfferToOrder({
@@ -615,7 +737,6 @@ class AppCubit extends Cubit<AppSates> {
     print(orderOffers);
     emit(addcartSuccessState());
   }
-
 
 
   void increaseItemQuantity(int id, bool isOffer) {
@@ -683,45 +804,6 @@ class AppCubit extends Cubit<AppSates> {
   }
 
 
-
-
-
-
-  Map<String, Map<String, dynamic>> mealsCart = {}; // سلة الوجبات
-  Map<String, Map<String, dynamic>> offersCart = {};
-  String _generateCartKey(int id, String type) => "$type-$id";
-
-  void addToCart(int id, String name, num price, String type) {
-    final key = _generateCartKey(id, type);
-      if (type == "meal") {
-        if (mealsCart.containsKey(key)) {
-          mealsCart[key]!['quantity'] += 1;
-        } else {
-          mealsCart[key] = {
-            'id': id,
-            'name': name,
-            'price': price,
-            'quantity': 1,
-            'type': type,
-          };
-        }
-      } else if (type == "offer") {
-        if (offersCart.containsKey(key)) {
-          offersCart[key]!['quantity'] += 1;
-        } else {
-          offersCart[key] = {
-            'id': id,
-            'name': name,
-            'price': price,
-            'quantity': 1,
-            'type': type,
-          };
-        }
-      }
-
-  }
-
-
 /////////////
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -735,6 +817,7 @@ class AppCubit extends Cubit<AppSates> {
   Map<dynamic, dynamic> cat_map_emp = {
   };
   CategoryModel? categoryModel_emp;
+
   void category_emp() {
     emit(LoadingState());
     DioHelper.getData(url: baseurl_Waiter + "get_categories")
@@ -753,7 +836,6 @@ class AppCubit extends Cubit<AppSates> {
       if (cat_map_emp!.isNotEmpty) {
         selectedCategory_emp = cat_map_emp!.entries.first.value;
       }
-
     })
         .catchError((error) {
       print(error.toString());
@@ -765,6 +847,7 @@ class AppCubit extends Cubit<AppSates> {
 
 
   MealModel? mealAllModel_emp;
+
   void MealAll_emp() {
     emit(LoadingState());
     DioHelper.getData(url: baseurl_Waiter + "get_items")
@@ -785,9 +868,11 @@ class AppCubit extends Cubit<AppSates> {
 
 
   OfferResponse? Offer_response_emp;
+
   void OfferAll_emp() {
     emit(LoadingState());
-    DioHelper.getData(url: baseurl_Waiter + "get_offers?branchId=${branch_id}&active=1")
+    DioHelper.getData(
+        url: baseurl_Waiter + "get_offers?branchId=${branch_id}&active=1")
         .then((value) {
       emit(offerSuccessState());
       Offer_response_emp = OfferResponse.fromJson(value.data);
@@ -801,14 +886,13 @@ class AppCubit extends Cubit<AppSates> {
   }
 
 
-
-
   //////////////////////////////////////////// Table
 
   TableResponse ? Table_model;
+
   void Table_get() {
     emit(LoadingState());
-    DioHelper.getData(url: baseurl_Waiter + "get_tables?branchId=3")
+    DioHelper.getData(url: baseurl_Waiter + "get_tables?branchId=${branch_id}")
         .then((value) {
       emit(tableSuccessState());
       Table_model = TableResponse.fromJson(value.data);
@@ -830,9 +914,8 @@ class AppCubit extends Cubit<AppSates> {
         print("Error: ${error.toString()}");
       }
 
-      emit(orderchangeErrorState());
+      emit(tableErrorState());
     });
-
   }
 
   ///////////////////////////////////////////////  table_change_statu
@@ -861,6 +944,7 @@ class AppCubit extends Cubit<AppSates> {
 
 
   InvoiceResponse? invoice_response;
+
   void get_one_invoice({
     required invoice_id,
 
@@ -881,13 +965,11 @@ class AppCubit extends Cubit<AppSates> {
   }
 
 
-
-
 ///////////////////////////////////////////////  add cart
   void create_internal_order({
-    required  table_id,
-    required  items,
-    required  offers,
+    required table_id,
+    required items,
+    required offers,
   }) {
     emit(LoadingState());
 
@@ -910,11 +992,10 @@ class AppCubit extends Cubit<AppSates> {
   }
 
 
-
   ///////////////////////////////////////////////  add update_cart
   void update_cart({
-    required  items,
-    required  offers,
+    required items,
+    required offers,
     required edit_id,
   }) {
     emit(LoadingState());
@@ -951,9 +1032,9 @@ class AppCubit extends Cubit<AppSates> {
 
   ///////////////////////////////////////////////  change_internal_order_status
   void change_internal_order_status_waiter({
-    required  table_id,
-    required  status,
-    required  order_id,
+    required table_id,
+    required status,
+    required order_id,
   }) {
     print(table_id);
     print(status);
@@ -971,32 +1052,34 @@ class AppCubit extends Cubit<AppSates> {
     ).then((value) {
       emit(orderchangeSuccessState());
       print(value.data);
-    })..catchError((error) {
-      if (error is DioError) {
-        // طبع الخطأ الأساسي
-        print("Dio error message: ${error.message}");
+    })
+      ..catchError((error) {
+        if (error is DioError) {
+          // طبع الخطأ الأساسي
+          print("Dio error message: ${error.message}");
 
-        // طبع استجابة السيرفر لو موجودة
-        if (error.response != null) {
-          print("Status code: ${error.response?.statusCode}");
-          print("Response data: ${error.response?.data}");
+          // طبع استجابة السيرفر لو موجودة
+          if (error.response != null) {
+            print("Status code: ${error.response?.statusCode}");
+            print("Response data: ${error.response?.data}");
+          }
+        } else {
+          // لو الخطأ مش DioError اطبع النص عادي
+          print("Error: ${error.toString()}");
         }
-      } else {
-        // لو الخطأ مش DioError اطبع النص عادي
-        print("Error: ${error.toString()}");
-      }
 
-      emit(orderchangeErrorState());
-    });
-
+        emit(orderchangeErrorState());
+      });
   }
 
   /////////////////////////////////////////////  get_internal_orders_finishing
 
-  OrderResponse  ? orders_finishing_response ;
+  OrderResponse ? orders_finishing_response;
+
   void get_internal_orders_finishing() {
     emit(LoadingState());
-    DioHelper.getData(url: baseurl_Waiter + "get_internal_orders?status=finishing")
+    DioHelper.getData(
+        url: baseurl_Waiter + "get_internal_orders?status=finishing")
         .then((value) {
       emit(get_order_SuccessState());
       orders_finishing_response = OrderResponse.fromJson(value.data);
@@ -1009,16 +1092,39 @@ class AppCubit extends Cubit<AppSates> {
     });
   }
 
-
-
+  Future<int> change_invoice_status({
+    required int table_id,
+    required int invoice_id,
+  }) async {
+    emit(LoadingState());
+    try {
+      final response = await DioHelper.postData(
+        url: baseurl_Waiter + "change_invoice_status/$invoice_id",
+        data: {
+          "table_id": table_id,
+          "status": "checkout",
+        },
+      );
+      emit(tablechangeSuccessState());
+      print(response.data);
+      return response.statusCode ?? 200; // رجع 200 كافتراضي لو مافي كود
+    } on DioError catch (error) {
+      if (error.response != null) {
+        print("Status code: ${error.response?.statusCode}");
+        print("Response data: ${error.response?.data}");
+        emit(orderchangeErrorState());
+        return error.response!.statusCode ?? 500; // رجع كود الخطأ لو موجود
+      } else {
+        print("Dio error message: ${error.message}");
+        emit(orderchangeErrorState());
+        return 500;
+      }
+    } catch (e) {
+      print("Error: ${e.toString()}");
+      emit(orderchangeErrorState());
+      return 500;
+    }
+  }
 
 
 }
-
-
-  
-
-
-
-
-

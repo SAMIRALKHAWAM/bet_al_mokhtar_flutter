@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -23,6 +24,7 @@ class _FoodPageState extends State<FoodPage> {
     super.initState();
     AppCubit.get(context).category();
     AppCubit.get(context).MealAll();
+    AppCubit.get(context).OfferAll();
   }
 
   @override
@@ -42,6 +44,7 @@ class _FoodPageState extends State<FoodPage> {
         }
 
         final meals = cubit.mealAllModel!.data;
+        final offers = cubit.Offer_response?.data;
 
         return Scaffold(
           backgroundColor: theme.scaffoldBackgroundColor,
@@ -51,27 +54,32 @@ class _FoodPageState extends State<FoodPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Header
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      CustomText(
-                        text1: 'food_menu'.tr(),
-                        size: 28,
-                        fontWeight: FontWeight.bold,
-                        color: theme.textTheme.titleLarge?.color,
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: CustomText(
+                          text1: 'food_menu'.tr(),
+                          size: 35,
+                          fontWeight: FontWeight.bold,
+                          color: theme.textTheme.titleLarge?.color,
+                          font: "title",
+                        ),
                       ),
                       IconButton(
                         icon: Image.asset(
                           'assets/images/offer.png',
-                          width: 28,
-                          height: 28,
+                          width: 35,
+                          height: 35,
                         ),
                         onPressed: () {
-                          cubit.OfferAll();
+                          AppCubit.get(context).OfferAll();
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (_) => OffersPage()),
+                            MaterialPageRoute(
+                              builder: (_) => OffersPage(),
+                            ),
                           );
                         },
                       ),
@@ -79,7 +87,9 @@ class _FoodPageState extends State<FoodPage> {
                   ),
                   const SizedBox(height: 12),
 
-                  // Search
+                  if (offers != null && offers.isNotEmpty)
+                    OfferSlider(offers: offers),
+
                   TextField(
                     controller: searchController,
                     decoration: InputDecoration(
@@ -88,16 +98,15 @@ class _FoodPageState extends State<FoodPage> {
                         Icons.search,
                         color: theme.iconTheme.color,
                       ),
-                      suffixIcon:
-                          searchController.text.isNotEmpty
-                              ? IconButton(
-                                icon: Icon(
-                                  Icons.clear,
-                                  color: theme.iconTheme.color,
-                                ),
-                                onPressed: () => searchController.clear(),
-                              )
-                              : null,
+                      suffixIcon: searchController.text.isNotEmpty
+                          ? IconButton(
+                        icon: Icon(
+                          Icons.clear,
+                          color: theme.iconTheme.color,
+                        ),
+                        onPressed: () => searchController.clear(),
+                      )
+                          : null,
                       filled: true,
                       fillColor: theme.cardColor,
                       border: OutlineInputBorder(
@@ -111,16 +120,15 @@ class _FoodPageState extends State<FoodPage> {
                   ),
                   const SizedBox(height: 16),
 
-                  // Categories
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Row(
                       children: [
                         _buildCategoryChip(
                           context,
-                         'all'.tr(),
+                          'all'.tr(),
                           selectedCategory == 'All',
-                          () {
+                              () {
                             setState(() {
                               selectedCategory = 'All';
                               cubit.MealAll();
@@ -132,7 +140,7 @@ class _FoodPageState extends State<FoodPage> {
                             context,
                             entry.value,
                             selectedCategory == entry.value,
-                            () {
+                                () {
                               setState(() {
                                 selectedCategory = entry.value;
                                 cubit.Meal(entry.key);
@@ -145,139 +153,132 @@ class _FoodPageState extends State<FoodPage> {
                   ),
                   const SizedBox(height: 16),
 
-                  // Meals Grid
                   Expanded(
-                    child: GridView.builder(
-                      itemCount: meals.length,
-                      padding: EdgeInsets.zero,
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            mainAxisSpacing: 16,
-                            crossAxisSpacing: 16,
-                            childAspectRatio: 0.68,
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        final width = constraints.maxWidth;
+                        const crossAxisCount = 2;
+                        const spacing = 12.0;
+                        final totalSpacing = spacing * (crossAxisCount - 1);
+                        final itemWidth = (width - totalSpacing) / crossAxisCount;
+                        final itemHeight = itemWidth / 0.85;
+
+                        return GridView.builder(
+                          itemCount: meals.length,
+                          padding: EdgeInsets.zero,
+                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: crossAxisCount,
+                            mainAxisSpacing: spacing,
+                            crossAxisSpacing: spacing,
+                            childAspectRatio: itemWidth / itemHeight,
                           ),
-                      itemBuilder: (context, index) {
-                        final meal = meals[index];
-                        final imageUrl =
-                            meal.itemImages.isNotEmpty
-                                ? '${meal.itemImages.first.image}'
+                          itemBuilder: (context, index) {
+                            final meal = meals[index];
+                            final imageUrl = meal.itemImages.isNotEmpty
+                                ? meal.itemImages.first.image
                                 : null;
 
-                        return GestureDetector(
-                          onTap: () {
-                            cubit.get_one_item(meal.id);
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder:
-                                    (_) => FoodHamburgerPage(itemId: meal.id),
+                            return GestureDetector(
+                              onTap: () {
+                                cubit.get_one_item(meal.id);
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) =>
+                                        FoodHamburgerPage(itemId: meal.id),
+                                  ),
+                                );
+                              },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: theme.cardColor,
+                                  borderRadius: BorderRadius.circular(14),
+                                  boxShadow: const [
+                                    BoxShadow(
+                                      color: Colors.black12,
+                                      blurRadius: 5,
+                                      offset: Offset(0, 2),
+                                    ),
+                                  ],
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    ClipRRect(
+                                      borderRadius: const BorderRadius.only(
+                                        topLeft: Radius.circular(14),
+                                        topRight: Radius.circular(14),
+                                      ),
+                                      child: imageUrl != null
+                                          ? Image.network(
+                                        imageUrl,
+                                        height: itemHeight * 0.5,
+                                        width: double.infinity,
+                                        fit: BoxFit.cover,
+                                        errorBuilder:
+                                            (context, error, _) =>
+                                        const Icon(Icons.broken_image, size: 60),
+                                      )
+                                          : Container(
+                                        height: itemHeight * 0.5,
+                                        width: double.infinity,
+                                        color: Colors.grey[300],
+                                        child: const Icon(
+                                          Icons.fastfood,
+                                          size: 60,
+                                        ),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Padding(
+                                        padding: const EdgeInsets.only(top: 5.0),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              meal.name,
+                                              style: TextStyle(
+                                                fontSize: width * 0.045,
+                                                fontWeight: FontWeight.w600,
+                                                color: theme.textTheme.titleLarge?.color,
+                                                height: 1.2,
+                                              ),
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                            const Spacer(),
+                                            Row(
+                                              mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                              children: [
+                                                Text(
+                                                  '${meal.price.toStringAsFixed(2)} ل.س',
+                                                  style: TextStyle(
+                                                    fontSize: width * 0.035,
+                                                    color: theme.colorScheme.primary,
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
+                                                ),
+                                                IconButton(
+                                                  icon: const Icon(Icons.favorite_border),
+                                                  color: theme.colorScheme.primary,
+                                                  iconSize: 18,
+                                                  padding: EdgeInsets.zero,
+                                                  constraints: const BoxConstraints(),
+                                                  onPressed: () {},
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             );
                           },
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: theme.cardColor,
-                              borderRadius: BorderRadius.circular(16),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black12,
-                                  blurRadius: 6,
-                                  offset: Offset(0, 3),
-                                ),
-                              ],
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                // الصورة مع ظل خفيف
-                                ClipRRect(
-                                  borderRadius: const BorderRadius.only(
-                                    topLeft: Radius.circular(16),
-                                    topRight: Radius.circular(16),
-                                  ),
-                                  child:
-                                      imageUrl != null
-                                          ? Image.network(
-                                            imageUrl,
-                                            height: 120,
-                                            width: double.infinity,
-                                            fit: BoxFit.cover,
-                                            errorBuilder:
-                                                (context, error, stackTrace) =>
-                                                    const Icon(
-                                                      Icons.broken_image,
-                                                      size: 60,
-                                                    ),
-                                          )
-                                          : Container(
-                                            height: 120,
-                                            width: double.infinity,
-                                            color: Colors.grey[300],
-                                            child: const Icon(
-                                              Icons.fastfood,
-                                              size: 60,
-                                            ),
-                                          ),
-                                ),
-
-                                // الاسم + السعر + زر المفضلة (ريسبونسف)
-                                Padding(
-                                  padding: const EdgeInsets.all(12.0),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        meal.name,
-                                        style: TextStyle(
-                                          fontSize: screenWidth * 0.04,
-                                          fontWeight: FontWeight.bold,
-                                          color:
-                                              theme.textTheme.titleLarge?.color,
-                                        ),
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                      const SizedBox(height: 8),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: [
-                                          Flexible(
-                                            child: Text(
-                                              '\$${meal.price.toStringAsFixed(2)}',
-                                              style: TextStyle(
-                                                fontSize: screenWidth * 0.035,
-                                                color:
-                                                    theme.colorScheme.primary,
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                          ),
-                                          IconButton(
-                                            icon: const Icon(
-                                              Icons.favorite_border,
-                                            ),
-                                            color: theme.colorScheme.primary,
-                                            iconSize: 20,
-                                            padding: EdgeInsets.zero,
-                                            constraints: const BoxConstraints(),
-                                            onPressed: () {
-                                              // Add to favorites logic here
-                                            },
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
                         );
                       },
                     ),
@@ -292,30 +293,191 @@ class _FoodPageState extends State<FoodPage> {
   }
 
   Widget _buildCategoryChip(
-    BuildContext context,
-    String label,
-    bool selected,
-    VoidCallback onTap,
-  ) {
+      BuildContext context,
+      String label,
+      bool selected,
+      VoidCallback onTap,
+      ) {
     final theme = Theme.of(context);
+    final width = MediaQuery.of(context).size.width;
+
     return Padding(
-      padding: const EdgeInsets.only(right: 8.0),
+      padding: const EdgeInsets.only(right: 6.0),
       child: ChoiceChip(
-        label: Text(label),
+        label: Text(
+          label,
+          style: TextStyle(
+            fontSize: width * 0.035, // أكبر من السابق
+            color: selected
+                ? theme.colorScheme.onPrimary
+                : theme.textTheme.bodyMedium?.color,
+            fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
+          ),
+        ),
         selected: selected,
         onSelected: (_) => onTap(),
         selectedColor: theme.colorScheme.primary,
         backgroundColor: theme.cardColor,
-        labelStyle: TextStyle(
-          color:
-              selected
-                  ? theme.colorScheme.onPrimary
-                  : theme.textTheme.bodyMedium?.color,
-          fontWeight: selected ? FontWeight.bold : FontWeight.normal,
+        elevation: selected ? 3 : 0,
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8), // أكبر شوي
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
         ),
-        elevation: selected ? 4 : 0,
-        shadowColor: selected ? Colors.black26 : null,
       ),
+    );
+  }
+
+}
+
+class OfferSlider extends StatefulWidget {
+  final List offers;
+  const OfferSlider({Key? key, required this.offers}) : super(key: key);
+
+  @override
+  State<OfferSlider> createState() => _OfferSliderState();
+}
+
+class _OfferSliderState extends State<OfferSlider> {
+  final PageController _controller = PageController();
+  int _currentPage = 0;
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (widget.offers.length > 1) {
+        _timer = Timer.periodic(const Duration(seconds: 4), (_) {
+          if (!mounted) return;
+          _currentPage = (_currentPage + 1) % widget.offers.length;
+          if (_controller.hasClients) {
+            _controller.animateToPage(
+              _currentPage,
+              duration: const Duration(milliseconds: 600),
+              curve: Curves.easeInOut,
+            );
+          }
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final width = MediaQuery.of(context).size.width;
+
+    return Column(
+      children: [
+        SizedBox(
+          height: width * 0.3, // حجم أصغر
+          child: PageView.builder(
+            controller: _controller,
+            itemCount: widget.offers.length,
+            onPageChanged: (index) {
+              setState(() {
+                _currentPage = index;
+              });
+            },
+            itemBuilder: (context, index) {
+              final offer = widget.offers[index];
+              final offerName = offer.name ?? '';
+              final rawImage = offer.offerItems.isNotEmpty &&
+                  offer.offerItems.first.item.itemImages.isNotEmpty
+                  ? offer.offerItems.first.item.itemImages.first.image
+                  : null;
+              final imageUrl = (rawImage != null)
+                  ? (rawImage.startsWith('http') ? rawImage : 'http://$rawImage')
+                  : null;
+
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 6.0),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      imageUrl != null
+                          ? Image.network(
+                        imageUrl,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) =>
+                        const Icon(Icons.broken_image),
+                      )
+                          : Container(
+                        color: Colors.grey[300],
+                        child: const Icon(Icons.image, size: 60),
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              Colors.black.withOpacity(0.6),
+                              Colors.transparent,
+                            ],
+                            begin: Alignment.bottomCenter,
+                            end: Alignment.topCenter,
+                          ),
+                        ),
+                      ),
+                      Align(
+                        alignment: Alignment.bottomLeft,
+                        child: Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Text(
+                            offerName,
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              shadows: const [
+                                Shadow(
+                                  color: Colors.black45,
+                                  blurRadius: 4,
+                                  offset: Offset(1, 1),
+                                ),
+                              ],
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+        const SizedBox(height: 8),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: List.generate(
+            widget.offers.length,
+                (index) => AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              margin: const EdgeInsets.symmetric(horizontal: 3),
+              width: _currentPage == index ? 10 : 6,
+              height: 6,
+              decoration: BoxDecoration(
+                color: _currentPage == index
+                    ? theme.colorScheme.primary
+                    : Colors.grey,
+                borderRadius: BorderRadius.circular(3),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 10),
+      ],
     );
   }
 }

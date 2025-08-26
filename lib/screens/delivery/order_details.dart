@@ -6,6 +6,7 @@ import '../../blocs/cubit_app/cubit.dart';
 import '../../blocs/cubit_app/statues.dart';
 import '../../models/get_internal_order_items.dart';
 import '../../models/get_order_delivery.dart';
+import '../../network/end_point.dart';
 
 class OrderDeliveryDetailsPage extends StatefulWidget {
   final int orderId;
@@ -39,7 +40,7 @@ class _OrderDeliveryDetailsPageState extends State<OrderDeliveryDetailsPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('تفاصيل الطلب #${widget.orderId}'),
+        title: Text('تفاصيل الطلب ${widget.orderId}'),
         centerTitle: true,
       ),
       body: BlocBuilder<AppCubit, AppSates>(
@@ -67,6 +68,7 @@ class _OrderDeliveryDetailsPageState extends State<OrderDeliveryDetailsPage> {
           }
 
           final orderDetails = cubit.internalorderResponse!;
+          print("${url_photo}${widget.externalOrderInfo!.qr}");
 
           return Padding(
             padding: const EdgeInsets.all(16),
@@ -76,8 +78,8 @@ class _OrderDeliveryDetailsPageState extends State<OrderDeliveryDetailsPage> {
                   title: 'معلومات الطلب',
                   children: [
                     _buildKeyValue('رقم الطلب', widget.orderId.toString()),
-                    _buildKeyValue('الحالة', widget.state),
-                    _buildKeyValue('نوع الطلب', widget.type),
+                    _buildKeyValue('الحالة', widget.state=="delivering"?"التوصيل":"تم التوصيل "),
+                    _buildKeyValue('نوع الطلب', widget.type == "int" ? "   داخلي " : "  خارجي ",),
                     if (widget.type == 'ext' && widget.externalOrderInfo != null) ...[
                       _buildKeyValue('العنوان', widget.externalOrderInfo!.location),
                       _buildKeyValue('رقم الهاتف', widget.externalOrderInfo!.phone),
@@ -86,12 +88,13 @@ class _OrderDeliveryDetailsPageState extends State<OrderDeliveryDetailsPage> {
                 ),
 
                 if (widget.type == 'ext' && widget.externalOrderInfo?.qr != null)
+
                   _buildCard(
                     title: 'رمز QR',
                     children: [
                       Center(
                         child: SvgPicture.network(
-                          "http://192.168.1.104:8000${widget.externalOrderInfo!.qr}",
+                          "${url_photo}${widget.externalOrderInfo!.qr}",
                           height: 200,
                           placeholderBuilder: (_) => const CircularProgressIndicator(),
                           semanticsLabel: 'QR Code',

@@ -61,8 +61,8 @@ class _ScanQrPageState extends State<ScanQrPage> with SingleTickerProviderStateM
     await showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('🎉 شكراً!'),
-        content: const Text('✅ تم قبول الطلب بنجاح'),
+        title: const Text(' شكراً!'),
+        content: const Text(' تم قبول الطلب بنجاح'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -108,7 +108,6 @@ class _ScanQrPageState extends State<ScanQrPage> with SingleTickerProviderStateM
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 50),
-                    // مربع المسح مع ليزر متحرك
                     SizedBox(
                       width: 250,
                       height: 250,

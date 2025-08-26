@@ -1,7 +1,9 @@
 import 'package:almoktar/cubits/Location/location_cubit.dart';
+import 'package:almoktar/cubits/password_visibility/password_visibility_cubit.dart';
 import 'package:almoktar/cubits/theme/theme_cubit.dart';
 import 'package:almoktar/screens/app/CartPage.dart';
 import 'package:almoktar/screens/app/FoodPage.dart';
+import 'package:almoktar/screens/app/TableBookingPage.dart';
 import 'package:almoktar/screens/app/layout.dart';
 import 'package:almoktar/screens/app/scanner.dart';
 import 'package:almoktar/screens/auth/CustomSplashScreen.dart';
@@ -51,6 +53,7 @@ void main() async {
   if (CachHelper.getData(key: 'token') != null) {
     token = CachHelper.getData(key: 'token');
     startwidget = TablesScreen();
+    print(token);
   } else {
     startwidget = LoginPage();
   }
@@ -173,6 +176,8 @@ class _MyAppState extends State<MyApp> {
       providers: [
         BlocProvider(create: (BuildContext context) => AppCubit()),
         BlocProvider(create: (BuildContext context) => AuthCubit()),
+        BlocProvider(create: (BuildContext context) => PasswordVisibilityCubit()),
+
         BlocProvider(
           create: (BuildContext context) => LocationCubit(widget.socket),
         ),
@@ -191,7 +196,7 @@ class _MyAppState extends State<MyApp> {
               locale: context.locale,
               supportedLocales: context.supportedLocales,
               localizationsDelegates: context.localizationDelegates,
-              home: LayoutScreen(),
+              home:DeliveryOrders(),
 
               //  home: LayoutScreen(),
               // home: TrackOrderPage(),

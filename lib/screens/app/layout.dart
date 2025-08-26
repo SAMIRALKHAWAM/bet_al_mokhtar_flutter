@@ -145,7 +145,7 @@ class _LayoutScreenState extends State<LayoutScreen> {
               });
             },
             backgroundColor: Colors.white,
-            selectedItemColor: Colors.blue, // عدل اللون حسب ثيمك
+            selectedItemColor: ColorApp.color1,
             unselectedItemColor: Colors.grey,
             type: BottomNavigationBarType.fixed,
             items: List.generate(_icons.length, (index) {

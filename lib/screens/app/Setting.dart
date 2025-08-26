@@ -164,6 +164,8 @@ import 'package:almoktar/screens/app/scanner.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
+import 'TableBookingPage.dart';
+
 class SettingsPage extends StatelessWidget {
   const SettingsPage({Key? key}) : super(key: key);
 
@@ -235,6 +237,16 @@ class SettingsPage extends StatelessWidget {
             onTap: () {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text('feature_in_progress'.tr())),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.restaurant),
+            title: Text('book_table'.tr()), // تأكد أنك أضفت هذا المفتاح في ملفات الترجمة
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const TableBookingPage()),
               );
             },
           ),

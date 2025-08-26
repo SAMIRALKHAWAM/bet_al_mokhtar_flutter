@@ -47,7 +47,7 @@ class _DeliveryOrdersState extends State<DeliveryOrders>
     return Scaffold(
       appBar: AppBar(
         title: const CustomText(
-          text1: "طلبات الشيف",
+          text1: "طلبات التوصيل",
           size: 22,
           fontWeight: FontWeight.bold,
         ),
@@ -63,8 +63,8 @@ class _DeliveryOrdersState extends State<DeliveryOrders>
           labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
           unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.normal, fontSize: 15),
           tabs: const [
-            Tab(text: "قيد الانتظار"),
             Tab(text: "قيد التوصيل"),
+            Tab(text: "تم التوصيل"),
           ],
         ),
       ),

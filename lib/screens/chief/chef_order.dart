@@ -18,47 +18,92 @@ class ChefOrdersExpansionPanelPage extends StatefulWidget {
 class _ChefOrdersExpansionPanelPageState extends State<ChefOrdersExpansionPanelPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  late ScrollController _scrollController;
 
-  int _currentPage = 1;
-  bool _isLoadingMore = false;
-  bool _hasMoreData = true;
+  // ScrollControllers منفصلين لكل تبويب
+  final Map<String, ScrollController> scrollControllers = {
+    "waiting": ScrollController(),
+    "preparing": ScrollController(),
+    "ready": ScrollController(),
+  };
+
+  // تعقب الصفحة الحالية لكل تبويب
+  Map<String, int> currentPages = {
+    "waiting": 1,
+    "preparing": 1,
+    "ready": 1,
+  };
+
+  // تعقب حالة التحميل لكل تبويب
+  Map<String, bool> isLoadingMore = {
+    "waiting": false,
+    "preparing": false,
+    "ready": false,
+  };
+
+  // تعقب وجود المزيد من البيانات لكل تبويب
+  Map<String, bool> hasMoreData = {
+    "waiting": true,
+    "preparing": true,
+    "ready": true,
+  };
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
-    _scrollController = ScrollController()..addListener(_scrollListener);
+
+    // إضافة مستمع لكل ScrollController للتحقق من النزول أسفل القائمة
+    scrollControllers.forEach((status, controller) {
+      controller.addListener(() => _scrollListener(status));
+    });
 
     final cubit = AppCubit.get(context);
-    cubit.get_internal_orders_waiting(page: _currentPage);
-    cubit.get_internal_orders_preparing();
-    cubit.get_internal_orders_pending();
+
+    // تحميل الصفحة الأولى من كل تبويب
+    cubit.get_internal_orders_waiting(page: currentPages["waiting"]!);
+    cubit.get_internal_orders_preparing(page: currentPages["preparing"]!);
+    cubit.get_internal_orders_finshing(page: currentPages["ready"]!);
   }
 
-  void _scrollListener() {
-    if (_scrollController.position.pixels >=
-        _scrollController.position.maxScrollExtent - 100 &&
-        !_isLoadingMore &&
-        _hasMoreData &&
-        _tabController.index == 0) {
-      _loadMoreOrders();
+  void _scrollListener(String status) {
+    final controller = scrollControllers[status]!;
+
+    if (controller.position.pixels >= controller.position.maxScrollExtent - 100 &&
+        !isLoadingMore[status]! &&
+        hasMoreData[status]!) {
+      _loadMoreOrders(status);
     }
   }
 
-  Future<void> _loadMoreOrders() async {
-    _isLoadingMore = true;
-    _currentPage++;
-    final hasMore = await AppCubit.get(context).get_internal_orders_waiting(page: _currentPage);
-    _hasMoreData = hasMore;
-    _isLoadingMore = false;
-    setState(() {});
+  Future<void> _loadMoreOrders(String status) async {
+    setState(() {
+      isLoadingMore[status] = true;
+      currentPages[status] = currentPages[status]! + 1;
+    });
+
+    final cubit = AppCubit.get(context);
+
+    bool more = false;
+    if (status == "waiting") {
+      more = await cubit.get_internal_orders_waiting(page: currentPages[status]!);
+    } else if (status == "preparing") {
+      more = await cubit.get_internal_orders_preparing(page: currentPages[status]!);
+    } else if (status == "ready") {
+      more = await cubit.get_internal_orders_finshing(page: currentPages[status]!);
+    }
+
+    setState(() {
+      hasMoreData[status] = more;
+      isLoadingMore[status] = false;
+    });
   }
 
   @override
   void dispose() {
     _tabController.dispose();
-    _scrollController.dispose();
+    scrollControllers.forEach((key, controller) {
+      controller.dispose();
+    });
     super.dispose();
   }
 
@@ -101,7 +146,7 @@ class _ChefOrdersExpansionPanelPageState extends State<ChefOrdersExpansionPanelP
             children: [
               _buildOrdersList(cubit.orders_waiting_response?.data, "waiting"),
               _buildOrdersList(cubit.orders_preparing_response?.data, "preparing"),
-              _buildOrdersList(cubit.orders_pending_response?.data, "ready"),
+              _buildOrdersList(cubit.orders_finshing_response?.data, "ready"),
             ],
           );
         },
@@ -127,9 +172,9 @@ class _ChefOrdersExpansionPanelPageState extends State<ChefOrdersExpansionPanelP
     }
 
     return ListView.builder(
-      controller: _scrollController,
+      controller: scrollControllers[status],
       padding: const EdgeInsets.all(16),
-      itemCount: orders.length + (_hasMoreData ? 1 : 0),
+      itemCount: orders.length + (hasMoreData[status]! ? 1 : 0),
       itemBuilder: (context, index) {
         if (index < orders.length) {
           final order = orders[index];
@@ -167,9 +212,7 @@ class _ChefOrdersExpansionPanelPageState extends State<ChefOrdersExpansionPanelP
                   ),
                   const SizedBox(height: 4),
                   CustomText(
-                    text1:
-                    order.type=="int"?
-                    " نوع الطلب : داخلي ":" نوع الطلب : خارجي ",
+                    text1: order.type == "int" ? "  نوع الطلب : داخلي " : " نوع الطلب : خارجي ",
                     size: 14,
                     color: theme.textTheme.bodyMedium?.color,
                   ),
@@ -178,6 +221,7 @@ class _ChefOrdersExpansionPanelPageState extends State<ChefOrdersExpansionPanelP
             ),
           );
         } else {
+          // مؤشر تحميل البيانات الجديدة
           return const Padding(
             padding: EdgeInsets.symmetric(vertical: 16),
             child: Center(child: CircularProgressIndicator()),
@@ -187,4 +231,3 @@ class _ChefOrdersExpansionPanelPageState extends State<ChefOrdersExpansionPanelP
     );
   }
 }
-

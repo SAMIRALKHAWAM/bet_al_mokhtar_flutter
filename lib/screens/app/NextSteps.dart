@@ -20,18 +20,19 @@ class _OrderNextStepState extends State<OrderNextStep> {
 
   bool isDiscountValid = false;
   bool isDiscountChecked = false;
+  bool isPhoneValid = true;
   String? discountMessage;
 
   bool get isFormValid {
     final isBranchSelected = selectedBranch != null;
     final isAddressFilled = addressController.text.trim().isNotEmpty;
     final isPhoneFilled = phoneController.text.trim().isNotEmpty;
-
+    final isPhoneCorrect = RegExp(r'^09\d{8}$').hasMatch(phoneController.text.trim());
     final isDiscountOk = discountCodeController.text.isEmpty
         ? true
         : (isDiscountChecked && isDiscountValid);
 
-    return isBranchSelected && isAddressFilled && isPhoneFilled && isDiscountOk;
+    return isBranchSelected && isAddressFilled && isPhoneFilled && isPhoneCorrect && isDiscountOk;
   }
 
   @override
@@ -52,8 +53,14 @@ class _OrderNextStepState extends State<OrderNextStep> {
       });
     });
 
+    phoneController.addListener(() {
+      setState(() {
+        final phone = phoneController.text.trim();
+        isPhoneValid = phone.isEmpty || RegExp(r'^09\d{8}$').hasMatch(phone);
+      });
+    });
+
     addressController.addListener(() => setState(() {}));
-    phoneController.addListener(() => setState(() {}));
   }
 
   void clearForm() {
@@ -97,10 +104,11 @@ class _OrderNextStepState extends State<OrderNextStep> {
               });
             } else if (state is addcartSuccessState) {
               ScaffoldMessenger.of(context).showSnackBar(
+
                 const SnackBar(content: Text("تم إرسال الطلب بنجاح")),
               );
               clearForm();
-              Navigator.pop(context); // أو الانتقال لصفحة الطلبات
+              Navigator.pop(context);
             } else if (state is addcartErrorState) {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text("حدث خطأ أثناء إرسال الطلب")),
@@ -131,7 +139,7 @@ class _OrderNextStepState extends State<OrderNextStep> {
                   Text("اختر الفرع", style: theme.textTheme.titleMedium),
                   const SizedBox(height: 8),
                   DropdownButtonFormField<BranchModel>(
-                    value: selectedBranch,
+                    value: branches.contains(selectedBranch) ? selectedBranch : null,
                     hint: const Text("اختر فرع المطعم"),
                     decoration: InputDecoration(
                       filled: true,
@@ -183,6 +191,9 @@ class _OrderNextStepState extends State<OrderNextStep> {
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
+                      errorText: phoneController.text.isNotEmpty && !isPhoneValid
+                          ? "رقم الهاتف غير صحيح"
+                          : null,
                     ),
                     textDirection: TextDirection.rtl,
                   ),
@@ -262,7 +273,6 @@ class _OrderNextStepState extends State<OrderNextStep> {
                     textColor: theme.colorScheme.onPrimary,
                     width: double.infinity,
                   ),
-
                 ],
               );
             },

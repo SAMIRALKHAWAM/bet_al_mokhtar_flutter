@@ -13,3 +13,6 @@ class LoginSuccessState extends AuthStates {
 
 }
 class LoginErrorState extends AuthStates {}
+
+class LogoutSuccessState extends AuthStates {}
+class LogoutErrorState extends AuthStates {}

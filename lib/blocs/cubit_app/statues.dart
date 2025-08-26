@@ -38,6 +38,9 @@ class DiscountErrorState extends AppSates {
 
 }
 
+class reservationSuccessState extends AppSates {}
+class reservationErrorState extends AppSates {}
+
 class addcartSuccessState extends AppSates {}
 class addcartErrorState extends AppSates {}
 

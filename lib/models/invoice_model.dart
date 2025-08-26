@@ -28,9 +28,9 @@ class InvoiceResponse {
 
 class Data {
   int id;
-  int tableId;
-  int branchId;
-  int fullPrice;
+  int? tableId;
+  int? branchId;
+  int? fullPrice;
   int tax;
   int finalPrice;
   int discount;
@@ -90,12 +90,12 @@ class Data {
 class InternalOrder {
   int id;
   int invoiceId;
-  int waiterId;
-  int discount;
+  int? waiterId;
+  int? discount;
   int fullPrice;
   String? status;
   String? waiterName;
-  int tableId;
+  int? tableId;
   List<InternalOrderLine> internalOrderLines;
   List<InternalOrderOffer> internalOrderOffers;
 

@@ -5,7 +5,6 @@ import 'package:almoktar/blocs/cubit_app/cubit.dart';
 import 'package:almoktar/cubits/theme/theme_cubit.dart';
 import 'package:almoktar/components/defaultButton.dart';
 import 'package:easy_localization/easy_localization.dart';
-
 import 'NextSteps.dart';
 
 class CartPage extends StatelessWidget {
@@ -106,7 +105,6 @@ class CartPage extends StatelessWidget {
                       ),
                     ),
                   ),
-
                   if (orderItems.isNotEmpty || orderOffers.isNotEmpty)
                     Container(
                       padding: const EdgeInsets.all(16),
@@ -136,13 +134,16 @@ class CartPage extends StatelessWidget {
                                   children: [
                                     Icon(Icons.wallet, color: theme.colorScheme.primary),
                                     const SizedBox(width: 8),
-                                    Text("total_label".tr(),
-                                        style: theme.textTheme.titleMedium
-                                            ?.copyWith(fontWeight: FontWeight.w600)),
+                                    Text(
+                                      "total_label".tr(),
+                                      style: theme.textTheme.titleMedium?.copyWith(
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
                                   ],
                                 ),
                                 Text(
-                                  "${totalPrice.toStringAsFixed(2)} \$",
+                                  "${totalPrice.toStringAsFixed(2)} ل.س",
                                   style: theme.textTheme.titleMedium?.copyWith(
                                     color: theme.colorScheme.primary,
                                     fontWeight: FontWeight.bold,
@@ -155,8 +156,7 @@ class CartPage extends StatelessWidget {
                               onTap: () {
                                 Navigator.push(
                                   context,
-                                  MaterialPageRoute(
-                                      builder: (_) =>  OrderNextStep()),
+                                  MaterialPageRoute(builder: (_) => const OrderNextStep()),
                                 );
                               },
                               text: "confirm_order".tr(),
@@ -237,34 +237,36 @@ class CartPage extends StatelessWidget {
               children: [
                 Text(
                   name,
-                  style: theme.textTheme.titleSmall
-                      ?.copyWith(fontWeight: FontWeight.w600),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 4),
                 Row(
                   children: [
                     Text(
-                      "${"quantity".tr()}: $quantity",
-                      style: theme.textTheme.bodySmall
-                          ?.copyWith(color: Colors.grey[600]),
+                      "x$quantity",
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: Colors.grey[700],
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
-                    const SizedBox(width: 16),
+                    const Spacer(),
                     Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         IconButton(
                           onPressed: () {
                             cubit.decreaseItemQuantity(id, isOffer);
                           },
-                          icon: const Icon(Icons.remove_circle_outline,
-                              color: Colors.red),
+                          icon: const Icon(Icons.remove_circle_outline, color: Colors.red),
                           splashRadius: 20,
                         ),
                         IconButton(
                           onPressed: () {
                             cubit.increaseItemQuantity(id, isOffer);
                           },
-                          icon: const Icon(Icons.add_circle_outline,
-                              color: Colors.green),
+                          icon: const Icon(Icons.add_circle_outline, color: Colors.green),
                           splashRadius: 20,
                         ),
                       ],
@@ -274,10 +276,10 @@ class CartPage extends StatelessWidget {
               ],
             ),
           ),
+          const SizedBox(width: 8),
           Text(
-            "${total.toStringAsFixed(2)} \$",
-            style: theme.textTheme.titleSmall
-                ?.copyWith(fontWeight: FontWeight.bold),
+            "${total.toStringAsFixed(2)} ل.س",
+            style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
           ),
         ],
       ),
