@@ -7,6 +7,7 @@ import '../../blocs/cubit_app/statues.dart';
 import '../../models/get_internal_order_items.dart';
 import '../../models/get_order_delivery.dart';
 import '../../network/end_point.dart';
+import 'delivery_order.dart';
 
 class OrderDeliveryDetailsPage extends StatefulWidget {
   final int orderId;
@@ -40,6 +41,15 @@ class _OrderDeliveryDetailsPageState extends State<OrderDeliveryDetailsPage> {
 
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(onPressed: (){
+          AppCubit.get(context).get_internal_orders_delivering();
+
+
+          Navigator.push(context, MaterialPageRoute(builder: (context)=>DeliveryOrders()));
+
+
+        }, icon: Icon(Icons.arrow_back)),
+
         title: Text('تفاصيل الطلب ${widget.orderId}'),
         centerTitle: true,
       ),
@@ -49,7 +59,7 @@ class _OrderDeliveryDetailsPageState extends State<OrderDeliveryDetailsPage> {
             return const Center(child: CircularProgressIndicator());
           }
 
-          if (state is get_internal_order_itemsErrorState || cubit.internalorderResponse == null) {
+          if (state is get_internal_order_itemsErrorState || cubit.internalorderResponse_D == null) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -67,7 +77,7 @@ class _OrderDeliveryDetailsPageState extends State<OrderDeliveryDetailsPage> {
             );
           }
 
-          final orderDetails = cubit.internalorderResponse!;
+          final orderDetails = cubit.internalorderResponse_D!;
           print("${url_photo}${widget.externalOrderInfo!.qr}");
 
           return Padding(

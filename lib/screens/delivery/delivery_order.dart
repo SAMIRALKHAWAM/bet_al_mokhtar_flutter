@@ -145,7 +145,7 @@ class _DeliveryOrdersState extends State<DeliveryOrders>
           final order = orders[index];
           return InkWell(
             onTap: () {
-              AppCubit.get(context).get_internal_order_items(id: order.id);
+              AppCubit.get(context).get_internal_order_items_For_D(id: order.id);
               Navigator.push(
                 context,
                 MaterialPageRoute(

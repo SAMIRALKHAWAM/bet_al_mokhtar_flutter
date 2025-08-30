@@ -161,7 +161,7 @@ if(state is LoginSuccessState){
                                   builder: (context, stateVisibility) {
                                     return CustomTextFormField(
                                       controller: passwordController,
-                                      hint:  ' enter_password'.tr(),
+                                      hint:'enter_password'.tr(),
                                       obscureText: stateVisibility.isObscure,
                                       radius: 15,
                                       color: theme.colorScheme.onSecondaryFixed,

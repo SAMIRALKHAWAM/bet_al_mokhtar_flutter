@@ -141,6 +141,41 @@ class AppCubit extends Cubit<AppSates> {
 
   //////////////////////////////////////////// get_internal_order_items
 
+  InternalOrderResponse? internalorderResponse_D;
+
+  void get_internal_order_items_For_D({required id}) {
+    emit(LoadingState());
+    DioHelper.getData(url: baseurl + "get_internal_order_items/${id}")
+        .then((value) {
+      emit(get_internal_order_itemsSuccessState());
+      internalorderResponse_D = InternalOrderResponse.fromJson(value.data);
+
+      print(value.data.toString());
+    })
+        .catchError((error) {
+      if (error is DioError) {
+        // طبع الخطأ الأساسي
+        print("Dio error message: ${error.message}");
+
+        // طبع استجابة السيرفر لو موجودة
+        if (error.response != null) {
+          print("Status code: ${error.response?.statusCode}");
+          print("Response data: ${error.response?.data}");
+        }
+      } else {
+        // لو الخطأ مش DioError اطبع النص عادي
+        print("Error: ${error.toString()}");
+      }
+      emit((get_internal_order_itemsErrorState()));
+    });
+  }
+
+
+
+
+
+  //////////////////////////////////////////// get_internal_order_items
+
   InternalOrderResponse? internalorderResponse;
 
   void get_internal_order_items({required id}) {
@@ -148,12 +183,24 @@ class AppCubit extends Cubit<AppSates> {
     DioHelper.getData(url: baseurl_Captain + "get_internal_order_items/${id}")
         .then((value) {
           emit(get_internal_order_itemsSuccessState());
-          internalorderResponse = InternalOrderResponse.fromJson(value.data);
+          internalorderResponse= InternalOrderResponse.fromJson(value.data);
 
           // print(value.data.toString());
         })
         .catchError((error) {
-          print(error.toString());
+      if (error is DioError) {
+        // طبع الخطأ الأساسي
+        print("Dio error message: ${error.message}");
+
+        // طبع استجابة السيرفر لو موجودة
+        if (error.response != null) {
+          print("Status code: ${error.response?.statusCode}");
+          print("Response data: ${error.response?.data}");
+        }
+      } else {
+        // لو الخطأ مش DioError اطبع النص عادي
+        print("Error: ${error.toString()}");
+      }
           emit((get_internal_order_itemsErrorState()));
         });
   }

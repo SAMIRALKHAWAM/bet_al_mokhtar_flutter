@@ -206,7 +206,7 @@ class _MyAppState extends State<MyApp> {
               locale: context.locale,
               supportedLocales: context.supportedLocales,
               localizationsDelegates: context.localizationDelegates,
-              home:widget.startwidget,
+              home:LayoutScreen(),
 
               //  home: LayoutScreen(),
               // home: TrackOrderPage(),
