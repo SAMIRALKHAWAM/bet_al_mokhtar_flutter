@@ -17,6 +17,8 @@ import '../../components/text.dart';
 import '../../components/textButton.dart';
 import '../../components/textfromfilde.dart';
 import '../../network/cash_helper.dart';
+import '../chief/chef_order.dart';
+import '../delivery/delivery_order.dart';
 
 class LoginPage extends StatelessWidget {
   LoginPage({super.key});
@@ -31,15 +33,43 @@ class LoginPage extends StatelessWidget {
       listener: (context, state) {
 if(state is LoginSuccessState){
   CachHelper.saveData(key: "token", value: AuthCubit.get(context).loginModel?.data.token.toString());
+  CachHelper.saveData(key: "role", value: AuthCubit.get(context).loginModel?.data.type.toString());
+  CachHelper.saveData(key: "id", value: AuthCubit.get(context).loginModel?.data.id.toString());
+  CachHelper.saveData(key: "branch_id", value: AuthCubit.get(context).loginModel?.data.branchId.toString());
+
+  role=CachHelper.getData(key: "role");
+  emp_id=CachHelper.getData(key: "id");
+  branch_id=CachHelper.getData(key: "branch_id");
+
   token=CachHelper.getData(key: "token");
   print(token);
 
+
+
+
+  if(role=="waiter")
           Navigator.push(
     context,
     MaterialPageRoute(
       builder: (context) => TablesScreen(),
     ),
   );
+
+  if(role=="deliveryman")
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => DeliveryOrders(),
+      ),
+    );
+  if(role=="captain")
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ChefOrdersExpansionPanelPage(),
+      ),
+    );
+
 
 }
 

@@ -52,8 +52,18 @@ void main() async {
 
   if (CachHelper.getData(key: 'token') != null) {
     token = CachHelper.getData(key: 'token');
-    startwidget = TablesScreen();
-    print(token);
+    role = CachHelper.getData(key: 'role');
+    branch_id=CachHelper.getData(key: "branch_id");
+    print(role);
+    print(branch_id);
+
+    role=="waiter"?
+    startwidget = TablesScreen():
+        role=="captain"?
+        startwidget = ChefOrdersExpansionPanelPage():
+        startwidget = DeliveryOrders();
+
+  print(token);
   } else {
     startwidget = LoginPage();
   }
@@ -196,7 +206,7 @@ class _MyAppState extends State<MyApp> {
               locale: context.locale,
               supportedLocales: context.supportedLocales,
               localizationsDelegates: context.localizationDelegates,
-              home:DeliveryOrders(),
+              home:widget.startwidget,
 
               //  home: LayoutScreen(),
               // home: TrackOrderPage(),

@@ -435,6 +435,18 @@ class _WaiterOrderInterfaceState extends State<WaiterOrderInterface> with Single
         }
 
 
+        if(state is updatecartSuccessState){
+          confirmOrder();
+
+        }
+        if(state is updatecartErrorState){
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('هناك خطا ما أعد المحاولة ')),
+          );
+
+        }
+
+
       },
       builder: (context, state) {
         final cubit = AppCubit.get(context);
@@ -645,103 +657,116 @@ class _WaiterOrderInterfaceState extends State<WaiterOrderInterface> with Single
       ...offersCart.entries.map((e) => e),
     ];
 
-    return Column(
-      children: [
-        Expanded(
-          child: ListView(
-            children: allItems.map((entry) {
-              final key = entry.key;
-              final item = entry.value;
+    return BlocConsumer<AppCubit,AppSates>(
+      listener: (BuildContext context, AppSates state) {  },
+      builder: (BuildContext context, AppSates state) {
 
-              return ListTile(
-                title: Text(item['name']),
-                subtitle: Text("${item['price']} ل.س"),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
-                      icon: Icon(Icons.remove_circle_outline, color: Colors.red),
-                      onPressed: () {
-                        int newQty = item['quantity'] - 1;
-                        updateQuantity(key, newQty, item['type']);
-                      },
+        if(state is LoadingState)
+        return
+        Center(child: CircularProgressIndicator());
+          return
+          Column(
+          children: [
+            Expanded(
+              child: ListView(
+                children: allItems.map((entry) {
+                  final key = entry.key;
+                  final item = entry.value;
+
+                  return ListTile(
+                    title: Text(item['name']),
+                    subtitle: Text("${item['price']} ل.س"),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.remove_circle_outline, color: Colors.red),
+                          onPressed: () {
+                            int newQty = item['quantity'] - 1;
+                            updateQuantity(key, newQty, item['type']);
+                          },
+                        ),
+                        Text("${item['quantity']}"),
+                        IconButton(
+                          icon: Icon(Icons.add_circle_outline, color: Colors.green),
+                          onPressed: () {
+                            int newQty = item['quantity'] + 1;
+                            updateQuantity(key, newQty, item['type']);
+                          },
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.delete_outline, color: Colors.grey),
+                          onPressed: () => removeFromCart(key, item['type']),
+                        ),
+                      ],
                     ),
-                    Text("${item['quantity']}"),
-                    IconButton(
-                      icon: Icon(Icons.add_circle_outline, color: Colors.green),
-                      onPressed: () {
-                        int newQty = item['quantity'] + 1;
-                        updateQuantity(key, newQty, item['type']);
-                      },
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.delete_outline, color: Colors.grey),
-                      onPressed: () => removeFromCart(key, item['type']),
-                    ),
-                  ],
-                ),
-              );
-            }).toList(),
-          ),
-        ),
-        Divider(),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                "المجموع:",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  );
+                }).toList(),
               ),
-              Text(
-                "${getTotalPrice()} ل.س",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: ColorApp.accent),
-              ),
-            ],
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12.0),
-          child: ElevatedButton(
-            onPressed: (mealsCart.isEmpty && offersCart.isEmpty)
-                ? null
-                : () {
-              final items = mealsCart.entries.map((entry) {
-                return {
-                  "item_id": entry.value['id'],
-                  "quantity": entry.value['quantity'],
-                };
-              }).toList();
-
-              final offers = offersCart.entries.map((entry) {
-                return {"offer_id": entry.value['id'], "quantity": entry.value['quantity']};
-              }).toList();
-
-              print(offers);
-              print(items);
-              if(widget.edit!=null){
-                AppCubit.get(context).update_cart(
-                   edit_id: widget.edit,
-                  items: items,
-                  offers: offers,
-                );              }
-              else
-
-              AppCubit.get(context).create_internal_order(
-                table_id: widget.table_id,
-                items: items,
-                offers: offers,
-              );
-
-            },              child: Text("تأكيد الطلب"),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: ColorApp.accent,
-              minimumSize: Size(double.infinity, 50),
             ),
-          ),
-        ),
-      ],
+            Divider(),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "المجموع:",
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                    "${getTotalPrice()} ل.س",
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: ColorApp.accent),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12.0),
+              child: ElevatedButton(
+                onPressed: (mealsCart.isEmpty && offersCart.isEmpty)
+                    ? null
+                    : () {
+                  final items = mealsCart.entries.map((entry) {
+                    return {
+                      "item_id": entry.value['id'],
+                      "quantity": entry.value['quantity'],
+                    };
+                  }).toList();
+
+                  final offers = offersCart.entries.map((entry) {
+                    return {"offer_id": entry.value['id'], "quantity": entry.value['quantity']};
+                  }).toList();
+
+                  print(offers);
+                  print(items);
+                  if(widget.edit!=null){
+                    AppCubit.get(context).update_cart(
+                      edit_id: widget.edit,
+                      items: items,
+                      offers: offers,
+                    );              }
+                  else
+
+                    AppCubit.get(context).create_internal_order(
+                      table_id: widget.table_id,
+                      items: items,
+                      offers: offers,
+                    );
+
+                },              child: Text("تأكيد الطلب"),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: ColorApp.accent,
+                  minimumSize: Size(double.infinity, 50),
+                ),
+              ),
+            ),
+          ],
+        );
+
+
+      },
+
     );
   }
 }

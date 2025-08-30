@@ -136,6 +136,8 @@ class _TablesScreenState extends State<TablesScreen> {
                                                 ).table_change_statu(
                                                   table_id: table.id,
                                                 );
+                                                AppCubit.get(context).Table_get();
+
                                                 Navigator.pop(context);
                                                 Navigator.push(
                                                   context,

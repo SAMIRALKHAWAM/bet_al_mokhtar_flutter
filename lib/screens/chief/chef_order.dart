@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../blocs/auth_cubit/cubit.dart';
 import '../../blocs/cubit_app/cubit.dart';
 import '../../blocs/cubit_app/statues.dart';
 import '../../components/defaultButton.dart';
 import '../../components/text.dart';
 import '../../models/get_internal_orders.dart';
+import '../auth/login.dart';
 import 'OrderDetailsPage.dart';
 
 class ChefOrdersExpansionPanelPage extends StatefulWidget {
@@ -114,6 +116,39 @@ class _ChefOrdersExpansionPanelPageState extends State<ChefOrdersExpansionPanelP
 
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.login_outlined),
+          onPressed: () {
+            showDialog(
+              context: context,
+              builder:
+                  (context) => AlertDialog(
+                title: Text('تأكيد تسجيل الخروج'),
+                content: Text('هل أنت متأكد أنك تريد تسجيل الخروج؟'),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: Text('إلغاء'),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+
+                      AuthCubit.get(context).Logout_emp();
+
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(builder: (_) => LoginPage()),
+                            (route) => false,
+                      );
+                    },
+                    child: Text('تأكيد'),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
         title: const CustomText(
           text1: "طلبات الشيف",
           size: 22,

@@ -99,6 +99,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:almoktar/cubits/theme/theme_cubit.dart';
 
+import 'offer_pages.dart';
+
 class LayoutScreen extends StatefulWidget {
   @override
   _LayoutScreenState createState() => _LayoutScreenState();
@@ -110,7 +112,7 @@ class _LayoutScreenState extends State<LayoutScreen> {
   final List<Widget> _pages = [
     FoodPage(),
     CartPage(),
-    FavoritesPage(),
+    OffersPage(),
     SettingsPage(),
   ];
 
