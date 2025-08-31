@@ -24,14 +24,14 @@ class OrderDeliveryDetailsPage extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<OrderDeliveryDetailsPage> createState() => _OrderDeliveryDetailsPageState();
+  State<OrderDeliveryDetailsPage> createState() =>
+      _OrderDeliveryDetailsPageState();
 }
 
 class _OrderDeliveryDetailsPageState extends State<OrderDeliveryDetailsPage> {
   @override
   void initState() {
     super.initState();
-    AppCubit.get(context).get_internal_order_items(id: widget.orderId);
   }
 
   @override
@@ -41,14 +41,17 @@ class _OrderDeliveryDetailsPageState extends State<OrderDeliveryDetailsPage> {
 
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(onPressed: (){
-          AppCubit.get(context).get_internal_orders_delivering();
+        leading: IconButton(
+          onPressed: () {
+            AppCubit.get(context).get_internal_orders_delivering();
 
-
-          Navigator.push(context, MaterialPageRoute(builder: (context)=>DeliveryOrders()));
-
-
-        }, icon: Icon(Icons.arrow_back)),
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => DeliveryOrders()),
+            );
+          },
+          icon: Icon(Icons.arrow_back),
+        ),
 
         title: Text('تفاصيل الطلب ${widget.orderId}'),
         centerTitle: true,
@@ -59,7 +62,8 @@ class _OrderDeliveryDetailsPageState extends State<OrderDeliveryDetailsPage> {
             return const Center(child: CircularProgressIndicator());
           }
 
-          if (state is get_internal_order_itemsErrorState || cubit.internalorderResponse_D == null) {
+          if (state is get_internal_order_itemsErrorState ||
+              cubit.internalorderResponse_D == null) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -69,7 +73,8 @@ class _OrderDeliveryDetailsPageState extends State<OrderDeliveryDetailsPage> {
                   const Text('فشل في تحميل بيانات الطلب'),
                   const SizedBox(height: 10),
                   ElevatedButton(
-                    onPressed: () => cubit.get_internal_order_items(id: widget.orderId),
+                    onPressed: () =>
+                        cubit.get_internal_order_items_For_D(id: widget.orderId),
                     child: const Text('إعادة المحاولة'),
                   ),
                 ],
@@ -78,7 +83,7 @@ class _OrderDeliveryDetailsPageState extends State<OrderDeliveryDetailsPage> {
           }
 
           final orderDetails = cubit.internalorderResponse_D!;
-          print("${url_photo}${widget.externalOrderInfo!.qr}");
+          print("${url_photo}${widget.externalOrderInfo?.qr}");
 
           return Padding(
             padding: const EdgeInsets.all(16),
@@ -88,17 +93,30 @@ class _OrderDeliveryDetailsPageState extends State<OrderDeliveryDetailsPage> {
                   title: 'معلومات الطلب',
                   children: [
                     _buildKeyValue('رقم الطلب', widget.orderId.toString()),
-                    _buildKeyValue('الحالة', widget.state=="delivering"?"التوصيل":"تم التوصيل "),
-                    _buildKeyValue('نوع الطلب', widget.type == "int" ? "   داخلي " : "  خارجي ",),
-                    if (widget.type == 'ext' && widget.externalOrderInfo != null) ...[
-                      _buildKeyValue('العنوان', widget.externalOrderInfo!.location),
-                      _buildKeyValue('رقم الهاتف', widget.externalOrderInfo!.phone),
+                    _buildKeyValue(
+                      'الحالة',
+                      widget.state == "delivering" ? "التوصيل" : "تم التوصيل ",
+                    ),
+                    _buildKeyValue(
+                      'نوع الطلب',
+                      widget.type == "int" ? "   داخلي " : "  خارجي ",
+                    ),
+                    if (widget.type == 'ext' &&
+                        widget.externalOrderInfo != null) ...[
+                      _buildKeyValue(
+                        'العنوان',
+                        widget.externalOrderInfo!.location,
+                      ),
+                      _buildKeyValue(
+                        'رقم الهاتف',
+                        widget.externalOrderInfo!.phone,
+                      ),
                     ],
                   ],
                 ),
 
-                if (widget.type == 'ext' && widget.externalOrderInfo?.qr != null)
-
+                if (widget.type == 'ext' &&
+                    widget.externalOrderInfo?.qr != null)
                   _buildCard(
                     title: 'رمز QR',
                     children: [
@@ -106,39 +124,52 @@ class _OrderDeliveryDetailsPageState extends State<OrderDeliveryDetailsPage> {
                         child: SvgPicture.network(
                           "${url_photo}${widget.externalOrderInfo!.qr}",
                           height: 200,
-                          placeholderBuilder: (_) => const CircularProgressIndicator(),
+                          placeholderBuilder:
+                              (_) => const CircularProgressIndicator(),
                           semanticsLabel: 'QR Code',
                         ),
                       ),
                     ],
                   ),
 
-                _buildCard(
-                  title: 'العناصر',
-                  children: orderDetails.data.items
-                      .map((item) => ListTile(
-                    title: Text(item.itemName),
-                    subtitle: Text('الكمية: ${item.quantity}'),
-                    trailing: Text('${item.itemPrice} ل.س'),
-                  ))
-                      .toList(),
-                ),
-
-                _buildCard(
-                  title: 'العروض',
-                  children: orderDetails.data.offers
-                      .map((offerItem) => ExpansionTile(
-                    title: Text(offerItem.offer.name),
-                    subtitle: Text('الكمية: ${offerItem.quantity} - السعر: ${offerItem.price}'),
-                    children: offerItem.offer.offerItems
-                        .map((itemDetail) => ListTile(
-                      title: Text(itemDetail.item.name),
-                      subtitle: Text('الكمية: ${itemDetail.quantity} - السعر: ${itemDetail.price}'),
-                    ))
+                if (orderDetails.data.items.isNotEmpty)
+                  _buildCard(
+                    title: 'العناصر',
+                    children: orderDetails.data.items
+                        .map(
+                          (item) => ListTile(
+                        title: Text(item.itemName),
+                        subtitle: Text('الكمية: ${item.quantity}'),
+                        trailing: Text('${item.itemPrice} ل.س'),
+                      ),
+                    )
                         .toList(),
-                  ))
-                      .toList(),
-                ),
+                  ),
+
+                if (orderDetails.data.offers.isNotEmpty)
+                  _buildCard(
+                    title: 'العروض',
+                    children: orderDetails.data.offers
+                        .map(
+                          (offerItem) => ExpansionTile(
+                        title: Text(offerItem.offer.name),
+                        subtitle: Text(
+                          'الكمية: ${offerItem.quantity} - السعر: ${offerItem.price}',
+                        ),
+                        children: offerItem.offer.offerItems
+                            .map(
+                              (itemDetail) => ListTile(
+                            title: Text(itemDetail.item.name),
+                            subtitle: Text(
+                              'الكمية: ${itemDetail.quantity} - السعر: ${itemDetail.price}',
+                            ),
+                          ),
+                        )
+                            .toList(),
+                      ),
+                    )
+                        .toList(),
+                  ),
               ],
             ),
           );
@@ -157,8 +188,10 @@ class _OrderDeliveryDetailsPageState extends State<OrderDeliveryDetailsPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(title,
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Text(
+              title,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
             const Divider(),
             ...children,
           ],
@@ -172,8 +205,17 @@ class _OrderDeliveryDetailsPageState extends State<OrderDeliveryDetailsPage> {
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         children: [
-          Expanded(flex: 2, child: Text('$label:', style: const TextStyle(color: Colors.grey))),
-          Expanded(flex: 3, child: Text(value, style: const TextStyle(fontWeight: FontWeight.w600))),
+          Expanded(
+            flex: 2,
+            child: Text('$label:', style: const TextStyle(color: Colors.grey)),
+          ),
+          Expanded(
+            flex: 3,
+            child: Text(
+              value,
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
+          ),
         ],
       ),
     );

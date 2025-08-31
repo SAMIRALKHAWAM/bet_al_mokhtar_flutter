@@ -56,6 +56,9 @@ class orderchangeErrorState extends AppSates {}
 class get_internal_order_itemsSuccessState extends AppSates {}
 class get_internal_order_itemsErrorState extends AppSates {}
 
+class get_invoiceSuccessState extends AppSates {}
+class get_invoiceErrorState extends AppSates {}
+
 class get_order_SuccessState extends AppSates {}
 class get_order_ErrorState extends AppSates {}
 

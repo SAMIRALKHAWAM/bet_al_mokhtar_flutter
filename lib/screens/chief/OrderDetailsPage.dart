@@ -76,14 +76,19 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
               title: Text('تفاصيل الطلب رقم ${widget.orderId}'),
               centerTitle: true,
 
-            // actions: [
-            //   IconButton(onPressed: (){
-            //
-            //
-            //
-            //   }, icon:Icon(Icons.arrow_back_rounded))
-            //
-            // ],
+            actions: [
+              IconButton(onPressed: (){
+                final cubit = AppCubit.get(context);
+
+                // cubit.get_internal_orders_finshing(page: 1);
+                // cubit.get_internal_orders_preparing(page: 1);
+                // cubit.get_internal_orders_waiting(page: 1);
+
+                Navigator.pop(context);
+
+              }, icon:Icon(Icons.arrow_back_rounded))
+
+            ],
             ),
             body: Padding(
               padding: const EdgeInsets.all(16),

@@ -54,6 +54,8 @@ void main() async {
     token = CachHelper.getData(key: 'token');
     role = CachHelper.getData(key: 'role');
     branch_id=CachHelper.getData(key: "branch_id");
+    emp_id=CachHelper.getData(key: "emp_id");
+
     print(role);
     print(branch_id);
 
@@ -206,7 +208,7 @@ class _MyAppState extends State<MyApp> {
               locale: context.locale,
               supportedLocales: context.supportedLocales,
               localizationsDelegates: context.localizationDelegates,
-              home:LayoutScreen(),
+              home:widget.startwidget,
 
               //  home: LayoutScreen(),
               // home: TrackOrderPage(),

@@ -117,7 +117,7 @@ class _ChefOrdersExpansionPanelPageState extends State<ChefOrdersExpansionPanelP
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(Icons.login_outlined),
+          icon: Icon(Icons.login_outlined,color: Colors.black,),
           onPressed: () {
             showDialog(
               context: context,
@@ -214,9 +214,10 @@ class _ChefOrdersExpansionPanelPageState extends State<ChefOrdersExpansionPanelP
         if (index < orders.length) {
           final order = orders[index];
           return InkWell(
-            onTap: () {
+            onTap: () async {
               AppCubit.get(context).get_internal_order_items(id: order.id);
-              Navigator.push(
+
+              await Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (_) => OrderDetailsPage(
@@ -227,7 +228,32 @@ class _ChefOrdersExpansionPanelPageState extends State<ChefOrdersExpansionPanelP
                   ),
                 ),
               );
+
+              // عند الرجوع من صفحة التفاصيل
+              setState(() {
+                currentPages = {
+                  "waiting": 1,
+                  "preparing": 1,
+                  "ready": 1,
+                };
+                hasMoreData = {
+                  "waiting": true,
+                  "preparing": true,
+                  "ready": true,
+                };
+                isLoadingMore = {
+                  "waiting": false,
+                  "preparing": false,
+                  "ready": false,
+                };
+              });
+
+              final cubit = AppCubit.get(context);
+              await cubit.get_internal_orders_waiting(page: 1);
+              await cubit.get_internal_orders_preparing(page: 1);
+              await cubit.get_internal_orders_finshing(page: 1);
             },
+
             child: Container(
               margin: const EdgeInsets.symmetric(vertical: 8),
               padding: const EdgeInsets.all(16),

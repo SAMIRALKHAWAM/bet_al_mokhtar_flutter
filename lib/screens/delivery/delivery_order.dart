@@ -1,3 +1,4 @@
+import 'package:almoktar/screens/delivery/print.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -22,8 +23,7 @@ class DeliveryOrders extends StatefulWidget {
 class _DeliveryOrdersState extends State<DeliveryOrders>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-
-  bool _hasMoreData = true;
+  final ScrollController _invoiceScrollController = ScrollController();
 
   @override
   void initState() {
@@ -32,11 +32,21 @@ class _DeliveryOrdersState extends State<DeliveryOrders>
 
     final cubit = AppCubit.get(context);
     cubit.get_internal_orders_delivering();
-  }
+    cubit.get_invoices();
 
+    _invoiceScrollController.addListener(() {
+      if (_invoiceScrollController.position.pixels ==
+          _invoiceScrollController.position.maxScrollExtent &&
+          cubit.hasMoreInvoices &&
+          !cubit.isInvoiceLoading) {
+        cubit.get_invoices(page: cubit.currentInvoicePage + 1);
+      }
+    });
+  }
 
   @override
   void dispose() {
+    _invoiceScrollController.dispose();
     _tabController.dispose();
     super.dispose();
   }
@@ -48,14 +58,15 @@ class _DeliveryOrdersState extends State<DeliveryOrders>
 
     return Scaffold(
       appBar: AppBar(
-
         leading: IconButton(
-          icon: Icon(Icons.login_outlined),
+          icon: Icon(
+            Icons.login_outlined,
+            color: Colors.black,
+          ),
           onPressed: () {
             showDialog(
               context: context,
-              builder:
-                  (context) => AlertDialog(
+              builder: (context) => AlertDialog(
                 title: Text('تأكيد تسجيل الخروج'),
                 content: Text('هل أنت متأكد أنك تريد تسجيل الخروج؟'),
                 actions: [
@@ -96,8 +107,10 @@ class _DeliveryOrdersState extends State<DeliveryOrders>
           labelColor: primaryColor,
           unselectedLabelColor: Colors.grey.shade600,
           indicatorWeight: 3,
-          labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-          unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.normal, fontSize: 15),
+          labelStyle:
+          const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          unselectedLabelStyle:
+          const TextStyle(fontWeight: FontWeight.normal, fontSize: 15),
           tabs: const [
             Tab(text: "قيد التوصيل"),
             Tab(text: "تم التوصيل"),
@@ -112,7 +125,7 @@ class _DeliveryOrdersState extends State<DeliveryOrders>
             controller: _tabController,
             children: [
               _buildOrdersList(cubit.orders_delivering_response?.data, "waiting"),
-              _buildOrdersList(cubit.orders_delivering_response?.data, "preparing"),
+              _buildInvoicesList(),
             ],
           );
         },
@@ -139,61 +152,136 @@ class _DeliveryOrdersState extends State<DeliveryOrders>
 
     return ListView.builder(
       padding: const EdgeInsets.all(16),
-      itemCount: orders.length ,
+      itemCount: orders.length,
       itemBuilder: (context, index) {
-        if (index < orders.length) {
-          final order = orders[index];
-          return InkWell(
-            onTap: () {
-              AppCubit.get(context).get_internal_order_items_For_D(id: order.id);
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => OrderDeliveryDetailsPage(
-                    orderId: order.id,
-                    state: order.status,
-                    type: order.type,
-                    externalOrderInfo: order.externalOrderInfo, // ✅ نمرره
-                  ),
+        final order = orders[index];
+        return InkWell(
+          onTap: () {
+            AppCubit.get(context).get_internal_order_items_For_D(id: order.id);
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => OrderDeliveryDetailsPage(
+                  orderId: order.id,
+                  state: order.status,
+                  type: order.type,
+                  externalOrderInfo: order.externalOrderInfo,
                 ),
-              );
-
-            },
-            child: Container(
-              margin: const EdgeInsets.symmetric(vertical: 8),
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: theme.cardColor,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  CustomText(
-                    text1: "طلب رقم: ${order.id}",
-                    size: 16,
-                    fontWeight: FontWeight.bold,
-                    color: theme.textTheme.titleLarge?.color,
-                  ),
-                  const SizedBox(height: 4),
-                  CustomText(
-                    text1: "العنوان: ${order.externalOrderInfo.location}",
-                    size: 14,
-                    color: theme.textTheme.bodyMedium?.color,
-                  ),
-                ],
-              ),
+            );
+          },
+          child: Container(
+            margin: const EdgeInsets.symmetric(vertical: 8),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: theme.cardColor,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: const [
+                BoxShadow(
+                    color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))
+              ],
             ),
-          );
-        } else {
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                CustomText(
+                  text1: "طلب رقم: ${order.id}",
+                  size: 16,
+                  fontWeight: FontWeight.bold,
+                  color: theme.textTheme.titleLarge?.color,
+                ),
+                const SizedBox(height: 4),
+                CustomText(
+                  text1: "العنوان: ${order.externalOrderInfo.location}",
+                  size: 14,
+                  color: theme.textTheme.bodyMedium?.color,
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildInvoicesList() {
+    final cubit = AppCubit.get(context);
+    final theme = Theme.of(context);
+
+    if (cubit.Get_InvoiceResponse == null && cubit.isInvoiceLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    final invoices = cubit.Get_InvoiceResponse?.data ?? [];
+
+    if (invoices.isEmpty) {
+      return Center(
+        child: CustomText(
+          text1: "لا توجد فواتير",
+          size: 16,
+          color: theme.textTheme.bodyMedium?.color,
+        ),
+      );
+    }
+
+    return ListView.builder(
+      controller: _invoiceScrollController,
+      padding: const EdgeInsets.all(16),
+      itemCount: invoices.length + (cubit.hasMoreInvoices ? 1 : 0),
+      itemBuilder: (context, index) {
+        if (index == invoices.length) {
           return const Padding(
             padding: EdgeInsets.symmetric(vertical: 16),
             child: Center(child: CircularProgressIndicator()),
           );
         }
+
+        final invoice = invoices[index];
+
+        return InkWell(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => InvoiceDetailsWidget(invoiceId: invoice.id),
+              ),
+            );          },
+          child: Container(
+            margin: const EdgeInsets.symmetric(vertical: 8),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: theme.cardColor,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: const [
+                BoxShadow(
+                    color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                CustomText(
+                  text1: "فاتورة رقم: ${invoice.id}",
+                  size: 16,
+                  fontWeight: FontWeight.bold,
+                  color: theme.textTheme.titleLarge?.color,
+                ),
+                const SizedBox(height: 4),
+                CustomText(
+                  text1: "الفرع: ${invoice.branchName}",
+                  size: 14,
+                  color: theme.textTheme.bodyMedium?.color,
+                ),
+                CustomText(
+                  text1: "السعر النهائي: ${invoice.finalPrice} ل.س",
+                  size: 14,
+                  color: theme.textTheme.bodyMedium?.color,
+                ),
+              ],
+            ),
+          ),
+        );
       },
     );
   }
 }
-

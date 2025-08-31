@@ -36,10 +36,12 @@ if(state is LoginSuccessState){
   CachHelper.saveData(key: "role", value: AuthCubit.get(context).loginModel?.data.type.toString());
   CachHelper.saveData(key: "id", value: AuthCubit.get(context).loginModel?.data.id.toString());
   CachHelper.saveData(key: "branch_id", value: AuthCubit.get(context).loginModel?.data.branchId.toString());
+  CachHelper.saveData(key: "emp_id", value: AuthCubit.get(context).loginModel?.data.id.toString());
 
   role=CachHelper.getData(key: "role");
   emp_id=CachHelper.getData(key: "id");
   branch_id=CachHelper.getData(key: "branch_id");
+  emp_id=CachHelper.getData(key: "emp_id");
 
   token=CachHelper.getData(key: "token");
   print(token);

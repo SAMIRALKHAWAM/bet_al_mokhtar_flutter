@@ -1,284 +1,213 @@
-// import 'package:almoktar/screens/app/scanner.dart';
-// import 'package:easy_localization/easy_localization.dart';
-// import 'package:flutter/material.dart';
-// class SettingsPage extends StatelessWidget {
-//   const SettingsPage({Key? key}) : super(key: key);
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: const Text('الإعدادات'),
-//         centerTitle: true,
-//       ),
-//       body: ListView(
-//         children: [
-
-//           const SizedBox(height: 16),
-
-//           ListTile(
-//             leading: const Icon(Icons.person),
-//             title: const Text('صفحتي الشخصية'),
-//             onTap: () {
-//               Navigator.push(
-//                 context,
-//                 MaterialPageRoute(builder: (_) => const SettingsPage()),
-//               );
-//             },
-//           ),
-
-//           // ListTile(
-//           //   leading: const Icon(Icons.list_alt),
-//           //   title: const Text('طلباتي'),
-//           //   onTap: () {
-//           //     Navigator.push(
-//           //       context,
-//           //       MaterialPageRoute(builder: (_) => const OrdersPage()),
-//           //     );
-//           //   },
-//           // ),
-
-//           ListTile(
-//             leading: const Icon(Icons.qr_code_scanner),
-//             title: const Text('امسح رمز QR'),
-//             onTap: () {
-//               Navigator.push(
-//                 context,
-//                 MaterialPageRoute(builder: (_) => const ScanQrPage()),
-//               );
-//             },
-//           ),
-
-//           const Divider(),
-
-// ListTile(
-//             leading: Icon(Icons.language),
-//             title: Text(
-//               "Change Language".tr(),
-//               style: Theme.of(context).textTheme.displayLarge,
-//             ),
-//             onTap: () async {
-//               if (context.locale.languageCode == 'ar') {
-//                 await context.setLocale(const Locale('en'));
-//               } else {
-//                 await context.setLocale(const Locale('ar'));
-//               }
-//             }),
-//           ListTile(
-//             leading: const Icon(Icons.language),
-//             title: const Text('تغيير اللغة'),
-//             onTap: () {
-//               ScaffoldMessenger.of(context).showSnackBar(
-//                 const SnackBar(content: Text('ميزة قيد التطوير')),
-//               );
-//             },
-//           ),
-
-//           ListTile(
-//             leading: const Icon(Icons.lock),
-//             title: const Text('تغيير كلمة المرور'),
-//             onTap: () {
-//               ScaffoldMessenger.of(context).showSnackBar(
-//                 const SnackBar(content: Text('ميزة قيد التطوير')),
-//               );
-//             },
-//           ),
-
-//           ListTile(
-//             leading: const Icon(Icons.logout),
-//             title: const Text('تسجيل الخروج'),
-//             onTap: () {
-//               showDialog(
-//                 context: context,
-//                 builder: (_) => AlertDialog(
-//                   title: const Text('تأكيد'),
-//                   content: const Text('هل أنت متأكد من تسجيل الخروج؟'),
-//                   actions: [
-//                     TextButton(
-//                       onPressed: () => Navigator.pop(context),
-//                       child: const Text('إلغاء'),
-//                     ),
-//                     TextButton(
-//                       onPressed: () {
-//                         // ضع منطق تسجيل الخروج هنا
-//                         Navigator.pop(context);
-//                         Navigator.pop(context);
-//                       },
-//                       child: const Text('خروج'),
-//                     ),
-//                   ],
-//                 ),
-//               );
-//             },
-//           ),
-
-//         ],
-//       ),
-//     );
-//   }
-// }
-
-// //
-// // class SettingsScreen extends StatelessWidget {
-// //   @override
-// //   Widget build(BuildContext context) {
-// //     return Scaffold(
-// //       appBar: AppBar(
-// //         title: Text("SettingsScreen"),
-// //         backgroundColor: Theme.of(context).colorScheme.primary,
-// //       ),
-// //       body: Center(
-// //         child: Column(
-// //           children: [
-// //             Text(
-// //               "Setting",
-// //               style: TextStyle(
-// //                 color: Theme.of(context).colorScheme.onBackground,
-// //               ),
-// //             ),
-// //             ListTile(
-// //               leading: Icon(
-// //                 BlocProvider.of<ThemeCubit>(context).isDark
-// //                     ? Icons.dark_mode
-// //                     : Icons.light_mode,
-// //               ),
-// //               title: Text(
-// //                 'theme',
-// //                 style: Theme.of(context).textTheme.displayLarge,
-// //               ),
-// //               onTap: () {
-// //                 BlocProvider.of<ThemeCubit>(context).switchTheme();
-// //               },
-// //             ),
-// //           ],
-// //         ),
-// //       ),
-// //     );
-// //   }
-// // }
-
-
-
-
-import 'package:almoktar/screens/app/scanner.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../blocs/cubit_app/cubit.dart';
+import '../../blocs/cubit_app/statues.dart';
 import 'TableBookingPage.dart';
+import 'scanner.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({Key? key}) : super(key: key);
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('settings'.tr()),
-        centerTitle: true,
+  void _showRatingBottomSheet(BuildContext context) {
+    double rating = 0;
+    TextEditingController noteController = TextEditingController();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
-      body: ListView(
-        children: [
-          const SizedBox(height: 16),
-
-          ListTile(
-            leading: const Icon(Icons.person),
-            title: Text('my_profile'.tr()),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const SettingsPage()),
-              );
-            },
+      builder: (context) {
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+            left: 16,
+            right: 16,
+            top: 24,
           ),
-
-          // إذا أردت تفعيل الطلبات لاحقاً
-          // ListTile(
-          //   leading: const Icon(Icons.list_alt),
-          //   title: Text('my_orders'.tr()),
-          //   onTap: () {
-          //     Navigator.push(
-          //       context,
-          //       MaterialPageRoute(builder: (_) => const OrdersPage()),
-          //     );
-          //   },
-          // ),
-
-          ListTile(
-            leading: const Icon(Icons.qr_code_scanner),
-            title: Text('scan_qr'.tr()),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const ScanQrPage()),
-              );
-            },
-          ),
-
-          const Divider(),
-
-          ListTile(
-            leading: const Icon(Icons.language),
-            title: Text(
-              'change_language'.tr(),
-              style: Theme.of(context).textTheme.bodyLarge,
-            ),
-            onTap: () async {
-              if (context.locale.languageCode == 'ar') {
-                await context.setLocale(const Locale('en'));
-              } else {
-                await context.setLocale(const Locale('ar'));
-              }
-            },
-          ),
-
-          ListTile(
-            leading: const Icon(Icons.lock),
-            title: Text('change_password'.tr()),
-            onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('feature_in_progress'.tr())),
-              );
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.restaurant),
-            title: Text('book_table'.tr()), // تأكد أنك أضفت هذا المفتاح في ملفات الترجمة
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const TableBookingPage()),
-              );
-            },
-          ),
-
-          ListTile(
-            leading: const Icon(Icons.logout),
-            title: Text('logout'.tr()),
-            onTap: () {
-              showDialog(
-                context: context,
-                builder: (_) => AlertDialog(
-                  title: Text('confirm'.tr()),
-                  content: Text('logout_confirm'.tr()),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: Text('cancel'.tr()),
+          child: StatefulBuilder(
+            builder: (context, setState) {
+              return SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      "rate_order".tr(),
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
-                    TextButton(
+                    const SizedBox(height: 16),
+                    Text("choose_stars".tr()),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: List.generate(5, (index) {
+                        return IconButton(
+                          icon: Icon(
+                            index < rating ? Icons.star : Icons.star_border,
+                            color: Colors.amber,
+                            size: 32,
+                          ),
+                          onPressed: () {
+                            setState(() => rating = index + 1.0);
+                          },
+                        );
+                      }),
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: noteController,
+                      maxLines: 3,
+                      decoration: InputDecoration(
+                        labelText: "notes_optional".tr(),
+                        border: const OutlineInputBorder(),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    ElevatedButton(
                       onPressed: () {
-                        // هنا ضع منطق تسجيل الخروج
-                        Navigator.pop(context); // إغلاق AlertDialog
-                        Navigator.pop(context); // رجوع للصفحة السابقة
+                        if (rating == 0) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text("please_rate_first".tr())),
+                          );
+                          return;
+                        }
+
+                        print("⭐ Rating: $rating");
+                        print("📝 Notes: ${noteController.text}");
+
+                        Navigator.pop(context);
                       },
-                      child: Text('exit'.tr()),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.teal,
+                        minimumSize: const Size.fromHeight(48),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      child: Text(
+                        "submit_rating".tr(),
+                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
                     ),
+                    const SizedBox(height: 16),
                   ],
                 ),
               );
             },
           ),
-        ],
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocListener<AppCubit, AppSates>(
+      listener: (context, state) {
+        if (state is accept_external_orderSuccessState) {
+          // تحقق أن الصفحة الظاهرة هي SettingsPage
+          if (ModalRoute.of(context)?.isCurrent ?? false) {
+            print('✅ SettingsPage is current and state is success');
+            _showRatingBottomSheet(context);
+          }
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('settings'.tr()),
+          centerTitle: true,
+        ),
+        body: ListView(
+          children: [
+            const SizedBox(height: 16),
+
+            ListTile(
+              leading: const Icon(Icons.person),
+              title: Text('my_profile'.tr()),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const SettingsPage()),
+                );
+              },
+            ),
+
+            ListTile(
+              leading: const Icon(Icons.qr_code_scanner),
+              title: Text('scan_qr'.tr()),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const ScanQrPage()),
+                );
+              },
+            ),
+
+            const Divider(),
+
+            ListTile(
+              leading: const Icon(Icons.language),
+              title: Text('change_language'.tr()),
+              onTap: () async {
+                final current = context.locale.languageCode;
+                final newLocale = current == 'ar' ? const Locale('en') : const Locale('ar');
+                await context.setLocale(newLocale);
+              },
+            ),
+
+            ListTile(
+              leading: const Icon(Icons.lock),
+              title: Text('change_password'.tr()),
+              onTap: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('feature_in_progress'.tr())),
+                );
+              },
+            ),
+
+            ListTile(
+              leading: const Icon(Icons.restaurant),
+              title: Text('book_table'.tr()),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const TableBookingPage()),
+                );
+              },
+            ),
+
+            ListTile(
+              leading: const Icon(Icons.logout),
+              title: Text('logout'.tr()),
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (_) => AlertDialog(
+                    title: Text('confirm'.tr()),
+                    content: Text('logout_confirm'.tr()),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: Text('cancel'.tr()),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          Navigator.pop(context);
+                          // ضع منطق تسجيل الخروج هنا
+                        },
+                        child: Text('exit'.tr()),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
