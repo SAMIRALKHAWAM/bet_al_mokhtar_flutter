@@ -7,6 +7,7 @@ import 'package:almoktar/screens/app/TableBookingPage.dart';
 import 'package:almoktar/screens/app/layout.dart';
 import 'package:almoktar/screens/app/scanner.dart';
 import 'package:almoktar/screens/auth/CustomSplashScreen.dart';
+import 'package:almoktar/screens/auth/Login_User.dart';
 import 'package:almoktar/screens/auth/login.dart';
 import 'package:almoktar/screens/chief/chef_order.dart';
 import 'package:almoktar/screens/delivery/TrackOrderPage.dart';
@@ -208,9 +209,9 @@ class _MyAppState extends State<MyApp> {
               locale: context.locale,
               supportedLocales: context.supportedLocales,
               localizationsDelegates: context.localizationDelegates,
-              home:widget.startwidget,
+              // home:widget.startwidget,
 
-              //  home: LayoutScreen(),
+               home: LoginUserPage(),
               // home: TrackOrderPage(),
 
               // home: ProfileFormPage(),

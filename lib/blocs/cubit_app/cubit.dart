@@ -40,7 +40,7 @@ class AppCubit extends Cubit<AppSates> {
 
   void category() {
     emit(LoadingState());
-    DioHelper.getData(url: baseurl + "get_categories")
+    DioHelper.getData(url: baseurl_User + "get_categories")
         .then((value) {
           emit(categorySuccessState());
           categoryModel = CategoryModel.fromJson(value.data);
@@ -67,7 +67,7 @@ class AppCubit extends Cubit<AppSates> {
 
   void MealAll() {
     emit(LoadingState());
-    DioHelper.getData(url: baseurl + "get_items")
+    DioHelper.getData(url: baseurl_User + "get_items")
         .then((value) {
           emit(MealSuccessState());
           mealAllModel = MealModel.fromJson(value.data);
@@ -85,7 +85,7 @@ class AppCubit extends Cubit<AppSates> {
   void Meal(cat_Id) {
     print(cat_Id);
     emit(LoadingState());
-    DioHelper.getData(url: baseurl + "get_items?categoryId=$cat_Id")
+    DioHelper.getData(url: baseurl_User + "get_items?categoryId=$cat_Id")
         .then((value) {
           emit(MealSuccessState());
 
@@ -105,7 +105,7 @@ class AppCubit extends Cubit<AppSates> {
   void get_one_item(item) {
     get_one_item_model == null;
     emit(LoadingState());
-    DioHelper.getData(url: baseurl + "get_one_item/$item")
+    DioHelper.getData(url: baseurl_User + "get_one_item/$item")
         .then((value) {
           emit(MealSuccessState());
 
@@ -125,7 +125,7 @@ class AppCubit extends Cubit<AppSates> {
 
   void OfferAll() {
     emit(LoadingState());
-    DioHelper.getData(url: baseurl + "get_offers?active=1")
+    DioHelper.getData(url: baseurl_User + "get_offers?active=1")
         .then((value) {
           emit(offerSuccessState());
           Offer_response = OfferResponse.fromJson(value.data);
@@ -152,7 +152,7 @@ class AppCubit extends Cubit<AppSates> {
     emit(LoadingState());
 
     DioHelper.postData(
-      url: baseurl + "add_table_reservation",
+      url: baseurl_User + "add_table_reservation",
       data: {
         "to_time": to_time,
         "from_time": from_time,
@@ -188,7 +188,7 @@ class AppCubit extends Cubit<AppSates> {
 
   void Branch() {
     emit(LoadingState());
-    DioHelper.getData(url: baseurl + "get_branches")
+    DioHelper.getData(url: baseurl_User + "get_branches")
         .then((value) {
           emit(BranchSuccessState());
           branch_model = BranchesResponse.fromJson(value.data);
@@ -215,7 +215,7 @@ class AppCubit extends Cubit<AppSates> {
 
     emit(DiscountLoadingState());
 
-    DioHelper.getData(url: baseurl + "get_discounts?search=$discountCode")
+    DioHelper.getData(url: baseurl_User + "get_discounts?search=$discountCode")
         .then((value) {
           discountsResponse = DiscountsResponse.fromJson(value.data);
 
@@ -259,7 +259,7 @@ class AppCubit extends Cubit<AppSates> {
             .toList();
 
     DioHelper.postData(
-          url: baseurl + "create_external_order",
+          url: baseurl_User + "create_external_order",
           data: {
             "branch_id": branch_id,
             "user_id": 1,
@@ -298,7 +298,7 @@ class AppCubit extends Cubit<AppSates> {
     emit(LoadingState());
 
     DioHelper.postData(
-          url: baseurl + "accept_external_order/${code}",
+          url: baseurl_User + "accept_external_order/${code}",
           data: {"user_id": id},
         )
         .then((value) {
@@ -310,6 +310,119 @@ class AppCubit extends Cubit<AppSates> {
           emit(accept_external_orderErrorState());
         });
   }
+
+
+  ////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////  create_rate
+  void create_rate({required rate,required description ,required branch_id}) {
+    emit(LoadingState());
+
+    DioHelper.postData(
+      url: baseurl_User + "create_rate",
+      data: {"branch_id": branch_id, "description":description ,"rate":rate},
+    )
+        .then((value) {
+      emit(rate_SuccessState());
+      print(value.data);
+    })
+        .catchError((error) {
+      print(error);
+      emit(rate_ErrorState());
+    });
+  }
+
+
+
+
+
+
+
+  ///////////////////////////////////// get invoice
+
+  bool isInvoiceLoading = false;
+  bool hasMoreInvoices = true;
+  int currentInvoicePage = 1;
+  int lastInvoicePage = 1;
+
+  Get_Invoice? Get_InvoiceResponse;
+
+  void get_invoices_User({int page = 1}) {
+    if (isInvoiceLoading) return;
+    isInvoiceLoading = true;
+
+    DioHelper.getData(url: baseurl + "get_invoices?status=done&userId=$id&page=$page")
+        .then((value) {
+      final response = Get_Invoice.fromJson(value.data);
+
+      if (page == 1) {
+        Get_InvoiceResponse = response;
+      } else {
+        Get_InvoiceResponse?.data.addAll(response.data);
+      }
+
+      currentInvoicePage = page;
+
+      // لو عدد البيانات المستلمة أقل من 10، معناه ما في صفحات بعد هيك
+      hasMoreInvoices = response.data.length == 10;
+
+      isInvoiceLoading = false;
+      emit(get_invoiceSuccessState());
+    }) .catchError((error) {
+      if (error is DioError) {
+        print("Dio error message: ${error.message}");
+
+        if (error.response != null) {
+          print("Status code: ${error.response?.statusCode}");
+          print("Response data: ${error.response?.data}");
+        }
+      } else {
+        print("Error: ${error.toString()}");
+      }
+      isInvoiceLoading = false;
+      emit(get_invoiceErrorState());
+    });
+  }
+
+
+/////////////////////////////////////////////////  print_invoice
+  Print_Invoice? print_invoice_response;
+
+  void print_invoice_User({required id}) {
+    emit(LoadingState());
+    DioHelper.getData(url: baseurl + "print_invoice/${id}")
+        .then((value) {
+      emit(get_invoiceSuccessState());
+      print_invoice_response = Print_Invoice.fromJson(value.data);
+
+      print(value.data.toString());
+    })
+        .catchError((error) {
+      if (error is DioError) {
+        // طبع الخطأ الأساسي
+        print("Dio error message: ${error.message}");
+
+        // طبع استجابة السيرفر لو موجودة
+        if (error.response != null) {
+          print("Status code: ${error.response?.statusCode}");
+          print("Response data: ${error.response?.data}");
+        }
+      } else {
+        // لو الخطأ مش DioError اطبع النص عادي
+        print("Error: ${error.toString()}");
+      }
+      emit((get_invoiceErrorState()));
+    });
+  }
+
+
+
+
+
+
+
+
+
 
   ////////////////////////////////////////////////////
 
@@ -494,12 +607,12 @@ class AppCubit extends Cubit<AppSates> {
 
 ///////////////////////////////////// get invoice
 
-  bool isInvoiceLoading = false;
-  bool hasMoreInvoices = true;
-  int currentInvoicePage = 1;
-  int lastInvoicePage = 1;
-
-  Get_Invoice? Get_InvoiceResponse;
+  // bool isInvoiceLoading = false;
+  // bool hasMoreInvoices = true;
+  // int currentInvoicePage = 1;
+  // int lastInvoicePage = 1;
+  //
+  // Get_Invoice? Get_InvoiceResponse;
 
   void get_invoices({int page = 1}) {
     if (isInvoiceLoading) return;
@@ -540,7 +653,7 @@ class AppCubit extends Cubit<AppSates> {
 
 
 /////////////////////////////////////////////////  print_invoice
-  Print_Invoice? print_invoice_response;
+//   Print_Invoice? print_invoice_response;
 
   void print_invoice({required id}) {
     emit(LoadingState());
@@ -901,36 +1014,56 @@ class AppCubit extends Cubit<AppSates> {
   }
 
   //////////////////////////////////////////// Table
+  List<TableModel> allTables = [];
+  int currentPage = 1;
+  final int pageSize = 10;
+  bool hasMore = true;
+  bool isLoadingMore = false;  // علمة تفيد هل نحن في تحميل المزيد
 
-  TableResponse? Table_model;
+  void Table_get({bool isLoadMore = false}) {
+    if (!isLoadMore) {
+      currentPage = 1;
+      allTables.clear();
+      hasMore = true;
+    }
 
-  void Table_get() {
-    emit(LoadingState());
-    DioHelper.getData(url: baseurl_Waiter + "get_tables?branchId=${branch_id}")
-        .then((value) {
-          emit(tableSuccessState());
-          Table_model = TableResponse.fromJson(value.data);
+    if (!hasMore) return;
+    if (isLoadingMore) return; // لمنع استدعاء مكرر في نفس الوقت
 
-          // print(value.data.toString());
-        })
-        .catchError((error) {
-          if (error is DioError) {
-            // طبع الخطأ الأساسي
-            print("Dio error message: ${error.message}");
+    if (isLoadMore) {
+      isLoadingMore = true;
+    } else {
+      emit(LoadingState());
+    }
 
-            // طبع استجابة السيرفر لو موجودة
-            if (error.response != null) {
-              print("Status code: ${error.response?.statusCode}");
-              print("Response data: ${error.response?.data}");
-            }
-          } else {
-            // لو الخطأ مش DioError اطبع النص عادي
-            print("Error: ${error.toString()}");
-          }
+    DioHelper.getData(
+        url: baseurl_Waiter + "get_tables?branchId=${branch_id}&page=$currentPage&size=$pageSize"
+    ).then((value) {
+      final newTables = TableResponse.fromJson(value.data).data;
 
-          emit(tableErrorState());
-        });
+      if (newTables.length < pageSize) {
+        hasMore = false; // ما في صفحات بعدها
+      }
+
+      allTables.addAll(newTables);
+
+      if (isLoadMore) {
+        isLoadingMore = false;
+        emit(tableSuccessState()); // ممكن تبني حالة جديدة مثلا tableLoadMoreSuccessState لو تحب تفرق بينهم
+      } else {
+        emit(tableSuccessState());
+      }
+
+      currentPage++;
+    }).catchError((error) {
+      if (isLoadMore) {
+        isLoadingMore = false;
+      }
+      emit(tableErrorState());
+    });
   }
+
+
 
   ///////////////////////////////////////////////  table_change_statu
   void table_change_statu({required table_id}) {

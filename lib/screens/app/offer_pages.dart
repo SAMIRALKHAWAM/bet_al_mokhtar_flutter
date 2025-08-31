@@ -48,6 +48,7 @@ class OffersPage extends StatelessWidget {
                   quantity: 1,
                   price: offerPrice,
                 );
+
                 Navigator.of(context).pop();
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('تمت إضافة العرض إلى السلة')),

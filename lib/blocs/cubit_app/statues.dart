@@ -75,6 +75,9 @@ class FavoritesError extends AppSates {}
 class accept_external_orderSuccessState extends AppSates {}
 class accept_external_orderErrorState extends AppSates {}
 
+class rate_SuccessState extends AppSates {}
+class rate_ErrorState extends AppSates {}
+
 // حالة جديدة عند تحديث قائمة المفضلات
 class FavoritesUpdatedState extends AppSates {
   final List<Datumm> favorites;

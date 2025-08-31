@@ -1,3 +1,4 @@
+import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
@@ -50,6 +51,29 @@ class _FoodHamburgerPageState extends State<FoodHamburgerPage> {
     super.dispose();
   }
 
+
+
+
+
+  void showSmallFlushbar(BuildContext context, String message) {
+    Flushbar(
+      margin: const EdgeInsets.all(8),
+      borderRadius: BorderRadius.circular(8),
+      backgroundColor: Colors.green.withOpacity(0.5), // أخضر فاتح وشفاف شوي
+      icon: const Icon(
+        Icons.check_circle,
+        size: 28.0,
+        color: Colors.white,
+      ),
+      messageText: Text(
+        message,
+        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+      ),
+      duration: const Duration(seconds: 3),
+      flushbarPosition: FlushbarPosition.BOTTOM,
+      animationDuration: const Duration(milliseconds: 300),
+    ).show(context);
+  }
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -234,10 +258,9 @@ class _FoodHamburgerPageState extends State<FoodHamburgerPage> {
                       quantity: count,
                       price: meal.price,
                     );
+                    showSmallFlushbar(context, 'added_successfully'.tr());
 
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('added_successfully'.tr())),
-                    );
+
                   },
                 ),
               ],

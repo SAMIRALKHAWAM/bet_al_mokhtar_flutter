@@ -1,18 +1,18 @@
-class LoginModel {
+class Login_emp_Model {
   final bool success;
   final String message;
   final int code;
   final EmployeeData data;
 
-  LoginModel({
+  Login_emp_Model({
     required this.success,
     required this.message,
     required this.code,
     required this.data,
   });
 
-  factory LoginModel.fromJson(Map<String, dynamic> json) {
-    return LoginModel(
+  factory Login_emp_Model.fromJson(Map<String, dynamic> json) {
+    return Login_emp_Model(
       success: json['success'],
       message: json['message'],
       code: json['code'],

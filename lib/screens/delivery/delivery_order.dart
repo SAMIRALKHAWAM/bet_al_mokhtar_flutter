@@ -56,80 +56,86 @@ class _DeliveryOrdersState extends State<DeliveryOrders>
     final theme = Theme.of(context);
     final primaryColor = theme.colorScheme.primary;
 
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(
-            Icons.login_outlined,
-            color: Colors.black,
-          ),
-          onPressed: () {
-            showDialog(
-              context: context,
-              builder: (context) => AlertDialog(
-                title: Text('تأكيد تسجيل الخروج'),
-                content: Text('هل أنت متأكد أنك تريد تسجيل الخروج؟'),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: Text('إلغاء'),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-
-                      AuthCubit.get(context).Logout_emp();
-
-                      Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(builder: (_) => LoginPage()),
-                            (route) => false,
-                      );
-                    },
-                    child: Text('تأكيد'),
-                  ),
-                ],
+    return Builder(
+      builder: (context) {
+        return
+          Scaffold(
+          appBar: AppBar(
+            leading: IconButton(
+              icon: Icon(
+                Icons.login_outlined,
+                color: Colors.black,
               ),
-            );
-          },
-        ),
-        title: const CustomText(
-          text1: "طلبات التوصيل",
-          size: 22,
-          fontWeight: FontWeight.bold,
-        ),
-        centerTitle: true,
-        backgroundColor: Colors.white,
-        elevation: 1,
-        bottom: TabBar(
-          controller: _tabController,
-          indicatorColor: primaryColor,
-          labelColor: primaryColor,
-          unselectedLabelColor: Colors.grey.shade600,
-          indicatorWeight: 3,
-          labelStyle:
-          const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-          unselectedLabelStyle:
-          const TextStyle(fontWeight: FontWeight.normal, fontSize: 15),
-          tabs: const [
-            Tab(text: "قيد التوصيل"),
-            Tab(text: "تم التوصيل"),
-          ],
-        ),
-      ),
-      body: BlocBuilder<AppCubit, AppSates>(
-        builder: (context, state) {
-          final cubit = AppCubit.get(context);
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: Text('تأكيد تسجيل الخروج'),
+                    content: Text('هل أنت متأكد أنك تريد تسجيل الخروج؟'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: Text('إلغاء'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
 
-          return TabBarView(
-            controller: _tabController,
-            children: [
-              _buildOrdersList(cubit.orders_delivering_response?.data, "waiting"),
-              _buildInvoicesList(),
-            ],
-          );
-        },
-      ),
+                          AuthCubit.get(context).Logout_emp();
+
+                          Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(builder: (_) => LoginPage()),
+                                (route) => false,
+                          );
+                        },
+                        child: Text('تأكيد'),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+            title: const CustomText(
+              text1: "طلبات التوصيل",
+              size: 22,
+              fontWeight: FontWeight.bold,
+            ),
+            centerTitle: true,
+            backgroundColor: Colors.white,
+            elevation: 1,
+            bottom: TabBar(
+              controller: _tabController,
+              indicatorColor: primaryColor,
+              labelColor: primaryColor,
+              unselectedLabelColor: Colors.grey.shade600,
+              indicatorWeight: 3,
+              labelStyle:
+              const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              unselectedLabelStyle:
+              const TextStyle(fontWeight: FontWeight.normal, fontSize: 15),
+              tabs: const [
+                Tab(text: "قيد التوصيل"),
+                Tab(text: "تم التوصيل"),
+              ],
+            ),
+          ),
+          body: BlocBuilder<AppCubit, AppSates>(
+            builder: (context, state) {
+              final cubit = AppCubit.get(context);
+
+              return TabBarView(
+                controller: _tabController,
+                children: [
+                  _buildOrdersList(cubit.orders_delivering_response?.data, "waiting"),
+                  _buildInvoicesList(),
+                ],
+              );
+            },
+          ),
+        );
+
+      }
     );
   }
 
@@ -192,7 +198,7 @@ class _DeliveryOrdersState extends State<DeliveryOrders>
                 ),
                 const SizedBox(height: 4),
                 CustomText(
-                  text1: "العنوان: ${order.externalOrderInfo.location}",
+                  text1: "العنوان: ${order.externalOrderInfo?.location}",
                   size: 14,
                   color: theme.textTheme.bodyMedium?.color,
                 ),

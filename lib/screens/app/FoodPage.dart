@@ -27,6 +27,13 @@ class _FoodPageState extends State<FoodPage> {
     AppCubit.get(context).OfferAll();
   }
 
+
+
+
+
+
+
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);

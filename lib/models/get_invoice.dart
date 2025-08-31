@@ -1,10 +1,10 @@
 class Get_Invoice {
   bool success;
   String message;
-  int perPage;
-  int total;
-  int currentPage;
-  int lastPage;
+  int? perPage;
+  int? total;
+  int? currentPage;
+  int? lastPage;
   List<Invoice> data;
 
   Get_Invoice({
@@ -42,14 +42,14 @@ class Invoice {
   int id;
   int? userId;
   int? tableId;
-  int branchId;
-  int fullPrice;
-  int tax;
-  int finalPrice;
-  int discount;
-  int deliverymanId;
+  int? branchId;
+  int? fullPrice;
+  int? tax;
+  int? finalPrice;
+  int? discount;
+  int? deliverymanId;
   String status;
-  String branchName;
+  String? branchName;
 
   Invoice({
     required this.id,

@@ -1,3 +1,4 @@
+import 'package:almoktar/screens/waiter/table.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -471,6 +472,14 @@ class _WaiterOrderInterfaceState extends State<WaiterOrderInterface> with Single
             title: Text("الطاولة رقم ${widget.table_num}", style: TextStyle(color: Colors.white)),
             centerTitle: true,
             elevation: 0,
+            leading: IconButton(onPressed: (){
+
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => TablesScreen()),
+              );
+
+            }, icon: Icon(Icons.arrow_back_rounded)),
             actions: [
               if (widget.invoice_id != null)
                 IconButton(

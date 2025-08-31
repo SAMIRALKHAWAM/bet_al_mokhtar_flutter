@@ -1,3 +1,5 @@
+// DeliveryResponse.dart
+
 class DeliveryResponse {
   final bool success;
   final String message;
@@ -30,43 +32,32 @@ class DeliveryResponse {
       ),
     );
   }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'success': success,
-      'message': message,
-      'per_page': perPage,
-      'total': total,
-      'current_page': currentPage,
-      'last_page': lastPage,
-      'data': data.map((e) => e.toJson()).toList(),
-    };
-  }
 }
+
+
+// OrderData.dart
 
 class OrderData {
   final int id;
   final int? invoiceId;
   final int? waiterId;
-  final int? discount;
   final int? fullPrice;
   final String status;
   final String type;
   final String? waiterName;
   final int? tableId;
-  final ExternalOrderInfo externalOrderInfo;
+  final ExternalOrderInfo? externalOrderInfo;
 
   OrderData({
     required this.id,
     required this.invoiceId,
     this.waiterId,
-    required this.discount,
     required this.fullPrice,
     required this.status,
     required this.type,
     this.waiterName,
     this.tableId,
-    required this.externalOrderInfo,
+    this.externalOrderInfo,
   });
 
   factory OrderData.fromJson(Map<String, dynamic> json) {
@@ -74,32 +65,20 @@ class OrderData {
       id: json['id'],
       invoiceId: json['invoice_id'],
       waiterId: json['waiter_id'],
-      discount: json['discount'],
       fullPrice: json['full_price'],
       status: json['status'],
       type: json['type'],
       waiterName: json['waiter_name'],
       tableId: json['table_id'],
-      externalOrderInfo:
-      ExternalOrderInfo.fromJson(json['external_order_info']),
+      externalOrderInfo: json['external_order_info'] != null
+          ? ExternalOrderInfo.fromJson(json['external_order_info'])
+          : null,
     );
   }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'invoice_id': invoiceId,
-      'waiter_id': waiterId,
-      'discount': discount,
-      'full_price': fullPrice,
-      'status': status,
-      'type': type,
-      'waiter_name': waiterName,
-      'table_id': tableId,
-      'external_order_info': externalOrderInfo.toJson(),
-    };
-  }
 }
+
+
+// ExternalOrderInfo.dart
 
 class ExternalOrderInfo {
   final int? id;
@@ -123,20 +102,9 @@ class ExternalOrderInfo {
       id: json['id'],
       invoiceId: json['invoice_id'],
       userId: json['user_id'],
-      location: json['location'],
-      phone: json['phone'],
-      qr: json['qr'],
+      location: json['location'] ?? '',
+      phone: json['phone'] ?? '',
+      qr: json['qr'] ?? '',
     );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'invoice_id': invoiceId,
-      'user_id': userId,
-      'location': location,
-      'phone': phone,
-      'qr': qr,
-    };
   }
 }

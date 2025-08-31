@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import '../../blocs/cubit_app/cubit.dart';
 import '../../blocs/cubit_app/statues.dart';
+import 'Setting.dart';
 
 class ScanQrPage extends StatefulWidget {
   const ScanQrPage({Key? key}) : super(key: key);
@@ -65,7 +66,11 @@ class _ScanQrPageState extends State<ScanQrPage> with SingleTickerProviderStateM
         content: const Text(' تم قبول الطلب بنجاح'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => SettingsPage(),
+      ),),
             child: const Text('تم'),
           ),
         ],
