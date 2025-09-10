@@ -126,6 +126,80 @@ class AuthCubit extends Cubit<AuthStates> {
   }
 
 
+//////////////////////////////////////////////////////////  Logout_emp
+
+
+  void Logout_user() {
+    emit(LoadingState());
+
+    DioHelper.postData(
+      url: baseurl + "user_logout",
+    ).then((value) {
+
+      CachHelper.removeData(key: "token");
+
+      emit(LogoutSuccessState());
+
+
+      // print(value.data);
+    })
+      ..catchError((error) {
+        if (error is DioError) {
+          // طبع الخطأ الأساسي
+          print("Dio error message: ${error.message}");
+
+          // طبع استجابة السيرفر لو موجودة
+          if (error.response != null) {
+            print("Status code: ${error.response?.statusCode}");
+            print("Response data: ${error.response?.data}");
+          }
+        } else {
+          // لو الخطأ مش DioError اطبع النص عادي
+          print("Error: ${error.toString()}");
+        }
+
+        emit(LogoutErrorState());
+      });
+  }
+
+////////////////////////////////////////////////////////////////////
+
+
+  LoginResponse? sinup_Response;
+
+  void SinUp({required user_name, required password}) {
+    emit(LoadingState());
+
+    DioHelper.postData(
+      url: baseurl_User + "register",
+      data: {"password": password, "user_name": user_name},
+    ).then((value) {
+      sinup_Response = LoginResponse.fromJson(value.data);
+
+      emit(Login_UserSuccessState(sinup_Response!));
+
+
+      // print(value.data);
+    })
+      ..catchError((error) {
+        if (error is DioError) {
+          // طبع الخطأ الأساسي
+          print("Dio error message: ${error.message}");
+
+          // طبع استجابة السيرفر لو موجودة
+          if (error.response != null) {
+            print("Status code: ${error.response?.statusCode}");
+            print("Response data: ${error.response?.data}");
+          }
+        } else {
+          // لو الخطأ مش DioError اطبع النص عادي
+          print("Error: ${error.toString()}");
+        }
+
+        emit(LoginErrorState());
+      });
+  }
+
 
 
 }

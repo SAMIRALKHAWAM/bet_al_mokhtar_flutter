@@ -2,9 +2,11 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../blocs/auth_cubit/cubit.dart';
 import '../../blocs/cubit_app/cubit.dart';
 import '../../blocs/cubit_app/statues.dart';
 import '../../models/get_branch.dart';
+import '../auth/Login_User.dart';
 import 'TableBookingPage.dart';
 import 'invoice_user.dart';
 import 'scanner.dart';
@@ -240,29 +242,29 @@ class _SettingsPageState extends State<SettingsPage> {
             },
           ),
 
-          ListTile(
-            leading: const Icon(Icons.language),
-            title: Text('change_language'.tr()),
-            onTap: () async {
-              final current = context.locale.languageCode;
-              final newLocale = current == 'ar' ? const Locale('en') : const Locale('ar');
-              await context.setLocale(newLocale);
-            },
-          ),
+          // ListTile(
+          //   leading: const Icon(Icons.language),
+          //   title: Text('change_language'.tr()),
+          //   onTap: () async {
+          //     final current = context.locale.languageCode;
+          //     final newLocale = current == 'ar' ? const Locale('en') : const Locale('ar');
+          //     await context.setLocale(newLocale);
+          //   },
+          // ),
 
-          ListTile(
-            leading: const Icon(Icons.lock),
-            title: Text('change_password'.tr()),
-            onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('feature_in_progress'.tr())),
-              );
-            },
-          ),
+          // ListTile(
+          //   leading: const Icon(Icons.lock),
+          //   title: Text('change_password'.tr()),
+          //   onTap: () {
+          //     ScaffoldMessenger.of(context).showSnackBar(
+          //       SnackBar(content: Text('feature_in_progress'.tr())),
+          //     );
+          //   },
+          // ),
 
           ListTile(
             leading: const Icon(Icons.star),
-            title: Text('rate_order'.tr()),
+            title: Text('أضفة تقييم'.tr()),
             onTap: () {
               _showRatingBottomSheet(context);
             },
@@ -270,7 +272,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
           ListTile(
             leading: const Icon(Icons.restaurant),
-            title: Text('book_table'.tr()),
+            title: Text('حجز طاولة '.tr()),
             onTap: () {
               Navigator.push(
                 context,
@@ -285,21 +287,30 @@ class _SettingsPageState extends State<SettingsPage> {
             onTap: () {
               showDialog(
                 context: context,
-                builder: (_) => AlertDialog(
-                  title: Text('confirm'.tr()),
-                  content: Text('logout_confirm'.tr()),
+                builder: (context) => AlertDialog(
+                  title: Text('confirm'.tr()), // تأكيد
+                  content: Text('logout_confirm'.tr()), // هل أنت متأكد أنك تريد تسجيل الخروج؟
                   actions: [
                     TextButton(
-                      onPressed: () => Navigator.pop(context),
+                      onPressed: () => Navigator.pop(context), // إلغاء
                       child: Text('cancel'.tr()),
                     ),
                     TextButton(
                       onPressed: () {
+                        // استدعاء تسجيل الخروج
+                        AuthCubit.get(context).Logout_user();
+
+                        // إغلاق الـ Dialog
                         Navigator.pop(context);
-                        Navigator.pop(context);
-                        // هنا ضع منطق تسجيل الخروج إذا موجود
+
+                        // الانتقال إلى صفحة تسجيل الدخول وحذف سجل التنقل
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(builder: (_) => LoginUserPage()),
+                              (route) => false,
+                        );
                       },
-                      child: Text('exit'.tr()),
+                      child: Text('exit'.tr()), // خروج
                     ),
                   ],
                 ),

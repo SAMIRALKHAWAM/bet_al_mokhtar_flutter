@@ -333,6 +333,23 @@ class AppCubit extends Cubit<AppSates> {
   }
 
 
+///////////////////////////////////////////////  create_rate
+  void Like_UnLike( {required id_item}) {
+    emit(LoadingState());
+
+    DioHelper.postData(
+      url: baseurl_User + "like_unlike_item",
+      data: {"item_id":id_item}
+    )
+        .then((value) {
+      emit(like_SuccessState());
+      print(value.data);
+    })
+        .catchError((error) {
+      print(error);
+      emit(like_ErrorState());
+    });
+  }
 
 
 

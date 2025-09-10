@@ -6,6 +6,7 @@ import '../../blocs/cubit_app/cubit.dart';
 import '../../blocs/cubit_app/statues.dart';
 import '../../components/text.dart';
 import 'FoodDetailsPage.dart';
+import 'SearchPage.dart';
 import 'offer_pages.dart';
 
 class FoodPage extends StatefulWidget {
@@ -97,34 +98,59 @@ class _FoodPageState extends State<FoodPage> {
                   if (offers != null && offers.isNotEmpty)
                     OfferSlider(offers: offers),
 
-                  TextField(
-                    controller: searchController,
-                    decoration: InputDecoration(
-                      hintText: 'search_hint'.tr(),
-                      prefixIcon: Icon(
-                        Icons.search,
-                        color: theme.iconTheme.color,
-                      ),
-                      suffixIcon: searchController.text.isNotEmpty
-                          ? IconButton(
-                        icon: Icon(
-                          Icons.clear,
-                          color: theme.iconTheme.color,
+                  // TextField(
+                  //   controller: searchController,
+                  //   decoration: InputDecoration(
+                  //     hintText: 'search_hint'.tr(),
+                  //     prefixIcon: Icon(
+                  //       Icons.search,
+                  //       color: theme.iconTheme.color,
+                  //     ),
+                  //     suffixIcon: searchController.text.isNotEmpty
+                  //         ? IconButton(
+                  //       icon: Icon(
+                  //         Icons.clear,
+                  //         color: theme.iconTheme.color,
+                  //       ),
+                  //       onPressed: () => searchController.clear(),
+                  //     )
+                  //         : null,
+                  //     filled: true,
+                  //     fillColor: theme.cardColor,
+                  //     border: OutlineInputBorder(
+                  //       borderRadius: BorderRadius.circular(12),
+                  //       borderSide: BorderSide.none,
+                  //     ),
+                  //   ),
+                  //   onChanged: (value) {
+                  //     setState(() {});
+                  //   },
+                  // ),
+
+
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const SearchPage()),
+                      );
+                    },
+                    child: AbsorbPointer( // يمنع المستخدم من الكتابة هون
+                      child: TextField(
+                        decoration: InputDecoration(
+                          hintText: 'search_hint'.tr(),
+                          prefixIcon: Icon(Icons.search),
+                          filled: true,
+                          fillColor: theme.cardColor,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none,
+                          ),
                         ),
-                        onPressed: () => searchController.clear(),
-                      )
-                          : null,
-                      filled: true,
-                      fillColor: theme.cardColor,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none,
                       ),
                     ),
-                    onChanged: (value) {
-                      setState(() {});
-                    },
                   ),
+
                   const SizedBox(height: 16),
 
                   SingleChildScrollView(
@@ -268,13 +294,24 @@ class _FoodPageState extends State<FoodPage> {
                                                   ),
                                                 ),
                                                 IconButton(
-                                                  icon: const Icon(Icons.favorite_border),
-                                                  color: theme.colorScheme.primary,
-                                                  iconSize: 18,
+                                                  icon: Icon(
+                                                    meal.like ? Icons.favorite : Icons.favorite_border,
+                                                    color: meal.like ? Colors.red : theme.colorScheme.primary,
+                                                  ),
+                                                  iconSize: 20,
                                                   padding: EdgeInsets.zero,
                                                   constraints: const BoxConstraints(),
-                                                  onPressed: () {},
+                                                  onPressed: () {
+                                                    // أولاً: نحدث الواجهة فوراً
+                                                    setState(() {
+                                                      meal.like = !meal.like;
+                                                    });
+
+                                                    // ثانياً: نرسل الطلب إلى السيرفر
+                                                    AppCubit.get(context).Like_UnLike(id_item: meal.id);
+                                                  },
                                                 ),
+
                                               ],
                                             ),
                                           ],

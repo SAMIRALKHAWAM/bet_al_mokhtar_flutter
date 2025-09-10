@@ -41,6 +41,7 @@ class Datumm {
   int categoryId;
   String name;
   int price;
+  dynamic like;
   List<ItemImage> itemImages;
 
   Datumm({
@@ -49,6 +50,8 @@ class Datumm {
     required this.name,
     required this.price,
     required this.itemImages,
+     this.like,
+
   });
 
   factory Datumm.fromJson(Map<String, dynamic> json) => Datumm(
@@ -56,6 +59,8 @@ class Datumm {
     categoryId: json["category_id"],
     name: json["name"],
     price: json["price"],
+    like: json["like"],
+
     itemImages: List<ItemImage>.from(
       json["item_images"].map((x) => ItemImage.fromJson(x)),
     ),

@@ -1,12 +1,16 @@
 import 'package:almoktar/cubits/theme/theme_cubit.dart';
 import 'package:almoktar/screens/auth/login.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
+import '../../blocs/auth_cubit/cubit.dart';
+import '../../blocs/auth_cubit/statuse.dart';
 import '../../components/defaultButton.dart';
 import '../../components/text.dart';
 import '../../components/textButton.dart';
 import '../../components/textfromfilde.dart';
+import '../../network/cash_helper.dart';
 
 class SignUpPage extends StatelessWidget {
   SignUpPage({super.key});
@@ -19,8 +23,34 @@ class SignUpPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ThemeCubit, ThemeState>(
-      builder: (context, state) {
+    return BlocConsumer<AuthCubit, AuthStates>(
+      listener: (context, state) async {
+        if (state is Login_UserSuccessState) {
+          final response = state.loginModel.data;
+
+          // حفظ البيانات الأساسية
+          await CachHelper.saveData(key: "token", value: response.token.toString());
+          await CachHelper.saveData(key: "id", value: response.id.toString());
+
+          // الحصول على FCM Token
+          String? fcmToken = await FirebaseMessaging.instance.getToken();
+          print("📱 FCM Token بعد التسجيل: $fcmToken");
+          await CachHelper.saveData(key: "fcm_token", value: fcmToken);
+
+          // انتقل إلى صفحة تسجيل الدخول
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => LoginPage()),
+          );
+        }
+
+        if (state is LoginErrorState) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(tr('signup_error', args: ['حدث خطأ أثناء التسجيل']))),
+          );
+        }
+      },
+      builder: (context, authState) {
         final theme = Theme.of(context);
 
         return Scaffold(
@@ -31,10 +61,7 @@ class SignUpPage extends StatelessWidget {
                 height: 280,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [
-                      theme.colorScheme.primary,
-                      theme.colorScheme.secondary,
-                    ],
+                    colors: [theme.colorScheme.primary, theme.colorScheme.secondary],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -60,14 +87,14 @@ class SignUpPage extends StatelessWidget {
                       children: [
                         const SizedBox(height: 30),
                         CustomText(
-                          text1: "create_account".tr(),
+                          text1: tr('create_account'),
                           size: 30,
                           fontWeight: FontWeight.bold,
                           color: theme.colorScheme.onPrimary,
                         ),
                         const SizedBox(height: 8),
                         CustomText(
-                          text1: "create_account_desc".tr(),
+                          text1: tr('create_account_desc'),
                           size: 15,
                           color: theme.colorScheme.onPrimary.withOpacity(0.95),
                         ),
@@ -91,7 +118,7 @@ class SignUpPage extends StatelessWidget {
                               children: [
                                 CustomTextFormField(
                                   controller: nameController,
-                                  hint: 'your_full_name'.tr(),
+                                  hint: tr('your_full_name'),
                                   keyboardType: TextInputType.name,
                                   radius: 15,
                                   color: theme.colorScheme.onSecondaryFixed,
@@ -100,22 +127,11 @@ class SignUpPage extends StatelessWidget {
                                     color: theme.colorScheme.primary,
                                   ),
                                 ),
-                                const SizedBox(height: 15),
-                                CustomTextFormField(
-                                  controller: emailController,
-                                  hint: 'email_address'.tr(),
-                                  keyboardType: TextInputType.emailAddress,
-                                  radius: 15,
-                                  color: theme.colorScheme.onSecondaryFixed,
-                                  prefixIcon: Icon(
-                                    Icons.email_outlined,
-                                    color: theme.colorScheme.primary,
-                                  ),
-                                ),
+
                                 const SizedBox(height: 15),
                                 CustomTextFormField(
                                   controller: passwordController,
-                                  hint: 'create_password'.tr(),
+                                  hint: tr('create_password'),
                                   obscureText: true,
                                   radius: 15,
                                   color: theme.colorScheme.onSecondaryFixed,
@@ -127,7 +143,7 @@ class SignUpPage extends StatelessWidget {
                                 const SizedBox(height: 15),
                                 CustomTextFormField(
                                   controller: confirmPasswordController,
-                                  hint: 'confirm_password'.tr(),
+                                  hint: tr('confirm_password'),
                                   obscureText: true,
                                   radius: 15,
                                   color: theme.colorScheme.onSecondaryFixed,
@@ -139,9 +155,20 @@ class SignUpPage extends StatelessWidget {
                                 const SizedBox(height: 25),
                                 DefaultButton(
                                   onTap: () {
-                                    // تنفيذ التسجيل
+                                    if (formKey.currentState?.validate() ?? false) {
+                                      if (passwordController.text != confirmPasswordController.text) {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(content: Text(tr('passwords_not_match'))),
+                                        );
+                                        return;
+                                      }
+                                      AuthCubit.get(context).SinUp(
+                                        user_name: emailController.text,
+                                        password: passwordController.text,
+                                      );
+                                    }
                                   },
-                                  text: 'join_now'.tr(),
+                                  text: tr('join_now'),
                                   color: theme.colorScheme.primary,
                                   textColor: theme.colorScheme.onPrimary,
                                   size: 18,
@@ -152,23 +179,17 @@ class SignUpPage extends StatelessWidget {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     CustomText(
-                                      text1: "already_have_account".tr(),
-                                      color:
-                                          theme.textTheme.bodySmall?.color ??
-                                          Colors.black54,
+                                      text1: tr('already_have_account'),
+                                      color: theme.textTheme.bodySmall?.color ?? Colors.black54,
                                       size: 12,
                                     ),
                                     TextButtonCustom(
-                                      text: 'login'.tr(),
-                                      backgroundColor: Colors.black.withOpacity(
-                                        0.0,
-                                      ),
+                                      text: tr('login'),
+                                      backgroundColor: Colors.transparent,
                                       onTap: () {
-                                        Navigator.push(
+                                        Navigator.pushReplacement(
                                           context,
-                                          MaterialPageRoute(
-                                            builder: (context) => LoginPage(),
-                                          ),
+                                          MaterialPageRoute(builder: (_) => LoginPage()),
                                         );
                                       },
                                       color: theme.colorScheme.primary,

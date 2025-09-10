@@ -112,7 +112,7 @@ class _LayoutScreenState extends State<LayoutScreen> {
   final List<Widget> _pages = [
     FoodPage(),
     CartPage(),
-    OffersPage(),
+    FavoritesPage(),
     SettingsPage(),
   ];
 

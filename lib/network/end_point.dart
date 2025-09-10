@@ -9,6 +9,8 @@ const String url_photo="https://samir.comma-test.com";
 
 // https://samir.comma-test.com/
 String? token = "";
+String? FCM_token = "";
+
 String? id = "1";
 String? fcm_token = " ";
 String? role = "";

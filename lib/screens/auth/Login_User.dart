@@ -177,21 +177,7 @@ class LoginUserPage extends StatelessWidget {
                                 //     color: theme.colorScheme.primary,
                                 //   ),
                                 // ),
-                                Align(
-                                  alignment: Alignment.centerRight,
-                                  child: TextButtonCustom(
-                                    text: "forgot_password".tr(),
-                                    onTap: () {
-                                      print("Forgot password tapped");
-                                    },
-                                    color: theme.colorScheme.secondary,
-                                    size: 14,
-                                    padding: EdgeInsets.zero,
-                                    backgroundColor: Colors.black.withOpacity(
-                                      0.0,
-                                    ),
-                                  ),
-                                ),
+
                                 const SizedBox(height: 30),
                                 DefaultButton(
                                   onTap: () {

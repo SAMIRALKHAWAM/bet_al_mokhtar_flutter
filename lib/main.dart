@@ -53,22 +53,24 @@ void main() async {
 
   if (CachHelper.getData(key: 'token') != null) {
     token = CachHelper.getData(key: 'token');
-    role = CachHelper.getData(key: 'role');
-    branch_id=CachHelper.getData(key: "branch_id");
-    emp_id=CachHelper.getData(key: "emp_id");
+    // role = CachHelper.getData(key: 'role');
+    // branch_id=CachHelper.getData(key: "branch_id");
+    // emp_id=CachHelper.getData(key: "emp_id");
+    id=CachHelper.getData(key: "id");
+    startwidget = LayoutScreen();
 
-    print(role);
-    print(branch_id);
-
-    role=="waiter"?
-    startwidget = TablesScreen():
-        role=="captain"?
-        startwidget = ChefOrdersExpansionPanelPage():
-        startwidget = DeliveryOrders();
+    // print(role);
+    // print(branch_id);
+    //
+    // role=="waiter"?
+    // startwidget = TablesScreen():
+    //     role=="captain"?
+    //     startwidget = ChefOrdersExpansionPanelPage():
+    //     startwidget = DeliveryOrders();
 
   print(token);
   } else {
-    startwidget = LoginPage();
+    startwidget = LoginUserPage();
   }
 
   print('');
@@ -83,7 +85,7 @@ void main() async {
     EasyLocalization(
       supportedLocales: const [Locale('en'), Locale('ar')],
       path: 'assets/translation',
-      fallbackLocale: const Locale('en'),
+      fallbackLocale: const Locale('ar'),
       // child: MyApp(themeCubit,startwidget),
       child: MyApp(
         themeCubit,
@@ -137,8 +139,8 @@ class _MyAppState extends State<MyApp> {
       print('⚠️ Notification permission declined');
     }
 
-    String? token = await _firebaseMessaging.getToken();
-    print('📱 FCM Token: $token');
+    FCM_token = await _firebaseMessaging.getToken();
+    print('📱 FCM Token: $FCM_token');
 
     // Foreground إشعار أثناء التشغيل
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
@@ -209,9 +211,9 @@ class _MyAppState extends State<MyApp> {
               locale: context.locale,
               supportedLocales: context.supportedLocales,
               localizationsDelegates: context.localizationDelegates,
-              // home:widget.startwidget,
+              home:widget.startwidget,
 
-               home: LoginUserPage(),
+               // home: LoginUserPage(),
               // home: TrackOrderPage(),
 
               // home: ProfileFormPage(),
